@@ -1,0 +1,45 @@
+---
+layout: bloggerpost
+title: Microsoft Visual C++ Express Edition
+---
+
+I finally broke down and decided to install a "real" C/C++ compiler to my work laptop. I had an old version of Borland C++ (4.52) that I use to teach my students about embedded software development, but I would hardly say that compiler is enough to suit my modern needs.<br /><br />I searched for "Microsoft C Compiler cl.exe Download", sorted through a million or so results, and found a link on MSDN for "Windows Server 2003 Platform SDK R2". Last time I downloaded the platform SDK, it was exactly what I wanted, and though that was several years ago, I figured that a package with the same name would be the same product. I was wrong. I tried to do the "web-install", but that didn't work. The small installer program would open, initialize for a few moments, and then die with the error "This program does not appear to be a valid Microsoft Windows Installer." It told me to verify the download and try again. So I did, I re-downloaded and tried to run the web installer <span style="font-style: italic;">three more times</span>, all with the same error. So I switched strategy, and went for the "Full Download" install, which required downloading several hundred megabytes of CAB files, unpacking them to reveal another set of CAB files and then a setup program to install the software. After several minutes of install, I come to find out that this isn't what I wanted. The only C compiler in that package was the 64-bit variant. So, I deleted this package and started over.<br /><br />Second time through, I found the right install: "<a href="http://www.microsoft.com/express/">Microsoft Visual C++ SDK Express Edition</a>".  So I download the installer, tried to run it and... Error. "Could not download .NET Framework 3.5. Please exit the installer and try again". In the installer, you have the option to install Microsoft's Silverlight SDK along with the Visual C++ SDK. I choose to not install the Silverlight SDK because I simply don't need or want it. The second time, I again de-selected this option, and again the install failed with the same message. Having my suspicions (and knowing enough to know that Microsoft likes to bundle software you don't want in with the software you do want) I decided to try the install again, this time choosing to install Silverlight as well. Surprise! it works this time, and the ".NET Framework 3.5" was able to download sucessfully now that the system knows i'm also installing silverlight.<br /><br />This whole process has taken up just over an hour of my evening, and while that might not seem to be too much time, it's still just another annoying interaction with Microsoft.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Andrew, I'm sorry you had such a bad time installing the old Platform SDK for Server 2003 R2. You might think about installing one of the newer Windows SDKs that have much more updated VC++ compilers.  The Windows SDK is a combination of the old Platform SDK and the .NET Framework SDKs.  We've put everything in one place now. <BR/><BR/>The latest released SDK is the Microsoft Windows SDK for Vista Update (read about it in this article on the Windows SDK Team blog: http://blogs.msdn.com/windowssdk/archive/2007/03/23/the-windows-sdk-update-for-windows-vista-is-live.aspx).  This SDK has the Visual Studio 2005 SP1 version of the C++ compilers.<BR/><BR/>Our next Windows SDK will be released at the same time as Windows Server 2008.  The Windows SDK for Windows Server 2008 and .NET Framework 3.5 has the Visual Studio C++ compilers that ship in Visual Studio 2008.  You can choose to select only the compilers and headers/libraries during SDK Setup.  Watch the Windows SDK blog (http://blogs.msdn.com/windowssdk) for the release notice.<BR/><BR/>We need to do a better job of helping our users find the right SDK to fit their needs and we’re working on this.  The new Windows SDK MSDN Developer Center http://msdn2.microsoft.com/en-us/windowsserver/bb980924.aspx is intended as a one-stop place to provide information to help you determine which version of the Windows SDK is most appropriate for your use, and to get information on how you can maximize your experience with the Windows SDK. Good luck in your development projects!<BR/><BR/>Karin Meier<BR/>Windows SDK Program Manager<BR/>karinm @ microsoft.com
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/14805696762963553075'>Karin</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        2/3/2008 9:31:00 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Wow, I didn't expect that anybody read my lowly blog, must less the Microsoft SDK Program Manager. If I knew people were reading this, I would have double-checked all my grammar and spelling!<BR/><BR/>I did finally manage to get the proper SDK installed, I have the C compiler installed, and have already used it to build a large project. With a little bit of guess work I was even able to figure out which environment variables to set to make the compiler and linker work. <BR/><BR/>I don't mind some difficulties in installing new software, at least i didn't need to build this up from the source! A few keywords in the download pages would really have helped to steer me in the right direction a lot faster (and I wouldn't have had to search google to find the right place, because MSDN should have had links to the pages where this information could be found). I will definitely take a look at <A HREF="http://msdn2.microsoft.com/en-us/windowsserver/bb980924.aspx" REL="nofollow">The SDK Developer Center</A> next time I need to download it. Thanks for the information.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        2/3/2008 10:19:00 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Resistance is futile; we are everywhere! LOL!  Of course we read your blog.  And your spelling is excellent :)<BR/><BR/>Adding more keywords to our download page is a great idea.  I'll work on that.<BR/><BR/>BTW, we just released a new Windows SDK today. The RTM release of the Microsoft Windows SDK for Windows Server 2008 and .NET Framework 3.5 is now live on the Microsoft Download Center.   <BR/><BR/>Check the Windows SDK MSDN Developer Center http://msdn2.microsoft.com/en-us/windowsserver/bb980924.aspx  or the Windows SDK Team Blog http://blogs.msdn.com/windowssdk for links to the downloads. <BR/><BR/>You can always email us through our blog if you need help or have ideas on how we can make your life easier.  Good luck!
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/14805696762963553075'>Karin</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        2/7/2008 2:37:00 AM
+                    </span>
+                </div>
+            </div>
+            </div>

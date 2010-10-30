@@ -1,0 +1,90 @@
+---
+layout: bloggerpost
+title: Compilers Targetting Parrot
+---
+
+I got to thinking today about Parrot and came to an interesting conclusion: Writing our own parsers for various existing languages is nice, but if we could get the language communities involved it would be even better. There's a symbiotic relationship that could form from such an arrangement and I would like to talk about that here for a little bit.<br /><br />Let's take PHP as an interesting example. The PHP community has been talking about some kind of rewrite of their core engine to support Unicode from the ground-up. I'm not really involved in those discussions, so I don't know what the current state of the discussion is. I couldn't even tell you if work has started on such a rewrite. However, I do know one thing: If the next version of the PHP compiler targeted Parrot as the backend, it would have built-in Unicode support for free.<br /><br />There are some reasons why PHP people might not like this option, considering PHP's niche in the web server world and Parrot's current issues with performance and memory consumption. But, as I'll describe here, those are relatively small issues.<br /><br />Pulling an extremely wrong number out of a hat, let's say that it takes 10,000 man-hours to construct a modern, though bare-bones, dynamic language interpreter from the ground-up. You would have some features like GC, but wouldn't have others like JIT. Unicode support but a small or even non-existant library of built-in optimizations. You build a compiler, you build the interpreter runtime, and then you build a language library runtime so the programs you write don't have to reinvent every wheel from scratch. It's a daunting task, but it's very doable and has been done many times before.<br /><br />Now, let's say you take that same developer pool of 10,000 man-hours and instead build a compiler on top of Parrot instead of writing a new VM from the ground up. You do get a whole bunch of the really tricky features immediately: GC, Exceptions, IO, JIT (to come), Threads (to come), Unicode, Continuations, Closures, a library of Optimizations (to come), and all sorts of other goodies. You also get a nicer environment to write your parser in than bare lex/yacc (though, I think, you could still use lex/yacc if you really wanted). You get some libraries already, though you would likely need to write wrappers at least to get things into the proper semantics of your language. You really do get a hell of a lot and you could easily have a working compiler, at least the basics of one, up and running within a few weeks.<br /><br />Let's even be conservative and say that your team can't build the compiler front-end in less than 1,000 man-hours on Parrot.  Even then, you still have 9,000 man-hours left. You could spend some of that making a gigantic runtime library, but I like to think you could devote some of that effort back to Parrot too. If you spent even 5,000 hours making Parrot faster, or adding new features, or whatever you need, you'll still be spending less effort overall and getting a comparable result, if not a better one.<br /><br />Keep in mind, on Parrot, you're going to get all the features that other people add, in addition to the ones you added yourself. Parrot really is a symbiosis: You hack Parrot to add what you need, and in turn Parrot gives you all sorts of other things for free.<br /><br />Parrot has plenty of stuff around to get you started, even if it's not perfect right now. Remember that Parrot is extremely actively developed. You can do your development now, build your compiler and get your language ready and grow your regression test suite. When you decide that you need things improved, you can make targetted improvements incrementally. If you want a better GC, for instance, you can go in and just add that part. But, you have the benefit of knowing that Parrot already has one and your test suite team doesn't have to wait for your GC team to finish writing their first GC. That's good, because those damned GCs can take a while.<br /><br />My point, in a nutshell, is this: Parrot has some really cool features, but the coolest is that it provides a standard base level, a standard toolbox, that you and your compiler team can take and use immediately if you want it. You can get started right now with the kinds of high-powered features and tools that it would take you years to get right by yourselves. Yes there are improvements needed and some features yet to be desired, but adding them to Parrot represents smaller, more incremental improvements than trying to write an entire interpreter yourself.<br /><br />Parrot is adding some really cool features this year too. I fully expect by the 3.0 release we will these new things:<br /><ol><li>A new, fully-featured robust threading system</li><li>A pluggable optimization library, with optimizations able to be written (likely with some bootstrapping) in the high-level language of your choice</li><li>A new GC with radically improved performance characteristics</li><li>An extremely powerful instrumentation and analysis framework (again, with tools able to be written in the language of your choice, possibly with some bootstrapping)</li><li>A flexible native function call interface for interacting with existing libraries</li></ol>If you can wait a little later, I fully expect by 3.6 or 3.9 that we will be rolling out a powerful LLVM-based native code compilation core which will support JIT and (I hope!) AOT. You don't have to look much further than Facebook's HipHop project to see that compilation of dynamic languages down to native executables will be a big benefit, especially if we can aggressively optimize all the way down. I'll talk about that particular issue in a later post.<br /><br />Parrot does have some problems now, like performance. I can certainly understand the criticism on that point. However, for a fraction of the effort it will take you to write a new interpreter or virtual machine from the ground up you can target Parrot instead, get a bunch of free features, and maybe spend some of your free time helping us add the optimizations and improvements that you need. I really and truly believe that it's a win-win proposition for everybody involved.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    its a nice interesting idea the whole if it was to take 10000 man hours to build a language implementation from scratch it would take about 10% of that to do it on parrot minus your language standard library. I for one on my language am still perusing doing it all from scratch but i eventually want to have a pbc or pir compiled output to be runnable on parrot. I think having some kind of ir2pir or ir2pbc would be cool for interpreter projects. I think what stops many of the big languages moving to already made vm's is the fact what was the point of the 10+ years work already put into their own implementation. I think they would rather keep it but have some mechanism allowing them to run on parrot would make them think twice possibly I think it would also be awesome if you could write you language for parrot in C instead of an interpreter interpreter in pir could be interesting have lang_hooks like GCC and let the middle and back end do their trickery. Anyways <3 your blog posts always a good read! :) keep up the awesome work dude.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://redbrain.co.uk'>redbrain</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        5/28/2010 7:51:48 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    The idea of my post wasn't that existing interpreters would be modified to target parrot. Instead, I'm thinking about cases where people are rewriting their interpreters from scratch and need to find a place to start.<br /><br />PHP 6 is a perfect example, because people are already talking about a rewrite, but (to my knowledge) no work has happened yet. Perl 6 is another example, where people were writing a new compiler and they targetted Parrot. Of course, Perl 6 is a special case because they got started really before Parrot has hit it's current stage of maturity, so there have been growing pains on both sides of the equation. Now that the major bumps in the road have been smoothed out, other compiler project won't have nearly so many problems.<br /><br />If we had been at this point a few years ago, maybe we would be wanting Python 3000 as well, but that ship has already sailed.<br /><br />Thanks for the compliment on the posts! I'll try to keep them coming!
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        5/28/2010 8:03:43 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    y!jvm?
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'>Anonymous
+                    <span class='blogger-comment-datestamp'>
+                        6/5/2010 8:19:05 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Ha, a question I almost never get tired of answering. JVM isn't the same thing, it's targetted at statically-typed languages in general, and Java in particular. Yes, there are counter-examples. No, I am not impressed by them.<br /><br />Parrot is designed from the ground-up to support dynamic languages. When you look at some of the features that Parrot has built-in, such as a pluggable meta object model, it's just better for some applications. And when you consider some of the things Parrot will be getting, such as a JIT and Optimizers that don't make the wrong assumptions and change semantics by hardcoding dynamic values, it's a better choice for dynamic languages overall.<br /><br />I'm not saying JVM or .NET are bad systems, but they have a particular design focus and Parrot has a different one.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        6/5/2010 10:34:49 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    JSR 292 brings pluggable method invocation to JVMs with new bytecodes instructions. JDK7 beta binaries already has JIT support of such new bytecodes.<br /><br />see http://www.infoq.com/presentations/Towards-a-Universal-VM<br /><br />Rémi
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'>Anonymous
+                    <span class='blogger-comment-datestamp'>
+                        6/7/2010 4:36:25 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    To learn php,html,javascript,ajax,mysql,jquery with advanced concepts, you can visit <a href="http://advancedphptutorial.blogspot.com" rel="nofollow">http://advancedphptutorial.blogspot.com</a>
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/15934446588226257926'>LearnPHP</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        6/23/2010 5:34:44 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Hello whiteknight, I'am Joaquin Lopez and i want implement VFP in parrot, i lost how beggin implement a new lenguage, can you help me ? write me to joaquinlr@hotmail.com
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'>Joaquin Lopez
+                    <span class='blogger-comment-datestamp'>
+                        7/9/2010 9:16:15 PM
+                    </span>
+                </div>
+            </div>
+            </div>
