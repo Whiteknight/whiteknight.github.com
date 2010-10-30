@@ -1,0 +1,33 @@
+---
+layout: bloggerpost
+title: Parrot GC Refactor work
+---
+
+I spent a lot of time yesterday and this morning <a href="https://trac.parrot.org/parrot/browser/branches/gc_api">working on the GC API refactor for Parrot</a>, and I've made some pretty good progress so far. One cool result from this work is that I am finding all sorts of places where the GC internal data structures were being manipulated throughout the codebase, some instances of which are very likely to have been causing the problems I experienced over the summer.<br /><br />That aside, I'm pleased to say that this morning I managed to get the GC almost entirely properly encapsulated. All external-facing GC functions are in the API, and all other functions are kept private. In addition, data structures like <code>struct Arenas</code>, <code>struct Small_Object_Pool</code> and <code>struct Small_Object_Arena</code> are now only accessible from within the GC subsystem. This prevents the rest of Parrot from monkeying around in these structures, but also makes it easier for alternate GC cores to redefine them as necessary. The API isn't particularly clean or elegant right now, but it is encapsulated and that's a start. It's certainly more then we've had since I've been a Parroteer.<br /><br />The downside to this work is that the number of functions in the GC API has increased pretty substantially, both from creating new functions and by moving old functions into it. Many of the new functions are simple accessors for internal datastructures. I've managed not to have all the new functions listed as "PARROT_EXPORT", which is a win for dynamic link time, so thats good at least. Some of the macros that controlled blocking and unblocking the GC are now redefined as API functions, which is something I've wanted to do for a long time now.<br /><br /><a href="http://wknight8111.blogspot.com/2009/05/switching-gears-gc.html">In my last GC post</a> I guessed at which functions would be necessary in the API. Now that I've finished encapsulating it, I can tell you what functions are actually in the API now:<br /><ol><li>Function to mark an object as being alive.<br /></li><li>Functions to initialize and deinitialize the GC subsystem.</li><li>Functions to perform mark/sweep and compact actions</li><li>Functions to manipulate pools between interpreters, such as merging pools, moving shared objects between pools, etc.<br /></li><li>Header allocation functions for PMCs, STRINGs, and other Buffer-like objects (ListChunks, Stack_Chunks, etc).</li><li>Header reclamation functions to take unused PMCs, STRINGs, and other Buffer-like objects and add them back to the free list.</li><li>Functions to add extension objects (pmc_ext and Sync) to existing PMCs, and functions to remove them again.<br /></li><li>Memory block allocation functions for allocating buffers of arbitrary sizes, such as storage for STRINGs. Also, functions to deallocate these memory blocks, and functions to resize them.</li><li>Functions to determine if a given pointer is in a particular pool<br /></li><li>Functions to block and unblock various GC phases, and functions to determine if they are blocked currently</li><li>Accessor functions to get information from the Arenas structure.</li><li>Function to mark PMCs that need timely destruction</li></ol>So this is a basic list of the things we have in the API right now. I'm sure there are more features we would like to add here eventually, but these are the operations that are currently used by the rest of Parrot from the GC.<br /><br />I'm still not entirely happy with the encapsulation status as it stands now. There are a few places such as the freeze/thaw subsystem where accesses are made to the memory system internals that I really wish weren't being made. But, that's a relatively small issue because most of those routines happen at interpreter destruction time after the GC has already been blocked/finalized.<br /><br />I want to get my branch merged back into trunk soon. I've hit a good milestone now and I don't want this branch to live for too long lest new problems arise. Probably some small cleanup and documentation work to do first, but it's not far off now.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Thanks for you hard work!  Expert attention like this is very valuable to the whole project.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://chrisdolan.net/'>Chris Dolan</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        5/9/2009 12:49:00 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Thanks! The work isn't done yet though: A bit of trouble popped up when I tried to merge my branch in and I have to spend some time debugging that. Hopefully it isn't too bad.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        5/9/2009 3:18:00 PM
+                    </span>
+                </div>
+            </div>
+            </div>

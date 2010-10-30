@@ -1,0 +1,33 @@
+---
+layout: bloggerpost
+title: Parrot's Exceptions System
+---
+
+I've been vaguely unhappy with the exceptions system for a while now. Everybody knows that the implementation really hasn't caught up with the spec, and until now I've been pretty happy to write off all my problems as being an artifact of an incomplete implementation. Plus, I've seen some of the great work that some of our developers have done fixing various bugs and implementing various changes, and I'm always willing to let problems slide under the rug if I know good minds are working on them. Today, however, I was <a href="http://irclog.perlgeek.de/parrot/2010-02-21#i_2018017">talking to Austin</a> and he expressed some criticisms on IRC that really do a great job of expressing the thoughts I (and others) have had, and show that maybe it's the spec that's the problem, not the implementation:<br /><blockquote><br /><austin> I was going to embark on a rant about this, but then I <a href="http://trac.parrot.org/parrot/browser/trunk/docs/pdds/pdd23_exceptions.pod">read the PDD</a>, and i realized the entire exception subsystem is a farce.<br /><br />That which is documented is inadequate and poorly thought out. And that which is implemented doesn't do even remotely what is documented.<br /><br />The pdd makes the assumption that exception filtering will be done based on 'type', but provides no mechanism for extending the 'types'. The logical (and widely popular) alternative is to filter based on subclass. The pdd's answer to that is that you can throw anything, if you just stuff it in the payload. So naturally, the parameters to the exception handler objects are the...<br /><br />...exception and it's *message*.<br /><br />The throw/rethrow ops differ in that rethrow marks the exception unhandled. IMO, rethrow should be transparent - particularly, the exception backtrace should still point at the original location where the exception occured. The pdd makes nothing of this, and naturally parrot gets it wrong.<br /><br />There are too many categories of severity, too many attributes (backtrace versus resume versus thrower; severity versus exit code versus type versus class).</austin></blockquote><br /><br />So there you have it, a pretty succinct criticism of Parrot's exception system. I'll be elaborating on some of these ideas in the next few days.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    I've created a wiki page for this, optimistically titled: http://trac.parrot.org/parrot/wiki/ExceptionRefactor
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/13284330930068467507'>Austin</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        2/23/2010 8:47:34 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    That's good! It's always good to take problems and start planning solutions. I have another blog post scheduled for thursday morning that goes into much more depth about some of the problems I have found in the design. I'll take a look at this wiki page and update my critique as necessary.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        2/23/2010 8:57:32 AM
+                    </span>
+                </div>
+            </div>
+            </div>

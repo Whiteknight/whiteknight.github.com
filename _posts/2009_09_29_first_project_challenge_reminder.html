@@ -1,0 +1,32 @@
+---
+layout: bloggerpost
+title: First Project Challenge Reminder
+---
+
+Ten days ago <a href="http://wknight8111.blogspot.com/2009/09/jit-first-project-challenge.html">I posted a challenge</a> for my readers. Here's a quick recap of the two challenge options:<br /><ol><li> Create a proof-of-concept NCI frame builder using a "real" JIT engine. You can pick anything you want (libJIT, LLVM, GNU Lighting, dynASM, nanoJIT, etc). It must be able to take a function pointer, a string representing the call signature, and proper arguments and no other unnecessary state information or metadata. The frame builder should return the compiled thunk from the JIT engine that can be used to call the target function.</li><li>Create a proof-of-concept NCI function caller using pure assembly or C with inline assembly. Your assembly routine should take a signature string, a function pointer, and a list of arguments, and a pointer to a memory location to hold a return value (if any). </li></ol>This morning, I've received my first submission to challenge #1: an NCI frame builder using libJIT. It's quite impressive, and I'll post more information about the solution and the submitter later, with permission.<br /><br />I'm going to try to set up an online store, like <a href="http://www.spreadshirt.com/us/US/-/Search-3375/Marketplace/Products/list/search/Rakudo/">spreadshirt.com</a> or cafepress.com or something to sell Parrot T-Shirts (all profits directed to the Parrot Foundation, of course). Once I get that set up, I'm going to sweeten the pot: <span style="font-weight: bold;">All good unique submissions will receive a free Parrot-branded T-Shirt</span>. You'll have to be willing to give me your shirt size and mailing address, of course. I'll post updates as I get things set up.<br /><br />Submissions are unique if they solve different problems in different ways. So #1 with libJIT is already done (assuming it passes all my tests). Interested entrants could try #1 with LLVM or GNU Lightning, or any other JIT engine besides libJIT. Entrants could also be attempting #2 on various platforms (x86, x86_64, PPC, SPARC, SPARC64, etc). If I receive two or more submissions of the same type, the better one wins. Preference will probably be given to a patch that applies against Parrot trunk to any other type of solution, but integration with Parrot was never a requirement (just a nice bonus).<br /><br />I'll make the October release as the deadline. So if you are interested, you have <span style="font-weight: bold;">until 20 October</span> to get one in.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    It's Light_n_ing, not Lighting ;-)
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'>Anonymous
+                    <span class='blogger-comment-datestamp'>
+                        9/29/2009 2:31:37 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Thanks for the fix. Yes, That's not even the first (or most embarassing) typo I had in the post this morning. Stupid Fingers!
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        9/29/2009 2:52:58 PM
+                    </span>
+                </div>
+            </div>
+            </div>

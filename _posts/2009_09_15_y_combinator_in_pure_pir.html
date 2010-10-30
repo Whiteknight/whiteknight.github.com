@@ -1,0 +1,33 @@
+---
+layout: bloggerpost
+title: Y Combinator in Pure PIR
+---
+
+Tonight I took the time to do something I've wanted to do for a while: Write a <a href="http://en.wikipedia.org/wiki/Fixed_point_combinator#Y_combinator">Y-combinator routine</a> in pure PIR code. I was inspired by <a href="http://use.perl.org/%7EAristotle/journal/30896">Aristotle's excellent blog post</a> about the topic, and the ensuing comments from his readers. I'll direct people to him for more information about the function and it's derivation.<br /><br />So, without further adieu, here is the Y combinator, defined in terms of the U combinator:<br /><pre><br /># U-Combinator<br />.sub 'U'<br />    .param pmc f<br />    .lex '$f', f<br />    .const 'Sub' U_inner = '_U_inner'<br />    $P0 = newclosure U_inner<br />    .return($P0)<br />.end<br /><br />.sub '_U_inner' :outer('U')<br />    .param pmc args :slurpy<br />    $P0 = find_lex '$f'<br />    $P1 = $P0($P0, args :flat)<br />    .return($P1)<br />.end<br /><br /># Y-Combinator, defined in terms of the U-Combinator<br />.sub 'Y'<br />    .param pmc f<br />    .lex '$f', f<br />    .const 'Sub' Y_inner_1 = '_Y_inner_1'<br />    $P0 = 'U'(Y_inner_1)<br />    $P1 = $P0()<br />    .return($P1)<br />.end<br /><br />.sub '_Y_inner_1' :outer('Y')<br />    .param pmc h<br />    .lex '$h', h<br />    .const 'Sub' Y_inner_2 = '_Y_inner_2'<br />    $P0 = newclosure Y_inner_2<br />    .return($P0)<br />.end<br /><br />.sub '_Y_inner_2' :outer('_Y_inner_1')<br />    .param pmc args :slurpy<br />    .local pmc f<br />    .local pmc h<br />    f = find_lex '$f'<br />    h = find_lex '$h'<br />    $P0 = 'U'(h)<br />    $P1 = $P0()<br />    $P2 = f($P1)<br />    $P3 = $P2(args)<br />    .return($P3)<br />.end<br /></pre><br />And here is a little driver program that uses it to calculate the factorial of 10:<br /><pre><br />.sub 'main' :main<br />    .const 'Sub' wrapper = 'fact_wrapper'<br />    .local pmc x<br />    x = box 10<br />    $P0 = 'Y'(wrapper)<br />    $P1 = $P0(x)<br />    print "Answer: "<br />    say $P1<br />.end<br /><br />.sub 'fact_wrapper'<br />    .param pmc f<br />    .lex '$f', f<br />    .const 'Sub' fact = 'factorial'<br />    $P0 = newclosure fact<br />    .return($P0)<br />.end<br /><br />.sub 'factorial' :outer('fact_wrapper')<br />    .param pmc whatev<br />    .local pmc n<br />    n = shift whatev<br />    print "Calculating factorial of "<br />    say n<br />    if n >= 2 goto n_is_large<br />    .return(1)<br /><br />  n_is_large:<br />    .local pmc f<br />    f = find_lex '$f'<br />    .local pmc n_minus_one<br />    n_minus_one = n - 1<br />    $P0 = f(n_minus_one)<br />    $P1 = $P0 * n<br />    .return($P1)<br />.end<br /></pre><br /><br />It was quite a fun little exercise, and a great workout for the newclosure opcode, which I'm not sure is well-tested elsewhere. I may add this, or something like it, to the test suite for Parrot to run.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Andrew,<br /><br />Does this work?<br /> <br />I was reading through the code, and I notice that Y does not enclose Y-1. (Unless the .const does that implicitly, which I don't think it does.)<br /> <br />So I guess it's (a) does Y need to enclose Y-1, or need to not do so; and (b) have you tested this code?
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/13284330930068467507'>Austin</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        9/23/2009 1:12:15 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    This code does indeed work. I was quite surprised by it, but Parrot handles this complicated situation quite handily.<br /><br />Y does not enclose Y-1. It encloses _Y_inner_1, which in turn encloses _Y_inner_2. I don't really understand how all of it works, but I have verified that the result of my little test is correct. I would love to put it through some more rigorous testing though.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        9/23/2009 8:15:17 AM
+                    </span>
+                </div>
+            </div>
+            </div>

@@ -1,0 +1,21 @@
+---
+layout: bloggerpost
+title: I CAN HAZ GNOME CRASH?
+---
+
+Turn on my laptop today, and start up with my daily routine. I log in, check some email and stuff on my family computer, and then click the icon in the corner telling me I have software updates to install.<br /><br />I open the update manager and read through the list of updates, like I always do. I actually take the time to read through the updates I install unlike most users, I'm sure. The update has something to do with the kernel development header files, and maybe some update to a library (I don't remember now). It looked relatively harmless, so I clicked install. Install goes quickly, and then I'm prompted to restart my laptop so the changes can take effect.<br /><br />Restart. Boot up. log in. blackness. Nothing appears on my screen for several seconds, then I get an error message from GNOME: "The GNOME session manager was unable to lock the file '/home/andrew/.ICEauthority'. Please report this as a GNOME bug. Sometimes this error may occur if the file's director is unwritable, you could try logging in via the failsafe session and ensuring that it is." I click OK, and it kicks me back to the login screen.<br /><br />So I try again, same error. I try logging into the failsafe session, same error. Good. I try logging in to a different user account, and that works but it's not what I want. I don't like having my one administrator account locked because of a software problem. So I go looking through the internet and find a series of people who have also received this error, and a series of unhelpful responses. People offer solutions and I try every single one. I create directories, I throw around chmod and chown. nothing works. More then one person suggests the solution to the problem is a fresh install. I find that to be severely upsetting<br /><br />It's a few minutes later and I'm still fighting with this issue. I'm going to be very upset if I can't get my laptop working again without having to do a complete system reinstall.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Fix, I found a few potential fixes scattered throughout the interschmoe. If you are having a similar problem, here are some things you can try:<BR/><BR/>1) Enter the terminal, call "sudo chmod 777" on the file in question.<BR/>2) Enter the terminal, call "sudo chown MYUSERNAME:MYUSERNAME" on the file, where MYUSERNAME is your username.<BR/>3) Delete .ICUauthority<BR/>4) Delete any temporary residual files that match the pattern .ICUauthority*. For me, these files were named .ICUauthority-c and .ICEauthority-l.<BR/><BR/>If these don't work for you, you have some kind of problem that I havent seen yet.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        8/25/2008 6:54:00 PM
+                    </span>
+                </div>
+            </div>
+            </div>

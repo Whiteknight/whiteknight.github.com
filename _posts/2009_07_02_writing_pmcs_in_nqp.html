@@ -1,0 +1,33 @@
+---
+layout: bloggerpost
+title: Writing PMCs in NQP
+---
+
+So the question has arisen lately, what is L1 going to look like, and how hard is it going to be to write ops and PMCs in it? The answer is that we aren't going to be writing in L1 directly, we have PCT and will be writing it in a higher level language and compiling it down directly to Parrot bytecode. Here is an example of what the FixedPMCArray PMC type will look like rewritten in NQP:<br /><pre><br />class FixedPMCArray :need_ext :provides('array') {<br />    has $.size as int;<br />    has @.pmc_array as pmc;<br /><br />    vtable elements() as int {<br />        return $this.size;<br />    }<br /><br />    vtable destroy() {<br />        if $this.pmc_array != null<br />            Parrot::mem_sys_free($this.pmc_array);<br />    }<br /><br />    vtable get_integer() as int {<br />        return $this.elements();<br />    }<br /><br />    vtable get_bool() as bool {<br />        return $this.elements() != 0;<br />    }<br /><br />    vtable get_integer_keyed_int($idx as int) as int {<br />        my $intval as int = +( $this.pmc_array[$idx] );<br />        return $intval;<br />    }<br /><br />    vtable set_integer_keyed_int($idx as int, $val as pmc) {<br />        if $this.elements < $idx<br />            $this.set_integer_native($idx);<br />        $this.pmc_array[$idx] = $val;<br />    }<br /><br />    vtable get_string_keyed_int($idx as int) as str {<br />        my $strval as str = ~( $this.pmc_array[$idx] );<br />        return $strval;<br />    }<br /><br />    vtable mark() {<br />        for(my $i = 0; $i < $this.size; $i++) {<br />            my $pmc = $this.pmc_array[$i];<br />            if !Parrot::PMC_IS_NULL($pmc)<br />                Parrot::Parrot_gc_mark_PObj_alive($INTERP, $pmc);<br />        }<br />    }<br /><br />    vtable set_integer_native($size as int) {<br />        if $this.size >= $size<br />            return;<br /><br />        my $pmc_size = Parrot::sizeof_pmc_ptr();<br />        my @new_pmc_array = Parrot::mem_sys_allocate($size * $pmc_size);<br />        loop (my $i = 0; $i < $this.size; i++) {<br />            @new_pmc_array[$i] = $this.pmc_array[$i];<br />        }<br />        $this.size = $size;<br />        $this.pmc_array = new_pmc_array;<br />    }<br />}<br /></pre><br /><br />There are a few points to note here: First, I know this isn't perfect Perl 6 and I'm sure I screwed up some syntax here and there. I apologize for that, but I'm not really interested in going back line-by-line to fix it. This is just a thought experiment after all, and the important point isn't getting the syntax correct but instead proving the efficacy of this method. Second, I'm treating NQP here as just a particular syntax over very low-level semantics. The code <code>has @.pmc_array as pmc</code> is going to be equivalent to the C-ish code <code>ATTR PMC** pmc_array</code>. That is, we just assume that everywhere we see <code>as pmc</code>, that will become the equivalent C code <code>PMC*</code> and the @ sigil just adds another <code>*</code> to it.<br /><br />One more thing worth noting is that I am assuming the management of the ATTR structure will be automated. The PMC compiler will recognize that this PMC type has attributes and will automatically allocate them on initialization and automatically deallocate them on destruction.<br /><br />Since NQP is going to be compiled down into a very low-level bytecode that should be capably equivalent to C code, it is going to have direct access to C functions in libparrot. It will not be calling functions through NCI, it will be constructing machine-level call frames and executing functions directly. I show this using the syntax <code>Parrot::FUNCNAME</code>. The <code>$INTERP</code> contant is a reference to the current interpreter. This helps to differentiate functions which must be called with C semantics (pushing arguments onto the system stack) and those functions which can be called with L1 semantics instead (and I'm not entirely sure what those will look like anyway, but they won't be stack-based you can be sure of that). Instead of writing <code>Parrot::</code>, we could easily write <code>C::</code> instead<br /><br />So that's a quick look at what a basic core PMC could look like in NQP. If we all remember that in this particular case the NQP is going to be compiled down to low-level code and not into higher-level PIR/PASM, this all starts to make a lot more sense. Think of it like writing C but with slightly different syntax (and different underlying semantics), and without any of the high-level features that you would expect from Perl6.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    suggestions (for staying closer to Perl 6 syntax):<br /><br />    "has $.size as int"  is really "has int $.size"<br /><br />"vtable elements() as int"  is really "method int elements() is vtable"<br /><br />Pm
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/05117950909580615426'>Pm</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        7/2/2009 7:24:10 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    I forgot to mention that I expect NQP to receive the "my int $foo",  "my str $bar", etc. syntaxes in a relatively short period of time.<br /><br />Pm
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/05117950909580615426'>Pm</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        7/2/2009 7:25:18 PM
+                    </span>
+                </div>
+            </div>
+            </div>

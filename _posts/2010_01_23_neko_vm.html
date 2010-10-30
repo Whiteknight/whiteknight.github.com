@@ -1,0 +1,91 @@
+---
+layout: bloggerpost
+title: Neko VM
+---
+
+There has been some <a href="http://lists.parrot.org/pipermail/parrot-dev/2010-January/003675.html">traffic on the Parrot-developers mailing list</a> recently involving the <a href="http://nekovm.org/">Neko VM</a>. In terms of capability and scope, it does appear that the Neko VM is very close in scope to Parrot: a virtual machine designed to host dynamic languages. There are plenty of similarities between the two projects but a few differences too which I will try to talk about below.<br /><br />This discussion really got started when people saw some incorrect ideas expressed about <a href="http://nekovm.org/faq#how_is_neko_different_from_parrot">Parrot in the Neko FAQ</a>:<br /><div class="level2">  <p> </p><blockquote><p>Targeting Parrot requires you to learn another language which is more complex that Neko itself, with different possibilties at different levels (low level PASM, medium level PIR, high level NQP). </p>  <p> It is also difficult to differenciate beetween the <em>language</em> and the <em>standard library</em> because of the numerous cores apis (PMC) whereas NekoVM has a single <a href="http://nekovm.org/doc/view/builtins" class="wikilink1" title="doc:view:builtins" onclick="return svchk()" onkeypress="return svchk()">builtins</a> core api which a single highlevel language with minimal syntax and core types. </p>  <p>Parrot is written in C while Neko compiler is written... in Neko. The language is fully bootstrapped right now. Also, Neko is lightweight and the Virtual Machine is only 68 KB on Linux and 40 KB on Windows, while still offering a very good speed.</p></blockquote><p> </p>  </div>It's obvious from this and other mentions of Parrot I have seen around TEH INTERWEBZ that the marketing wing of Parrot isn't doing a lot to dispel these kinds of common misconceptions. Let me do what I can here.<br /><br />The Parrot VM runs natively on Parrot bytecode, with the most common human-readable form of that being PIR. I see people talk about PASM all the time and I think this is a huge mistake. Nobody uses PASM. Basically nobody <span style="font-style: italic;">should</span> use PASM either. It's mostly useless, ugly, and limited. PASM exists only as a direct human-readable translation of raw bytecode in lieu of any good utility to convert bytecode to (unnuanced) PIR or to do PIR-level debugging. Seriously, <span style="font-weight: bold;">forget PASM exists.</span><br /><br />PIR is the more friendly, more familiar programming language that people should use to interact in a basic, low-level way with Parrot. PIR is to Parrot what <a href="http://en.wikipedia.org/wiki/High_Level_Assembly">HLA is to the x86 platform</a>: it's basically an assembly language but with some improved syntax, macros, and other nice features. Most coders will be reasonably familiar with the <a href="http://www.amazon.com/Parrot-Developers-Guide-Allison-Randal/dp/0977920127/">syntax of PIR</a>, though it will feel primitive and clunky.<br /><br />The FAQ above says that Parrot is written in C, while Neko is written in Neko. This is a pretty big distortion of the truth, and is certainly not comparing apples to apples. The Neko compiler frontend is written in a boot-strapped version of Neko itself. This much is true. However, the Neko VM that executes the compiled bytecode is itself written in C. Likewise, Parrot's core is written in C and the PIR compiler is written in C (with <a href="http://en.wikipedia.org/wiki/Flex_lexical_analyser">flex</a>/<a href="http://en.wikipedia.org/wiki/GNU_bison">bison</a> magic), but our <a href="http://docs.parrot.org/parrot/latest/html/docs/book/pct/ch03_compiler_tools.pod.html">premier compiler utility, PCT</a>, is written in Parrot. There is a difference in scope here, but if you are writing software of any significance on Parrot your code is more likely to be compiled by PCT than by Parrot's native PIR compiler.<br /><br />The second paragraph of the FAQ is problematic too. It talks about the differentiation between the language and the runtime, which doesn't make sense in the context of Parrot. Parrot VM is, at heart, only a runtime. The PIR language exists only as a way for people to interact with that runtime. None of the Parrot developers would call the PIR language a "feature" of the VM in the sense that the language has any value outside of the Parrot project. The Neko language is in a different league from PIR because it is much higher-level than PIR is. In a direct side-by-side comparison it looks to be more similar in terms of capability and scope to NQP. PIR is a human-friendly low-level interface to Parrot, and once some of our tools mature sufficiently it is reasonable to expect that PIR may disappear completely. That occurance is still a long time away but there is no reason to suspect that it cannot or will not happen.<br /><br />As an aside, since the Neko language is designed to be easy to parse using an LL(1) compiler (which PCT's <a href="http://en.wikipedia.org/wiki/Recursive_descent">recursive descent parser is</a>), it would probably be very easy to create a Neko compiler frontend for Parrot. The benefits in interoperability might be quite nice, because any language that has a compiler into Neko could then be made to run directly on Parrot. But, that's an aside that I won't talk about at length here.<br /><br />NQP is explicitly designed as a language without a runtime. Parrot provides a number of default object types (PMCs) for basic use, but they can almost all be easily overridden with user-defined types in C or PIR as necessary. In a sense, the PMCs themselves represent the low-level data structures that user-defined objects share. But they're more dynamic and general than that.<br /><br />I don't see a huge difference in terms of the design goals between PMCs and Neko's underlying object model. Parrot's version appears to be a little more heavy-weight and a little bit more powerful because of that, but I would need to look much more closely at the Neko model before I make any firm conclusions. Notice that "heavy-weight" can very much be a bad thing to some people, as much as "powerful" can be a good thing to others.<br /><br />The final bit of the last paragraph in the FAQ is where some of the real differences start to emerge. I don't know the complete in-memory size of the Parrot binary is but I have to suspect it is bigger than 68K on Linux and 40K on Windows. If a small footprint is your driving criterion, maybe Neko is a better choice for your language than Parrot is.<br /><br />Looking at the documentation Parrot really seems to be a more ambitious project with a larger scope than Neko. I'm not going to get on my soapbox and say that bigger is always better because it isn't. Parrot, by design, offers more features and capabilities than any one language would ever need. Sometimes developers need a smaller platform with a smaller footprint. Sometimes people need more power and capability. I think you would be hard pressed to try and run a standards-compliant Perl 6 implementation, along with decent Tcl and M implementations on Neko VM. At least, I can't imagine that you could have all these things without a significantly larger development effort than those compilers currently require on Parrot.<br /><br />I'm not sure what all features Neko VM supports or intends to support, but I can tell you that Parrot has several great features and all intentions of adding some other major features in the future: GC, Exceptions, Asynchronous I/O, JIT, multithreading, and aggressive optimizations. We're developing a large ecosystem of langauges, libraries, and tools for use with Parrot. We also have a world-class compiler generator tool in PCT, which I think any other project would be hard pressed to rival.<br /><br />I've got the Neko sources now and am going to build it and play with it a little bit. I'll report in when I have done more playing.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    I don't want to offend someone nor do I want devalue the work that Parrot hackers invested, but looking at the progress of Parrot (for a while now) I have to ask: Why are all major language implementations so far behind? Working with that mixture of PIR, C  (and mangled C for .ops files) and NQP might not be that productive and doesn't attract lots of developers.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://muixirt.wordpress.com/'>muixirt</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        1/23/2010 12:42:22 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    I think that's an unfair characterization. Language implementations in general are not "far behind" anything.<br /><br />Most language implementations we have on Parrot right now are being developed part time by only one or two volunteers. And, many of these people working on HLLs are only doing it as a secondary project while also hacking on Parrot. Effort is being divided and yet many projects are still making excellent progress.<br /><br />Rakudo is the exception of course because it has a large team of hackers working on it. But then again the Perl 6 language is huge and complex, so that compiler is taking a lot of time.<br /><br />The Tcl implementation is making excellent progress but until recently it hasn't been using PCT or NQP which are the tools we use to make development go much faster. Since Tcl started it's switch to PCT and NQP-RX, it has made very good progress. Only one person is really working on that compiler, however.<br /><br />Also, the last part of what you said is basically wrong. Most HLL projects don't need to use any C, and most projects can use very little PIR. With the newer versions of NQP, some projects don't need any PIR at all. C and the mangled C variants are basically only used in Parrot's core. Compiler developers don't need to use them at all unless they want to write custom extensions.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        1/23/2010 2:03:27 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    I meant far behind being able to work with the core implementation of python/php/ruby/javascript/... without giving much thought about missing parts, bugs and wasting to much ressources. So I doubt it would be "very easy to create a Neko compiler frontend for Parrot".<br /><br />NQP-RX is quite new. Let's hope it has a huge positive impact on the productivity of the language developers. We will see.<br /><br /><br />My comment about the mixture of languages that are needed for language developers was based on rakudo and partcl, most other languages use pir. Again, we will see whether nqp-rx boosts productivity.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://muixirt.wordpress.com/'>muixirt</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        1/24/2010 8:09:05 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Again, most languages on Parrot are being written by only one developer part time. Of course they lag behind other projects with large teams. Also Parrot hasbeen in a state of flux so HLL devs are spending time upgrading to new Parrot versions, which slows dwn feature development.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        1/24/2010 8:13:11 AM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Actually, I already implemented pretty much the whole grammar of Neko in PCT... It's been a while back, but I'm sure I have the source files lying around somewhere, should someone be interested. Once you have the parser implemented, the parse actions are pretty straightforward, also thanks to the fact that Neko is indeed an "easy to learn" language. I'd say, if you have a bit of experience with PCT, you could do a Neko language implementation in 1 or 2 days.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'>kjs
+                    <span class='blogger-comment-datestamp'>
+                        1/24/2010 7:42:38 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    kjs: that's very interesting to hear! I am not too familiar with the Neko language right now, so if you do dig up your files I would love to see them.<br /><br />I've thought for a while now that PIR is really a bad thing. It's not a direct human-readable version of bytecode like PASM is, and it's not particularly easy to parse. I have more thoughts on the issue which will probably turn into a full blog post later, but if we had a "native" language closer to Neko or even NQP, I think things would be much better for Parrot.
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+
+                    <span class='blogger-comment-datestamp'>
+                        1/24/2010 7:49:15 PM
+                    </span>
+                </div>
+            </div>
+            <div class='blogger-comment-div'>
+                <p class='blogger-comment-body'>
+                    Thanks for the info =)<br /><br />Would you happen to know any performance related info about Parrot??
+                </p>
+                <div class='blogger-comment-author-div'>
+                    <span class='blogger-author-sig'>Anonymous
+                    <span class='blogger-comment-datestamp'>
+                        2/3/2010 1:02:20 PM
+                    </span>
+                </div>
+            </div>
+            </div>
