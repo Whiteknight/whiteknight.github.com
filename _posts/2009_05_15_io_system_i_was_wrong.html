@@ -1,6 +1,0 @@
----
-layout: bloggerpost
-title: IO System: I Was Wrong
----
-
-Today I <a href="https://trac.parrot.org/parrot/ticket/669">opened a ticket</a> about how the layering portion of the IO system specification needed to be implemented. It turns out I was wrong: Despite the fact that the PDD claimed a layering system would be used and the fact that there were some hints about it in the code, it is no longer the current plan that the IO system use a layering approach. So tonight after talking to Allison about it, I went in <a href="https://trac.parrot.org/parrot/changeset/38805">and ripped the confusing passages out</a> of the PDD. I also went through and removed some unused code that wasn't being used.<br /><br />So there really isn't anything standing in the way of a proper AIO implementation, except maybe a handful of enhancments to the threading and scheduling systems (I haven't dug into either too deeply yet, so I can't say for sure). That's good news, fewer things in the way means it's more likely we're going to get proper AIO by 2.0.
