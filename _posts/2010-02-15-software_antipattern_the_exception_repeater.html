@@ -1,6 +1,6 @@
 ---
 layout: bloggerpost
-title: Software Anti-Pattern: The Exception Repeater
+title: Software Anti-Pattern&#58; The Exception Repeater
 ---
 
 Since I've seen this pattern several times in a software project I'm trying to maintain, I've decided to give it a name: The Exception Repeater <a href="http://en.wikipedia.org/wiki/Antipattern">anti-pattern</a>. Here's a particularly succinct implementation of it, direct from the repo:<br /><pre><br />public static void ValidateData() {<br />  try {<br />     ValidateDataInner();<br />  } catch (Exception e) {<br />     throw e;<br />  }<br />}<br /></pre><br />Since I've seen this exact thing several times in the codebase today, I'm wondering if maybe it has some kind of magical benefit or side-effect that I'm not aware of. The only benefit that I can think of is that an unintelligent programmer can claim to be programming "defensively", or something like that.
