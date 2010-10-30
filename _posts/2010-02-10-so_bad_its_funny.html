@@ -3,7 +3,7 @@ layout: bloggerpost
 title: So Bad It's Funny
 ---
 
-At work I've been taking a program written by another engineer and trying to merge the functionality into a program that I've been writing. During this process, I have found some code so bad that it's both funny and depressing at the same time. Here is a great example:<br />[Update 10 Feb 2010: This code is C#]<br /><pre><br />public bool CheckMsgValid(byte[] _myArray, int _myIdx) {<br />   bool t;<br />   t = ((_myArray[_myIdx] & 0x80) == 0x80) ? true : false;<br />   return t;<br />}<br /></pre><br />...which is basically the long way to write:<br /><pre><br />public bool CheckMsgValid(byte[] b, int x) {<br />   return b[x] & 0x80 != 0 ;<br />}<br /></pre><br />I guess the original coder wanted to make double-sure that the two values were equal.
+At work I've been taking a program written by another engineer and trying to merge the functionality into a program that I've been writing. During this process, I have found some code so bad that it's both funny and depressing at the same time. Here is a great example:<br />[Update 10 Feb 2010: This code is C#]<br /><pre><br />public bool CheckMsgValid(byte[] _myArray, int _myIdx) &#123;<br />   bool t;<br />   t = ((_myArray[_myIdx] & 0x80) == 0x80) ? true : false;<br />   return t;<br />&#125;<br /></pre><br />...which is basically the long way to write:<br /><pre><br />public bool CheckMsgValid(byte[] b, int x) &#123;<br />   return b[x] & 0x80 != 0 ;<br />&#125;<br /></pre><br />I guess the original coder wanted to make double-sure that the two values were equal.
                 <div class='old-blogger-comments'>
                     <h2 class='old-comment-header'>Comments</h3>
                 <div class='blogger-comment-div'>
