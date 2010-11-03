@@ -1,0 +1,40 @@
+---
+layout: site
+---
+
+<h3>ParrotTheory Posts</h3>
+<table id="posts-table">
+{% for post in site.categories.ParrotTheory limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<h3>ParrotDesign Posts</h3>
+<table id="posts-table">
+{% for post in site.categories.ParrotDesign limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+
+<h3>ParrotFoundation Posts</h3>
+<table id="posts-table">
+{% for post in site.categories.ParrotFoundation limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>

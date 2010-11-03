@@ -1,8 +1,0 @@
-<ul>
-    <li><a href="{{ site.url }}/index.html">Home</a></li>
-    <li><a href="{{ site.url }}/allposts.html">All Posts</a></li>
-    <li><a href="{{ site.url }}/parrot.html">Parrot Posts</a></li>
-    <li><a href="http://www.parrot.org">Parrot</a></li>
-    <li><a href="http://github.com/Whiteknight">Github</a></li>
-</ul>
-

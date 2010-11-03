@@ -1,0 +1,27 @@
+---
+layout: nil
+---
+
+<?xml version="1.0" encoding="US-ASCII"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Whiteknight's Parrot Blog</title>
+    <link href="http://whiteknight.github.com/parrot/atom.xml" rel="self"/>
+    <link href="http://whiteknight.github.com/parrot/index.html"/>
+    <updated>{{ site.time | date_to_xmlschema }}</updated>
+    <id>http://whiteknight.github.com/parrot/index.html</id>
+    <author>
+        <name>Andrew Whitworth (Whiteknight)</name>
+        <email>wknight8111@gmail.com</email>
+    </author>
+
+    {% for post in site.categories.Parrot limit:20 %}
+    <entry>
+        <title>{{ post.title }}</title>
+        <link href="{{ site.url }}{{ post.url }}"/>
+        <updated>{{ post.date | date_to_xmlschema }}</updated>
+        <id>{{ site.url}}{{ post.id }}</id>
+        <content type="html">{{ post.content | xml_escape }}</content>
+    </entry>
+    {% endfor %}
+
+</feed>
