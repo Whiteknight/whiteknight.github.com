@@ -14,7 +14,16 @@
         Parrot
         <ul>
             <li><a href="{{ site.url }}/parrot/index.html">Parrot</a></li>
-            <li><a href="{{ site.url }}/parrot/posts.html">Posts</a></li>
+            <li>
+                <a href="{{ site.url }}/parrot/posts.html">Posts</a>
+                <!-- Feedburner Feed. Don't use the atom.xml feed directly -->
+                <a href="http://feeds.feedburner.com/afwknight-parrot" rel="alternate" type="application/rss+xml">
+                    <img src="http://www.feedburner.com/fb/images/pub/feed-icon16x16.png" alt="" style="vertical-align:middle;border:0"/>
+                </a>
+                <a href="http://feeds.feedburner.com/afwknight-parrot" rel="alternate" type="application/rss+xml">
+                    Atom
+                </a>
+            </li>
         </ul>
     </li>
     <li><a href="http://github.com/Whiteknight">Github</a></li>
