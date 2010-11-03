@@ -23,18 +23,30 @@ div#main-content {
 div#content {
     border: 2px solid #2B91AF;
     padding: 5px;
+    /*
     background-color: #F8F8F8;
     color: #282828;
-    margin-right: 380px;
+    */
+    background-color: #000000;
+    color: #C0C0C0;
+
+    margin-right: 330px;
+}
+
+h2#content-title {
 }
 
 div#sidebar {
     float: right;
-    width: 350px;
+    width: 300px;
     border: 2px solid #2B91AF;
     padding: 5px;
+    /*
     background-color: #F8F8F8;
     color: #282828;
+    */
+    background-color: #000000;
+    color: #C0C0C0;
 }
 
 div#main-title-div {
@@ -62,11 +74,11 @@ h1#main-title {
 }
 
 td.post-date {
-    color: #C0C0C0;
+    color: #808080;
 }
 
 span.post-tags {
-    font-size: x-small;
+    font-size: smaller;
 }
 
 span#main-intro-site-stats {
@@ -78,8 +90,12 @@ span#main-intro-site-stats {
 div.widebar {
     border: 2px solid #2B91AF;
     padding: 5px;
+    /*
     background-color: #F8F8F8;
     color: #282828;
+    */
+    background-color: #000000;
+    color: #C0C0C0;
     margin-left: 5em;
     margin-right: 5em;
 
