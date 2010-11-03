@@ -1,0 +1,8 @@
+---
+layout: bloggerpost
+title: Special Release&#58; Parrot 2.1.1
+publish: true
+categories: [Parrot, Release]
+---
+
+Earlier today we got a bug report from the #perl6 folks that Parrot was leaking memory. chromatic put a fix together and it was decided to cut an emergency bug-fix release. Since Rakudo bases it's releases on the previous Parrot release, and they can't really put out a release that is known to leak memory, they now have the <a href="http://www.parrot.org/news/2010/Parrot-2.1.1">special Parrot 2.1.1</a>.<br /><br />So if you were using 2.1.0 for your application and would like to plug a memory leak in long-running programs, please update to 2.1.1 instead.

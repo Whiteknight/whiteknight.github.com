@@ -1,0 +1,103 @@
+---
+layout: bloggerpost
+title: AIO On Linux
+publish: true
+categories: [Parrot, IO, AIO]
+---
+
+<a href="/2009/05/03/aio_on_windows.html.html">Yesterday I talked about</a> the AIO situation on Windows. Today, as well as I am able, I am going to talk about the current situation on Linux. I've done asychronous AIO programming before on Windows, so that was an easy start for me. I've never used the Linux equivalents before, so this post is going to be a little bit more shakey.<br /><br />First, let me start by saying that my initial findings on Linux AIO looked pretty bleak. I've seen some <a href="http://davmac.org/davpage/linux/async-io.html">pages that talk about long lists</a> of possible routes, each with unresolved problems. I've seen some project pages that look like they <a href="http://www.bullopensource.org/posix/">haven't been updated since 2007</a> or earlier. I've seen quotes like "This is stupid" or "That is crap". However, on closer inspection it's looking like there are some real possibilities for good AIO as of kernel 2.6. Specifically, the <a href="http://www.ibm.com/developerworks/linux/library/l-async/index.html">POSIX AIO API</a> looks like it has a lot of promise for us. Unfortunately, a Google search for "Asynchronous IO on Linux" returns so much negative information.<br /><br />I have found a <a href="http://www.gnu.org/software/libc/manual/html_node/Asynchronous-I_002fO.html">good documentation page</a> that does a decent job of talking about the various structures and functions involved in the POSIX API. However, I do notice a problem immediately that things like console IO cannot be accessed asynchronously. That's an issue that we can work around, however. Also, I notice that this POSIX API appears to use the one thing that I didn't like: Separate threads of blocking IO primitives running in user space. So, that's a negative, but not something we can't really get around here since the other options are worse. It's my understanding that the POSIX API is going to manage the synchronization issues, so maybe it's not such a bad thing.<br /><br />In the last post I talked about adding an IO queue structure to the concurrency scheduler. Whenever we have a message, we schedule a handler task to process it. In Linux, we don't have anything like an IO Completion Port that can be used to manage a long list of requests for us (that I know of), but we can manually manage a list of <code>struct aiocb</code> structures and poll them for changes.<br /><br />My interest has also been piqued by the <code>aio_suspend</code> function to help in implementing blocking IO operations internally. I also keep looking into the <code>lio_listio</code> function as a great way to launch a number of simultaneous requests, but I don't know how useful it will be in practice. We'll see how things fall into place one work begins on the actual implementation. One thing is for sure though: these POSIX functions don't appear to be available prior to the 2.6 Linux Kernel. So we're definitely going to need good configure probes, and we're going to need a good Plan B so we can simulate AIO on systems that don't support it directly.<br /><br />Next up in my little series about AIO in Parrot will be a discussion about how we're going to be writing an AIO implementation that will be sane across Windows and Linux, and will properly integrate with the rest of Parrot. <span style="font-weight: bold;">If you have any thoughts about this issue, or if you know anything about AIO on Darwin, please let me know</span>. There are a lot of things that I don't know about these topics, so any input is much appreciated.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='6694170469081689763'></a>
+    <p class='blogger-comment-body'>
+        1. You seem to be putting AIO in one bag with non-blocking IO.<br /><br />POSIX AIO means that as soon as you call aio_write(), the request is queued but it returns _before_ the data you gave it is copied to kernel space/elsewhere.  Only after you get confirmation of it being coplete can you touch the data buffer again.<br /><br />Non-blocking IO means that the call to write() waits until the data is copied to kernel space.   Immediately after write() returns, you may freely thrash the buffer.  The data is already in kernel space and from there it may be written to a file, socket, serial port, whatever.<br /><br />So, with AIO there is theoretically less waiting than with non-blocking IO.<br /><br />2. IIRC, AIO on Linux doesn't support certain types of fds.  For example, it does not work on serial ports.  It requires extra kernel-side code to work, so IMO it's not a good solution for a general framework at the moment.<br /><br />3. If you use callbacks, you still need a synchronisation point.  This usually means calling callbacks_update() which checks the queued callbacks and calls them.  It's not much different from polling in a loop.<br /><br /><br />So in general, the situation is complex.  If you ask me for advice, I'd say go for a queue and implement it using epoll on Linux.<br /><br />Hope this helps :-)
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Anonymous</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6694170469081689763'>
+                5/5/2009 3:26:00 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='5621276773307585221'></a>
+    <p class='blogger-comment-body'>
+        Thanks for the comment!<br /><br />1) I'm not trying to get the two mixed up, but I am talking about two separate contexts that I might not be too clear about. My goal here is to implement Parrot's blocking IO operations in terms of C non-blocking operations.<br /><br />2) you are right that this raises issues. We can't asynchronously access the console, the serial port, etc. At the very least that's going to make it harder for us to come up with an elegant unified IO system, but by no means impossible. Especially not if we sacrifice a little elegance.<br /><br />3) I did forget to mention the necessity of synchronization points, thanks for reminding me of that. Parrot does have a concurrency scheduler that could call callbacks_update() regularly, so it doesn't really affect what we need to do from user-facing PIR code.<br /><br />I do appreciate any advice! It's better to hear it now then after I've already started writing code for all this. I don't think we are going to use a polled solution just because that doesn't jive well with the currently spec'd interface. It's not impossible to combine the two, but again it's going to be a pain in the ass to make it work correctly.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5621276773307585221'>
+                5/5/2009 3:36:00 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='1275660686237315309'></a>
+    <p class='blogger-comment-body'>
+        Sorry if I wasn't clear on this point, but in (2) I meant that the POSIX AIO interface (aio_write) doesn't support all types of file descriptors on Linux, but non-blocking IO (write, epoll) works pretty much on everything.  So I think it would be a bad idea to use POSIX AIO in this case, but anything else should be OK.  Non-blocking IO works on consoles and serial ports too.  <br /><br />Of the methods described on the page you link to, I would rule out POSIX AIO for reasons described above and signals (signals are evil because the application might want install its own handler, overriding yours).  This leaves non-blocking IO with epoll/poll or threading as acceptable implementation options (though threading with too many fds can use up memory because each thread needs its own stack).<br /><br />I've had some experience with non-blocking IO using edge-triggered epoll in a real-time thread on Linux.  I don't know much about Parrot's requirements here, but I'll keep reading planet.parrotcode.org and if anything comes up then I'll post comments.<br /><br />Good luck with the research and implementation :-)
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Anonymous</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#1275660686237315309'>
+                5/5/2009 7:58:00 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='2850615514934276157'></a>
+    <p class='blogger-comment-body'>
+        Thanks again for the comments! I did understand what you were talking about in #2, but I guess I wasn't clear that I did understand it. Note to self: more clarity!<br /><br />Signals are out, for the reasons that you mentioned and so many more. I'm also trying to stay away from managing my own IO thread pool because it's going to be a huge synchronization and management hassle.<br /><br />I had been leaning towards POSIX because it seems like the most complete implementation, but you are convincing me that this is probably not the best. One upshot to using epoll is that it has behavior similar to Windows IO Completion Ports, so we can use these methods to get similar behaviors across platforms.<br /><br />So that may be the route we take going forward: Use epoll (on linux systems, IO Completion Ports on Windows), we'll poll it's status internally and launch callbacks directly from our scheduler. <br /><br />Thanks for all your input!
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#2850615514934276157'>
+                5/5/2009 8:07:00 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='4057513277109906873'></a>
+    <p class='blogger-comment-body'>
+        You could look at libevenet, it implements asynchronous event notification on various UNIX systems and Windows with an unified API (on windows it uses event ports if I understand correctly). Though it has some limitations in multithreading applications.<br /><br />Best regards
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Anonymous</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#4057513277109906873'>
+                5/6/2009 1:37:00 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='8432228400246286692'></a>
+    <p class='blogger-comment-body'>
+        more hopefully useful links...<br />http://www.kegel.com/c10k.html<br />http://monkey.org/~provos/libevent/<br /><br />Wish you good luck :)
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Raphael Descamps</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#8432228400246286692'>
+                5/6/2009 10:35:00 AM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

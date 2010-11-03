@@ -1,0 +1,137 @@
+---
+layout: bloggerpost
+title: MATLAB wishlist
+publish: true
+categories: []
+---
+
+"Did I ever tell you", he said and then paused to glance at his computer screen, "how much MATLAB sucks?". He clicked his mouse once, then again, then a third time much harder. "Damnit!" His muted yell caught the attention of passers-by. "I'm going to do my dissertation on how much MATLAB sucks. I've got plenty of data already".<br /><br />MATLAB has a number of great features that engineers and scientists can use to model systems, analyze data, and verify designs. What's great about it is that non-programmers can pick it up quickly and use it to solve complex problems. There is an immense library of builtin functions and optional toolboxes that solve most common problems, and creating a new simulation is typically as easy as cobbling together these existing pieces. Here are a list of features that I think engineers appreciate:<br /><ul><li><span style="font-weight: bold;">Data Types</span>: Matrices and vectors are really the fundamental units of data. Because of this, they are easy to define and use. Variables are all dynamically typed. "Polymorphism" (i put it in quotes because it is not true polymorphism as most people know it) is handled inside the functions themselves, so for most operations the size and type of operands can be safely ignored.</li><li><span style="font-weight: bold;">Do What I Mean</span>: Most functions are vectorized. This means that if I pass in a vector to a function instead of a scalar, the function will loop over all elements of the vector, as should be expected. Functions are all global. Engineers don't want to worry about namespaces or libraries. We want everything right here, right now, whether we are using it or not. We want to be able to call a function without having to search the documentation for where it's located.<br /></li><li><span style="font-weight: bold;">Do Everything</span>: MATLAB is a complete environment, and once you enter, you will never need to leave. It's got file browsers, a command prompt with command history, an integrated editor, integrated everything. You can dock everything together, so the things you want can stay where you want them. MATLAB has commands to interface with the system shell. All you need to do is type an exclamation point, and everything following it is passed to the shell. MATLAB comes bundled with Perl too, so if you need that, BAM! there it is. You can program MATLAB in C, C++, FORTRAN and Java, if you have legacy code lying around, or if you can't be bothered to learn M script. MATLAB does everything, so we don't need to worry about bringing together a whole collection of programs, or worrying if our multiple software tools are going to interoperate properly.</li></ul>Now, I like MATLAB well enough, but there are a few issues that I have with it now. I've slowly developed a wishlist from my time using it. This isn't a complete list, just a few of the things that are on the top of my head right now.<br /><ul><li><span style="font-weight: bold;">Proper Object Oriented Features: </span>MATLAB has object-oriented programming capabilities, but they are far from what most programmers would know as being "standard" practice. I would like to see MATLAB's object system be given a complete overhaul. Much of this could be done with simple source filtering, if modifications to the parser would be too difficult. Saying "x.field = 5" is much easier and more intuitive then having to say "x = set(x, 'field', 5)". This illustrates another point too: It would be nice if complex objects could be passed by reference instead of passing everything by value. A different calling syntax using the "." notation would help to make this difference explicit.</li><li><span style="font-weight: bold;">Namespacing</span>: Even if it was optional, and even if most things were in the main namespace by default, I would still like to see a robust namespacing system implemented. This way, we could allow overloading of common function names like "size" or "length". Keeping most things global by default keeps the convenience factor high for most users, but allowing namespacing would be a handy extra bit of flexibility for more advanced users.</li><li><span style="font-weight: bold;">Threading</span>: I know this is a common complaint, but I would love to see a multi-threaded version of MATLAB.<br /></li><li><span style="font-weight: bold;">Code Embedding</span>: This is a relatively minor wish, and it probably wouldn't affect too many people, but considering how MATLAB supports interfaces with several other programming languages, I would like to see some kind of ability to directly embed code written in other languages into MATLAB script files. Some sort of directive, like "IN_M", or "IN_FORTRAN" that would tell the interpreter to compile the following block before executing it, would be really handy. Having to write code into separate files, compile them individually, and then write M functions to interface with them seems like a lot of work considering MATLAB's level of integration.</li></ul>I have been kicking around the idea for some time now of creating a MATLAB/Octave port to the Parrot VM. This whole wishlist of mine (except embedding FORTRAN, because there isn't a FORTRAN port to Parrot yet) could easily be implemented using that system. Maybe when I have some more time in the future, I'll work on implementing it. Until then, all I can do is dream.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='5260824054194881225'></a>
+    <p class='blogger-comment-body'>
+        does r2008a satisfy your request for better OO implementation?  matlab has been multithreaded for a while, hasn't it?
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/11872674930144229880'>Andrew</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5260824054194881225'>
+                5/6/2008 5:00:00 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='7022201210726075076'></a>
+    <p class='blogger-comment-body'>
+        I guess I haven't seen r2008a, I'm still using a classroom version of r2006a for my school work. I wasn't aware that there were any changes made to the OO implementation, so I apologize if my comments are outdated and incorrect. I'll have to look around and see what the new OO semantics are, if they have indeed been upgraded. <BR/><BR/>As for threading, I'm not aware of any ability to create multiple threads in M code. I've heard of various hacks that you could use to simulate a multithreading environment in M code, but it's not the same as native threading. Again, if this is something that's been added, I'll have to research it and learn more.<BR/><BR/>Thanks for the comment!
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7022201210726075076'>
+                5/6/2008 5:58:00 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='6976196676126587115'></a>
+    <p class='blogger-comment-body'>
+        I was nodding in agreement about your OO gripes. Then I Andrew's comment, and I LOLed. I use r2009b and I am halfway to the asylum picking apart the docs.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Anonymous</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6976196676126587115'>
+                11/13/2009 8:13:06 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='6732576490791988347'></a>
+    <p class='blogger-comment-body'>
+        I've been very impressed by the way Matlab has progressed in the last few years. Development, especially when it comes to improved language syntax and semantics has been very impressive indeed. They have improved their threading support, added improved OO support (we can argue about some of the syntax they chose, but we can't argue that it is OO).<br /><br />I really should go back and write an updated blog post to talk about how most of my concerns have been met. However, the last version of MATLAB that I've personally used is r2006a, so I really don't have enough experience to do the kind of proper comparison that MATLAB deserves.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6732576490791988347'>
+                11/13/2009 8:37:44 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='5816455222384258236'></a>
+    <p class='blogger-comment-body'>
+        After this past afternoon spent writing a small matlab program that is completely OO (using their newest OO language constructs), I must say that Matlab still sucks. Yes, it is indeed truly OO in the sense you mean in your November 13 post, but the syntax is really nuts. Also, the documentation is still horrible, the user interface is still terrible, the environment still lacks mechanisms for efficient memory handling, and the built-in libraries still lack a reasonable naming convention. Plus, the environment keeps crashing on me! (I'm using 2009a for Mac/Intel).<br /><br />I guess that's what one can expect from a company that has a monopoly on scientific computing.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Andrei R</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5816455222384258236'>
+                1/26/2010 2:58:01 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='7900896918652510410'></a>
+    <p class='blogger-comment-body'>
+        I've never found the documentation to be too bad. But I suppose there is a lot of personal preference that goes into that.<br /><br />You are right about the syntax, it always has struck me as being extremely idiosyncractic and contrary to popular convention. Of course, the M language was developed many years ago with a basis in FORTRAN and due to backwards compatibility issues they haven't been able to break.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7900896918652510410'>
+                1/26/2010 4:08:16 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='1564044581219522977'></a>
+    <p class='blogger-comment-body'>
+        Andrei, you said that Matlab sucks and that the OO-syntax is nuts. I assume you include the OO-support in your accessment.<br /><br />Would you care to provide some examples?<br /><br />/ per
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/10776992760618995918'>poi</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#1564044581219522977'>
+                9/12/2010 4:14:20 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='3412891871357421388'></a>
+    <p class='blogger-comment-body'>
+        MATLAB definitely doesn't suck. It's the industry-leading simulation tool for a reason. The problems with MATLAB are three-fold:<br /><br />1) It has grown organically over time, adding features that scientists and engineers need.<br />2) Several language features are not exactly industry standard, as coders would understand them. Being different is certainly not a bad thing in itself, but it does put a large base of existing software engineers out of their comfort zone<br />3) The user base is pretty well entrenched. You can't just change MATLAB syntax without breaking huge amounts of existing software. They probably couldn't come up with a complete language rewrite (like Python 3000, or Perl 6) for the same reason.<br /><br />MATLAB is certainly not bad. It is different, and different can be a little bit weird sometimes when you're not used to it.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#3412891871357421388'>
+                9/12/2010 4:59:51 PM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

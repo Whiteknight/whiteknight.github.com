@@ -1,0 +1,4 @@
+Last updated on {{ site.time }}
+<br />
+Permanent Link: <a href="{{ site.url }}{{ page.url }}">{{ site.url }}{{ page.url }}</a>
+

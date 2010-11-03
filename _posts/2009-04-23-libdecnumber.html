@@ -1,0 +1,8 @@
+---
+layout: bloggerpost
+title: libdecnumber
+publish: true
+categories: []
+---
+
+Last year I was one of the student coders in the Google Summer of Code program. This year, I'm playing the role of backup mentor. No money involved, but then again I don't do open-source software work for the money.<br /><br />The student is Daniel Arbelo Arrocha, "darbelo" on IRC, and his project is implementing some big number arithmetic PMCs for Parrot. Parrot currently has a BigInt and a prototype BigNum PMC based on the GNU GMP arbitrary precision arithmetic library. Daniel is taking a different approach and attempting to rewrite them using the IBM Decimal Arithmetic Library, libdecnumber. I don't know enough (yet) to be able to intelliently compare and contrast the two approaches, but I'm sure there is a lot to be learned from this project whether it turns out to be a better or worse implementation then the GMP-based one. He's started a <a href="http://code.google.com/p/decnum-dynpmcs/">GoogleCode project</a> where his work will be carried out. Since libdecnumber is under the ICU license, and not the Artistic 2.0 license like Parrot uses, the work can't be done in a branch in the Parrot repo like my GC work was last year.<br /><br />Kevin Tew, "tewk" on IRC, is doing the LLVM project that I mentioned in a <a href="/2009/04/17/parrot_jit_extravaganza.html.html">few </a><a href="/2009/04/21/parrot_of_the_future.html.html">earlier</a> <a href="http://use.perl.org/%7EWhiteknight/journal/38827">posts</a>. I won't be involved in that project directly (besides being an enthusiastic well-wisher), but I sincerely hope that it too will be successful.<br /><br />GSOC is going to be awesome this year, and I think that Parrot is going to benefit a lot from these two projects.

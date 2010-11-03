@@ -1,0 +1,58 @@
+---
+layout: bloggerpost
+title: GSoC Idea&#58; GMP Bindings
+publish: true
+categories: [Parrot, GSOCIdeas]
+---
+
+This conversation <a href="http://irclog.perlgeek.de/parrot/2010-03-09#i_2081531">happened yesterday on IRC</a>, with some off-topic things edited out:<br /><span style="font-family:courier;"><br /><span style="font-weight: bold;">darbelo</span>: That reminds me. I hate our bignums and want them to die...<br /><span style="font-weight: bold;">whiteknight</span>: darbelo: I agree with the bignums thing 100%. I want bignums out of the repo and moved to their own project<br /><span style="font-weight: bold;">whiteknight</span>: There's no sense keeping them when I suspect a majority of users can't use them because they don't have GMP installed<br /><span style="font-weight: bold;">darbelo</span>: Actually, I wouldn't mind them being in the core if they weren't dependant on a lib I don't have.<br /><span style="font-weight: bold;">darbelo</span>: I actually had started to write a stand-alone BigInteger PMC after last year's SoC.<br /><span style="font-weight: bold;">whiteknight</span>: that would make an awesome project too.<br /><span style="font-weight: bold;">whiteknight</span>: I think we should have lots of projects like that, and for developers to be able to pick which solution they want<br /><span style="font-weight: bold;">whiteknight</span>: as we are now, it's easier to force BigInt to pretend to do what we need instead of just using the best solution, which might be DecNumber or something else<br /><span style="font-weight: bold;">darbelo</span>: Maybe, but GMP is much, much more than just bignums. It's a pretty big library.<br /><span style="font-weight: bold;">darbelo</span>: Our PMCs don't even start to scratch the surface of what GMP can do.<br /><span style="font-weight: bold;">whiteknight</span>: darbelo: so moving those PMCs out to a separate library and adding wrappers for other functionality might be nice<br /><span style="font-weight: bold;">darbelo</span>: I would consider a GMP binding much more valuble to parrot than our current use of the lib, yes.<br /><span style="font-weight: bold;">bubaflub</span>: last year i worked a bit with GMP library and suggested to dukeleto we work on a GMP binding for parrot<br /><span style="font-weight: bold;">bubaflub</span>: last year with GSOC and perl 5<br /><span style="font-weight: bold;">darbelo</span>: bubaflub: That would be nice to have.<br /><span style="font-weight: bold;">bubaflub</span>: though we used an existing perl 5 binding (Math::GMPz)<br /><span style="font-weight: bold;">whiteknight</span>: yes, that would be a wonderful project<br /><span style="font-weight: bold;">bubaflub</span>: but we could nab the test suite and what not<br /><span style="font-weight: bold;">whiteknight</span>: exactly. We have the two PMC types, and we could write wrappers for the rest of the library and get all sorts of additional power<br /><span style="font-weight: bold;">bubaflub</span>: i think access to the GMP library in general would be nice; the stuff i worked on last year was setting some foundational stuff for cryptography libraries<br /></span><br />Parrot has two PMC types that wrap GMP: BigInt nd BigNum. I think, and apparently a few people agree, that these two types have no business being in the core Parrot repository and should be moved to another project. The immediate benefit to this would be that the bindings for GMP could be improved and expanded independently, instead of only providing what little functionality Parrot actually makes direct use of.<br /><br />A good GSoC project for this year would be to move (or fork) the current BigInt and BigNum PMC types to a new project and use them as the cornerstone for writing a more comprehensive interface for the GMP library.This could include other PMC types, NCI function wrappers, PMC methods, ops, and other  things to allow access to the power of the GMP library. Adding custom Integer-like and Float-like PMCs that autopromote to their Big- counterparts would be nice too.<br /><br />For more info about this project, you could probably get in touch with myself, darbelo, or bubaflub.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='253347109980543872'></a>
+    <p class='blogger-comment-body'>
+        Perl 6 requires arbitrary precision integers for the "Int" type, which is a type that is presumably used in every single Perl 6 program.<br /><br />I guess that it would require a Parrot type that uses native integer arithmetic (so that calculations won't be slow for small numbers) and automatically upgrades to some kind of BigInt whenever an integer overflow happens.<br /><br />Parrot's "Integer" PMC seems to do this.  Will it still be available after you remove the GMP dependency?
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Anonymous</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#253347109980543872'>
+                3/10/2010 12:21:40 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='2514053629255219098'></a>
+    <p class='blogger-comment-body'>
+        Rakudo already doesn't use Parrot's built-in Integer PMC type, so the behavior of what Parrot's type does or does not do is sort of irrelevant.<br /><br />But you're right, if BigInt and BigNum move out of the repo (and this is just an idea I had, the rest of the community hasn't signalled any support for it yet), Integer will lose the autopromotion behavior.<br /><br />Of course, I think that's a good thing. Parrot shouldn't be making decisions with respect to the autopromotion of datatypes. At least, I don't think it should be.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#2514053629255219098'>
+                3/10/2010 1:31:40 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='3906198389397747948'></a>
+    <p class='blogger-comment-body'>
+        I think i might be interested in doing this, been looking into GMP for my own project for builtin Bignums for the language, but i have it as a ./configure option so you can --with-bugnums. MPFR is interesting too because you can manualy set the precision. I am just back at my university to finish my degree after work for a year and a half at SAP so i need something to do this summer :).
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://redbrain.co.uk'>redbrain</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#3906198389397747948'>
+                3/10/2010 1:46:47 PM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

@@ -1,0 +1,57 @@
+---
+layout: bloggerpost
+title: Matrixy&#58; Current Status
+publish: true
+categories: [Matrixy]
+---
+
+In a post yesterday I mentioned Matrixy, and today I wanted to give a quick overview about the state of that project.<br /><br /><span style="font-size:180%;">History</span><br /><br /><a href="http://code.google.com/p/matrixy">Matrixy</a> was an Octave/Matlab clone that I had started working on a while ago when I first got involved with Parrot. I had been working on it idly while still in school, but never made it very far because of my lack of knowledge at the time and my other commitments (like, school). I got in contact with a guy named Blair from the UK who was interested in working on the project, and together we set up a project page on Google Code to pursue it.<br /><br />For a while things moved pretty quickly and we were able to implement many of the idiosyncratic features of that language reasonably well. Blair also did some great work writing bindings for CLAPACK and CBLAS, so Matrixy has reasonable linear algebra support (although many operations just haven't been implemented yet) through those libraries.<br /><br />However, things eventually slowed down. Blair started working on some changes to function dispatch that would enable variable function parameter lists and variable function return lists. Because of his work in this area, I held off on some of my own dispatch-related work, and started focusing on Parrot proper. Long story short, Blair got stymied by some bugs in Parrot which also happened to be things that I was blocking on (PCC refactors being a good example), and development on Matrixy stopped completely. Yesterday I fixed a few small things, but that's hardly the same as the project being active.<br /><br /><span style="font-size:180%;">Current Status</span><br /><br />Despite the fact that Matrixy isn't being as actively developed now as it has been in the past, it still has and supports a number of important language features. Not all of the implementations are as good or as efficient as they should be, but they do exist. Here's a quick rundown:<br /><ol><li>Support for variables, scalars, and matrices, and most of the operators that act on those things. This includes automatically-growing matrices, autovivification, basic matrix operations, and functions that can tell whether a value is a matrix, a vector, or a scalar. 2-D matices only.<br /></li><li>Support for basic string operations, string printing, string concatenation</li><li>Nearly-proper handling of semicolons to print statement values<br /></li><li>Nearly-proper disambiguation between variables and functions using parenthesis</li><li>Proper runtime loading of library functions from files. So the function foo() will be automatically found and loaded from file foo.m</li><li>if/then/else, for loops, maybe some other control structures too that I can't remember.<br /></li><li>Ranges and iterators using ..</li><li>Calls to system commands using !</li><li>handing of path search locations</li><li>Function handles and anonymous functions</li><li>Complex numbers</li><li>try/catch</li><li>Several library functions written in PIR and M.</li><li>Help functions to read documentation from M files<br /></li></ol>So that's a decent list of features that work or mostly-work, and that's nothing to thumb your nose at.<br /><br /><span style="font-size:180%;">The Path Ahead</span><br /><br />There are obviously more things that we need: cell arrays, structures, nargin/varargin/nargout/varargout, and others. We also need to find some kind of graphics package to tap into eventually that will enable us to implement some of the graphing functions. There are hundreds of other functions as well that need to be implemented and tested, more then I would be able to name here.<br /><br />At the moment Matrixy only works with a development Parrot, it needs to be made to work with an installed Parrot (or both, if possible).<br /><br />It needs to be better tested and several corner cases need to be stabilized.<br /><br />And I really think that we need some significant internal refactors for a variety of systems and functions. I would love to even rewrite some of the PIR parts in Close, if I was able to do that.<br /><br />I would like to separate it out into two separate (but related) projects: the Matrixy compiler itself, and the linear algebra libraries that could be reused by other languages to gain immediate, powerful, linear algebra support.<br /><br /><span style="font-size:180%;">Overview</span><br /><br />So that's a general overview of what Matrixy is, what it's current state is, and where I think development is headed. I don't think I will be focusing much of my effort on it in the near-term because of other tasks I want to work on for Parrot, and other things I have going on in real life. However, I will be dabbling on it here and there, and would like to get other developers interested in working on it too. No reason why it shouldn't be progressing just because I am not devoting a lot of time to it.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='7214496745467549239'></a>
+    <p class='blogger-comment-body'>
+        Hello,<br />Rather late in the day, but what was your performance like? Parrot is really nice for dynamic languages, is it great for numerical intensive languages? I guess  many intensive algos will be done via BLAS, so that's okay, but what about algorithms written in Matrixy itself? How was the performance of that?<br />Much thanks(you can mail me at saptarshi DOT guha  AT   gmail DOOT com)<br />Saptarsi
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Sapsi</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7214496745467549239'>
+                9/27/2009 10:23:54 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='6990229292203159164'></a>
+    <p class='blogger-comment-body'>
+        Hello,<br />I have one more question, regarding MatrixXY. Could you update the build process to work with Parrot 1.6? It doesn't seem to run.<br />Regards<br />Saptarshi
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Saptarshi</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6990229292203159164'>
+                9/27/2009 11:32:51 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='6955303214272927234'></a>
+    <p class='blogger-comment-body'>
+        Hello Sapsi, thanks for the comments.<br /><br />The performance of Matrixy wasn't that great. However, much of the performance issue was because of naive parsing and lots of hack-around work that we had to do to get certain things working. We have a profiling tool now in Parrot that could be used to improve performance significantly though, so maybe that's something we could work on.<br /><br />But you are right, most of the intensive numerical calculations were done in BLAS, although we did have to do some expensive stuff to get arguments from Parrot into BLAS matrices. On thing that I would like to do later if we have a chance would be to create a PMC type in C that handles multidimensional arrays in the same format that is expected by BLAS. That would save us from performing expensive structure translations.<br /><br />Also, Matrixy never worked with an installed Parrot, you need to configure and build matrixy from inside the Parrot build directory. This is another issue that we need to fix. I'll post a guide on the website about how to do this.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6955303214272927234'>
+                9/28/2009 7:53:09 AM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

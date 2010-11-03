@@ -1,15 +1,25 @@
-<?xml version="1.0" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>{{ page.title }}</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" href="/stylesheets/whiteknight.css" type="text/css">
-    </head>
-    <body>
-        <h1>{{ page.title }}</h1>
-        <div class="content">
-            {{ content }}
-        </div>
-    </body>
-</html>
+---
+layout: site
+---
+
+<span class="post-tags">
+    Tags:
+    {% for category in page.categories %}
+        {% if forloop.first %}
+            {{ category }}
+        {% else %}
+            &nbsp;&mdash;&nbsp; {{ category }}
+        {% endif %}
+    {% endfor %}
+</span>
+<br />
+<br />
+{{ content }}
+<br/>
+<br/>
+<span class="small-note">
+This entry was originally posted on <a href="http://wknight8111.blogspot.com">Blogger</a>
+and was <a href="http://github.com/Whiteknight/blogger2jekyll">automatically converted</a>. There
+may be some broken links and other errors in the conversion.
+</span>
+

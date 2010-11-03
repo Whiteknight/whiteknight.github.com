@@ -1,0 +1,8 @@
+---
+layout: bloggerpost
+title: LALR Parser Generator for Parrot
+publish: true
+categories: []
+---
+
+I've been kicking around the idea since last night about trying to implement an alternative grammar generator scheme for Parrot. The current implementation is based on a Recursive Descent parser, very similar to Parse::RecDescent (which is to be expected since they are both written by the same developer, Damian Conway). Recursive Descent here is an LL(0) technique, at least I assume so because I haven't looked deeply at how lookahead is implemented. LL grammars, with the exception of predictive parsers utilize "Backtracking" to try certain productions and return to the last good parse position if a particular production fails. Backtracking, as I know from experience, can be very costly especially in certain grammars. On the other hand, LALR parsers which are LR(1) are bottom-up, so they don't require backtracking and can be more efficient then LL parsers in many situations.<br /><br />I would like to try my hand, in the coming months, at writing an LALR parser generator utility for Parrot, that would operate similarly (and possibly even plug-in seamlessly) with the current compiler generator tools. Maybe the two could be differentiated by some kind of argument or pragma. This will be, I think, good practice for me, and a good way to get my hands dirty in the Parrot project.

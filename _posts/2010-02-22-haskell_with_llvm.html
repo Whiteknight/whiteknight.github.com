@@ -1,0 +1,59 @@
+---
+layout: bloggerpost
+title: Haskell with LLVM
+publish: true
+categories: [JIT, Parrot]
+---
+
+[<span style="font-weight: bold;">Update 23 Feb 2010</span>: I've been informed that this was not a JIT, but instead a native-code generation backend for LLVM demonstrating LLVM's aggressive optimization potential. These numbers are not representative of JIT performance.]<br /><br />Several people sent me a link to a very interesting blog post yesterday about using <a href="http://donsbot.wordpress.com/2010/02/21/smoking-fast-haskell-code-using-ghcs-new-llvm-codegen/">LLVM to provide native code generation for Haskell in GHC</a>. I recommend it as an interesting read.<br /><br />One thing I will point out is that the blog post doesn't really explain the whole situation. He shows plenty of examples where LLVM improved performance, but only mentions briefly that this isn't typical of larger programs and that most programs won't experience as much speed up, if any. So to anybody who reads this remember the caveat that the results aren't typical. JIT speeds some things up and <span style="font-style: italic;">slows some things down</span>. It's not a magic bullet that makes everything better.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='5797653422441181487'></a>
+    <p class='blogger-comment-body'>
+        Just to clarify things (author here), this isn't a JIT backend -- this is a new, alternative native code backend for GHC, which already has two native code backends.<br /><br />GHC generates, in this case, LLVM bytecode, and then assembly, which is linked statically. <br /><br />LLVM happens to optimize a few cases better than the existing GHC backends based on GCc, and a native one written in Haskell. It isn't always faster, but it does better at the loops generated via the stream fusion optimization..<br /><br />Now, obviously, if you do replace a bytecode interpreter with LLVM-based JIT, you'll probably see great speedups, but that's not what is happening here.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://dons.pip.verisignlabs.com'>dons</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5797653422441181487'>
+                2/23/2010 12:32:19 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='5593771709181348065'></a>
+    <p class='blogger-comment-body'>
+        Thanks for the information dons! I guess I mis-understood some bits of what was happening. I'll update the post to make clear that this is not a JIT.<br /><br />Thanks again
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5593771709181348065'>
+                2/23/2010 8:40:22 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='7678722133252726357'></a>
+    <p class='blogger-comment-body'>
+        thats good info mate! Not sure but do you know if libjit is still maintained? I took the latest tarball and played with some examples and they worked nicely the api is nice, but i ran them through valgrind and i get memory errors :S just the example code. Not sure whats happening libjit these days i guess thats whats made llvm very popular now :0 even though yeah llvm is pretty cool it scares me since its soo massive!
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://redbrain.co.uk'>redbrain</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7678722133252726357'>
+                2/25/2010 1:01:51 PM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

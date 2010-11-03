@@ -1,4 +1,154 @@
 body {
     background-color: #282828;
-    background-color: #BBBBBB;
+    color: #AAAAAA;
+}
+
+a {
+    color: #2B91AF;
+}
+
+a:hover {
+    color: #008080;
+}
+
+a:visited {
+    color: #800000;
+}
+
+div#main-content {
+    margin-left: 5em;
+    margin-right: 5em;
+}
+
+div#content {
+    border: 2px solid #2B91AF;
+    padding: 5px;
+    background-color: #F8F8F8;
+    color: #282828;
+    margin-right: 380px;
+}
+
+div#sidebar {
+    float: right;
+    width: 350px;
+    border: 2px solid #2B91AF;
+    padding: 5px;
+    background-color: #F8F8F8;
+    color: #282828;
+}
+
+div#main-title-div {
+    margin-top: 3em;
+    margin-bottom: 1em;
+}
+
+h1 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+h2 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+h3 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+h1#main-title {
+    margin-left: 3em;
+}
+
+td.post-date {
+    color: #C0C0C0;
+}
+
+span.post-tags {
+    font-size: x-small;
+}
+
+span#main-intro-site-stats {
+    float: right;
+    color: #808080;
+    font-size: smaller;
+}
+
+div.widebar {
+    border: 2px solid #2B91AF;
+    padding: 5px;
+    background-color: #F8F8F8;
+    color: #282828;
+    margin-left: 5em;
+    margin-right: 5em;
+
+}
+
+div.sidebar-section {
+    margin-bottom: 1em;
+}
+
+h3.sidebar-heading {
+}
+
+div#main-footer {
+    margin-top: 1em;
+    margin-bottom: 3em;
+}
+
+blockquote {
+    border: 2px solid #2B91AF;
+    background-color: #E0E0E0;
+    color: #282828;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+div.blogger-comment-div {
+    border-top: 1px solid #2B91AF;
+}
+
+div.blogger-comment-author-div {
+}
+
+div.blogger-comment-body {
+    margin-left: 3em;
+    margin-right: 3em;
+}
+
+span.small-note {
+    font-size: smaller;
+    color: #C0C0C0;
+}
+
+table#main-title-table {
+    width: 100%;
+    margin: 5px;
+}
+
+td#main-logo-A {
+    width: 60px;
+    background-color: #282828;
+}
+
+td#main-logo-B {
+    width: 60px;
+    background-color: #808080;
+}
+
+td#main-logo-C {
+    width: 60px;
+    background-color: #008080;
+}
+
+td#main-logo-D {
+    width: 60px;
+    background-color: #2B91AF;
+}
+
+td#main-logo-E {
+    width: 60px;
+    background-color: #800000;
 }

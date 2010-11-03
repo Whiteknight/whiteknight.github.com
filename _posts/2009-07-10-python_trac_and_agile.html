@@ -1,0 +1,137 @@
+---
+layout: bloggerpost
+title: Python, Trac, and Agile
+publish: true
+categories: [Work, Agile, Trac, Python]
+---
+
+Haven't blogged in a few days, and it's not because I've been burned out from my blogging sprint two weeks ago like some people suggested. I've been under the weather and have had a lot of other things going on that required my attention. I actually have drafted several posts, just haven't published any of them for a variety of reasons. I have been getting good feedback still from several of my older posts, so that's nice to see.<br /><br />At work we've been trying to become more Agile, and my boss has started using the curious words "agile" and "scrum" more frequently. We've had a very small team here for a while and our development processes have been very ad hoc and personalized. When your "team" is one person, and each "department" is one or two people, it's hard to say we need to implement particular methodologies to help promote better team development. Of course, as we grow the need for more standardized methodologies is becoming clear.<br /><br />We set up a development server with <a href="http://subversion.tigris.org/">SVN</a>, <a href="http://trac.edgewall.org/">Trac</a>, and <a href="http://www.mediawiki.org/wiki/MediaWiki">MediaWiki</a> for our team to use. We had been using <a href="http://www.dynamsoft.com/">DynamSoft</a>'s Visual Source Anywhere Hosted service for our source control, which worked reasonably well when our team was smaller. However, as we grew larger and as our network infrastructure became more capable, it was less and less of an attractive option then running our own SVN repository on one of our development servers. We were also using DynamSoft's Issue Tracking Anywhere, which I never liked personally and found to be far less helpful to us then a free alternative like Trac or <a href="http://www.bugzilla.org/">Bugzilla</a> would be.<br /><br />So I created installed SVN and created the repository (easy), installed <a href="http://www.apachefriends.org/en/xampp.html">XAMPP</a> (easy) and MediaWiki (very easy). Then, it was time to install Trac. Saying that the installation (and ongoing configuration and maintenance) was difficult is an understatement. Welcome to dependency hell. <span style="font-style: italic;">Lasciate ogni speranza voi chi entrate.</span><br /><br />XAMPP installed <a href="http://www.apache.org/">Apache 2.2</a>, and I picked up the "latest" SVN (which is what the Trac documentation specified), which happens to be 1.6.3. I'm running this whole monstrous software stack on Windows Server. And <span style="font-style: italic;">don't tell me to use Linux instead</span>, that isn't an acceptable or available solution in this case. I first tried installing everything on the existing IIS server, but  that was even worse of a nightmare. So, I have made some concessions by running Apache instead (although the IT guys aren't thrilled about having one special-case Apache server in a whole network of all IIS servers, but they are going to deal with it).<br /><br />Between the core <a href="http://www.python.org/">Python</a> distribution (2.5), modpython (3.3.1), the python SVN bindings, and Trac, there are very very few setups that I can use to ensure compatibility. Combine this with the fact that I have the newest SVN (1.6.3 at the time) and the newest Apache (2.2), and there are very few configurations that seem to work. Following the installation instructions for Trac alone give me huge headaches because the versions specified in the installation instructions don't work together, and that's straight out of the Trac documentation.<br /><br />I've been able to get Trac o.11 installed and working but I have not been able to install any of the plugins we are interested in. Apparently most of the newest plugins expect Trac 0.11 to have Genshi 0.6, but my installation manages only to have Genshi 0.5.2. I tried to update, but Genshi doesn't appear to be compatible with Python 2.5 or something, and that failed. Too many error messages that I've seen over the course of a week of trying now, I can't remember what they all are specifically.<br /><br />We already have Trac installed and in use by our team, so I'm not switching now to use Bugzilla or something different. However, as my first real experience with the Python ecosystem I am severely unimpressed and even disheartened. It is far more difficult getting these kinds of things installed then it should be. I don't deny that I've been a bit spoiled by Perls CPAN, and Ubuntus apt-get repository system, things that <span style="font-style: italic;">just work</span> when I want them to.<br /><br />The documentation I have seen (when any even exists) and the "help" I've been able to get from people is sub-par <span style="font-style: italic;">at best</span>. Maybe that's the norm in the Python world or the open source world in general, and that's very upsetting to think about. It is all the more reason why I believe so strongly in the Parrot concepts of interoperability and platform abstraction.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='1049755712995128068'></a>
+    <p class='blogger-comment-body'>
+        The correct quote is "Lasciate ogni speranza voi che entrate" :-)
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/12395088752340177192'>Giltar</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#1049755712995128068'>
+                7/11/2009 2:32:00 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='1443778823699321310'></a>
+    <p class='blogger-comment-body'>
+        bitnami trac package? svn, trac, wiki all from  box and correctly configured to run from start...
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/05643911533214903692'>Константин Казимиров</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#1443778823699321310'>
+                7/11/2009 5:17:46 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='2149633719903130322'></a>
+    <p class='blogger-comment-body'>
+        Uhh, running trac on IIS is a far worse option than virtualizing a Linux instance and running trac in there. IIS and Windows is simply not taken into consideration for its development, among many things because Windows doesn't really have adequate dependency managent. Installing trac on a Debian server is as simple as getting a package and touching a couple of configuration files.<br /><br />It's not about tooting the Linux horn, but in the same way you wouldn't run ASP.NET apps on Linux even if Mono es perfectly capable of doing it, you don't run Python web applications on Windows. It's not a matter of compatibility, it's a matter of having an environment designed from the beginning to host that sort of thing.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/06307436594828909964'>Daishiman</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#2149633719903130322'>
+                7/11/2009 5:28:36 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='5004629267949335714'></a>
+    <p class='blogger-comment-body'>
+        Don't blame Python.  It's Trac that's not very well maintained / documented.  We managed to get all the plugins up and running though, including Bitten (the hardest), if you use a standalone server it'll probably easier.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Alex</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5004629267949335714'>
+                7/11/2009 5:41:30 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='6912729513972065760'></a>
+    <p class='blogger-comment-body'>
+        I gave up on using IIS very early in the process because it was clear that it wasn't supported to do so. I had to pull some major strings with IT in order to get IIS shut off and Apache installed on that box, anything with virtualization and adding another layer is bureaucratically impossible. I'm a Linux guy and would definitely use Linux if it was possible.<br /><br />I do understand that Trac is really designed on Linux, but there are pages on their wiki about how to install on Windows, so I have to think it is possible and some effort has gone into testing it out. <br /><br />I shouldn't have blamed python, from what I see of the Python core it's actually very well documented and has good installation on Windows. However, it's also not just Trac that caused problems: modpython and the python svn bindings were both poorly documented and created dependency issues that were subtle.<br /><br />We did use the tracd standalone server for a while, but that creates a usability problem. We would have MediaWiki running on apache on one port, and trac running standalone on another, and that creates one more obnoxious step in linking between the two and integrating their content. Maybe it's just a small thing, but obnoxious nonetheless
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6912729513972065760'>
+                7/11/2009 6:59:06 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='1234608529550277175'></a>
+    <p class='blogger-comment-body'>
+        The only thing you need to do to add a plugin in trac is drop the python egg into the plugin directory, then add the desired lines into the trac.ini. If you can make an egg you're set.<br /><br />Also whats the  thought behind using trac but not it's wiki?
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/08764524861426905210'>morgan goose</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#1234608529550277175'>
+                7/11/2009 10:22:51 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='7875340086058671176'></a>
+    <p class='blogger-comment-body'>
+        I develop python web apps on windows and rarely if ever run into many problems.<br /><br />First I would never use mod_python, do yourself a favor and use mod_wsgi instead.<br /><br />Second for installing things like Genshi, use pip or easy_install. If you want to use a bleeding edge svn checkout make a special folder and add it to your python path.*<br /><br />*Adding things to the python path in Windows can be wierd, since it is done through the windows registry.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>Anonymous</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7875340086058671176'>
+                7/11/2009 10:34:45 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='5059163302636937067'></a>
+    <p class='blogger-comment-body'>
+        I've tried installing no fewer then three separate plugins to trac using the egg method you describe. All three of them failed silently and I have not been able to figure out why.<br /><br />We are using MediaWiki instead of Trac wiki because MediaWiki is a better wiki platform for our team. Unlike trac, it has a large number of platforms that DO install very easily, and satisfy our needs. There are good plugins for WYSIWYG editors, Wiki2PDF converters, live chat, etc. Basically, it's a better and more mature and more usable as a wiki platform then Tracs wiki.<br /><br />I used easy_install to install both Trac and Genshi initally, and it gave me incompatible versions of both, raised a very cryptic error, and exited. It took extra time for me to manually uninstall and then manually reinstall both.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5059163302636937067'>
+                7/11/2009 8:06:19 PM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

@@ -1,0 +1,59 @@
+---
+layout: bloggerpost
+title: SVN or Git
+publish: true
+categories: [Git, Parrot]
+---
+
+As I mentioned in my last post, the discussion about whether we move to Git from SVN has been raging pretty hard in the past few days, and while the general opinion seems to be one in favor of a move, there certainly isn't concensus on the point just yet.<br /><br />I'm in favor of Git, although I certainly wouldn't list my bent as a "passion" as some opinions in the community have been described. In Parrot world I use SVN exclusively. I could use git-svn, or I could try to use dukeleto's Git mirror on Github, but I don't. As far as I am concerned those add an additional layer of complexity, an additional abstraction that layer that I can ignore most of the time until something goes wrong. It simply isn't worth it to me to try and force a Git interface onto Parrot's SVN repository.<br /><br />Let me tell a short story.<br /><br />When I was a graduate student I was given a "computer" for my "desk" in my "office" that I could use to do my normal school work and also to develop my thesis. This computer was a complete beast of a performance machine. At least, it had been several years earlier when it was first purchased. By the time I got it, circa 2006, it's 12Gb hard drive and screaming 128Mb RAM weren't quite as impressive comparatively.<br /><br />I was paranoid about data integrity, considering I was working on the most important academic project of my whole life on the least qualified machine on campus. So, I took some steps to help shore up my defenses. First thing, I scrounged together several other small harddrives from other dusty computer carcasses. I removed the CDROM drive and jammed four HDDs into my case. Two of them were just hanging inside because there wasn't enough space to physically mount them all. I also had a shared network drive supplied by the university, a flash drive, and a personal laptop.<br /><br />I set up SVN on the computer, and backed up my work as follows: On the second drive was where my work was (the first drive was barely large enough to hold Windows XP and the other software I needed). I had a script that I used to simultaneously svn co my work to the third drive and xcopy my working directory to the fourth. I had an hourly task that would then backup my svn repo from the third drive and an xcopy of the directory on the fourth drive to the network shared drive. At the end of each day, I would xcopy my working directory to my flash drive, go home, and store a copy on my personal laptop. About once a week I would email myself a copy of my thesis paper, in hopes that if all else failed, at least Google could safeguard the all-important final deliverable.<br /><br />This may all sound excessive, but by the end of the year I had lost two hard drives (one of which actually caught on fire), my flash drive got crushed, and the network drive has experienced several outages.<br /><br />Story aside, the idea that there is only one copy of the entire history of the Parrot repository (or even two copies, assuming the server has a tape backup plan) is hardly reassuring to me. This is why I really like the Git idea that everybody has a complete copy of the entire history of the repository.<br /><br />Let's look at things from a different angle: Git is a distributed version control system. While it certainly supports it, there is no true need for a single, central, "master" repository to work from. We could, as a community, radically change our workflow if we had Git. If we were going to use it exactly the same way as we currently use SVN, there really isn't enough of a reason to switch.<br /><br />What we have now is a single master trunk, which is where most of the action takes place. People make branches, do work, merge them to trunk. Then, on the second Tuesday of every month, somebody copies trunk to a tag, calls it a release, and we continue on with our normal development.<br /><br />So let's imagine a different workflow. I'll posit one example, but this certainly isn't the only choice. With Git, everybody has their own local branch where they do work and make commits. Hell, "everybody" here can be a much larger group than the committers we have now: Anybody can make a fork and do work on their own local branches. We could have something like a master integration branch where trusted committers could pull changes from the entire ecosystem. The integration branch would be more like a testbed and less like a master reference copy.<br /><br />From the integration branch, a monthly release manager would cherry pick the good stable features of the integration branch into a release master branch. At the end of the cycle, the release manager's master branch would get tagged as a release, and would become the new baseline integration branch. Remaining changes from the previous integration branch could be pulled in if they were worthy or if they gained more maturity. At that point, the old integration branch could disappear, and the cycle starts again.<br /><br />This idea is more complex than our current system, but it does have a few nice features. First, we can strive for higher-quality releases by keeping closer track of what ends up in the release branch. Second, we can try to get more people involved by allowing everybody to create a development branch to do "real" work, not just our designated committers. Third, the release manager has more control over releases, including being able to shift the focus on the release and be able to drive it in a way that is not possible now.<br /><br />I like Git, I like the idea of it and I like the things that it makes possible. I don't dislike SVN, but it doesn't have any compelling features that make me want to stay with it. SVN is good but not great, and there's one usage pattern for SVN that works but is limiting. SVN isn't hurting Parrot, but it's not lifting us up to the next level either.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='856831411754526027'></a>
+    <p class='blogger-comment-body'>
+        Andrew,<br /><br />I would like to thank you for this thoughtful post.  It has the careful consideration of the strengths and weaknesses of different VCSes -- and different approaches to using VCSes -- that I was hoping to encourage with my post to the parrot-dev list.<br /><br />The most interesting part of your post for me is not the "Subversion vs. git" part; it's your discussion of how our project workflow might change if were to move to any distributed VCS (not just git).  Let me focus on this:<br /><br />> From the integration branch, a monthly<br />> release manager would cherry pick the<br />> good stable features of the integration<br />> branch into a release master branch.<br />> ...  This idea is more complex than our<br />> current system, but it does have a few<br />> nice features. First, we can strive for<br />> higher-quality releases by keeping<br />> closer track of what ends up in the<br />> release branch.<br /><br />I recognize that you posed this as merely one possible scenario for changes in our workflow using a distributed VCS.  But I think it highlights one problem we will face:  A greater burden of work on the manager of the monthly release.<br /><br />In the past several years Parrot has conceived the role of monthly release manager (RM) narrowly -- and correctly so, in my opinion.  The RM tags a release which is passing all tests and follows a checklist to perform the release.  There is no requirement that the RM have deep knowledge about what has changed in the distro in the preceding month.  No cherry-picking is involved or even permitted.  Even I could do it! (I haven't served as RM largely because our release day always falls on the same day of the month as Perl Seminar NY meetings; I have simulated releases, however.) To paraphrase chromatic, we have made our releases boring -- and that's a good thing.<br /><br />If we were to adopt a release policy which required cherry-picking by the RM -- something which could happen in a centralized system but is much more likely in a distributed system -- we would be requiring the RM to have much deeper knowledge of current Parrot issues than we do now.  The RM would, in effect, become a pumpking.<br /><br />That may be a good thing or a bad thing -- but it is certainly a different thing.  That's consistent with my observations about the movement toward a distributed system on my day job:  It doesn't take long for an individual developer to learn the basic commands of a distributed VCS, but the changes in the whole organization's workflow and roles are major.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/10241615516525637519'>kid51</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#856831411754526027'>
+                5/5/2010 10:41:56 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='4225832265306564656'></a>
+    <p class='blogger-comment-body'>
+        I was writing a reply, but it became so large that I <a href="http://wknight8111.blogspot.com/2010/05/merits-of-distributed-workflow.html" rel="nofollow"> turned it into a full post</a>.<br /><br />Thanks for the input.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#4225832265306564656'>
+                5/6/2010 9:15:39 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='3575855685377144155'></a>
+    <p class='blogger-comment-body'>
+        yeah to be honest i have started to find my self i get frustrated when a project doesnt use git but running a git mirror isnt that much work i just trust git more than svn. Plus where i used to work people used a single svn repo for 50+ projects which is just silly. And the admin of it had the tendancy to break it which resulted in people recommited everyone elses work to re-create the svn repo.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/06814743474723808709'>RedBrain</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#3575855685377144155'>
+                5/12/2010 4:52:37 PM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

@@ -1,0 +1,27 @@
+---
+layout: bloggerpost
+title: Wikibooks Templates
+publish: true
+categories: [Wikibooks]
+---
+
+I've created a handful of new books in my time at Wikibooks, and I find that there are some processes that are common to each: We need to create a table of contents, we need to create various templates and categories, etc. Being a programmer and therefore very lazy, I try to find ways to automate these kinds of processes as well as I am able. To this end, I've created a series of what I call <b>meta-templates</b>, or templates that are used to <a href="http://en.wikibooks.org/wiki/User:Whiteknight/Simple_Header">create</a> <a href="http://en.wikibooks.org/wiki/User:Whiteknight/Page_Nav_Header2">other</a> <a href="http://en.wikibooks.org/wiki/User:Whiteknight/Page_List_Nav">templates</a>. The goal of these meta templates is two-fold: First, to make it easy to create new templates quickly, and to hide a lot of the "dirty" formatting stuff that new users shouldn't have to worry about. For new and inexperienced users this is a huge boon. They can substitute one meta-template and get a full-featured header template to use in their new book. Certainly beats having to make a template from scratch, especially since <a href="http://en.wikibooks.org/wiki/Using_Wikibooks">our documentation</a> in this area is still far from complete.<br /><br />Let's look at some of the things that a good header template will want to have:<br /><ol><li>The name of the book, which will probably double as a hyperlink to the TOC</li><li>"Next" and "Back" links, for easy navigation</li><li>Categories. The template should put all pages where it is transcluded into a category for all pages in the book.</li><li>Some documentation, to explain to users how to use the template.</li></ol>A lot of these items should only appear conditionally: Next and Back links should only appear if needed. There is no "Back" on the first page of the book, and no "Next" on the last page. Documentation about the template should appear on the template page but should not be transcluded with the template into every page in the book. The entire template will also not want to be displayed in a printed version, for various reasons. Let's look at how to implement that last requirement in wikitext:<br /><code><br /><includeonly><no</includeonly>include>[[Category:Exclude in print]]</includeonly></no<includeonly>include></includeonly><br /></code><br />This is quite a mess! But that's the purpose of the meta template, I write this mess once and nobody else ever has to do it again. When we substitute the meta template to create a new navigation template, we get this:<br /><code><br /><noinclude>[[Category:Exclude in print]]</noinclude><br /></code><br />So that makes more sense to see the result. We have to do all the mess above because if we didn't break up the <code>noinclude</code> tags in the meta template, they would disappear when we substituted into the navigation template.<br /><br />Let's look at the related, but more complicated, problem of having next and back links that appear only when values are provided. Here's the code that I have to use in the meta-template:<br /><code><br /><includeonly>&#123;&#123;</includeonly>#if: &#123;&#123;&#123;last|&#125;&#125;&#125; | ← [[&#123;&#123;&#123;book&#125;&#125;&#125;/&#123;&#123;&#123;last&#125;&#125;&#125;|&#123;&#123;&#123;last&#125;&#125;&#125;]] | &#125;&#125;<br /></code><br />Again, without the <code>includeonly</code> tags put in those weird places, the <code>&#123;&#123;#if:&#125;&#125;</code> tag would disappear when we substituted. Now when we substitute, the <code>includeonly</code> tags disappear, leaving a perfectly-formed tag in their place:<br /><code><br />&#123;&#123;#if: &#123;&#123;&#123;last|&#125;&#125;&#125; | ← [[&#123;&#123;&#123;book&#125;&#125;&#125;/&#123;&#123;&#123;last&#125;&#125;&#125;|&#123;&#123;&#123;last&#125;&#125;&#125;]] | &#125;&#125;<br /></code><br />This string of stuff isn't exactly clean and isn't easy to read either, but at least the new users don't have to write it themselves. Anything we can do to decrease the barrier to entry for aspiring new book authors is always a good thing.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='1219174034026532357'></a>
+    <p class='blogger-comment-body'>
+        i like ur website. thanks for this comment posting...<br />more templates <a href="http://www.itemplatez.com" rel="nofollow"> easy to download </a>
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/03762850028494302292'>william</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#1219174034026532357'>
+                6/6/2009 9:14:05 AM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

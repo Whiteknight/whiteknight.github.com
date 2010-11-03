@@ -1,0 +1,16 @@
+---
+layout: site
+title: All Posts
+---
+
+<table id="posts-table">
+{% for post in site.posts %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="file:///home/andrew/projects/whiteknight.github.com/_site{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+</ul>

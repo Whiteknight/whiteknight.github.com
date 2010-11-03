@@ -1,0 +1,90 @@
+---
+layout: bloggerpost
+title: Lorito&#58; A Design
+publish: true
+categories: [Parrot, Lorito]
+---
+
+Cotto has been putting together a really great <a href="http://trac.parrot.org/parrot/wiki/LoritoRoadmap">checklist for Lorito</a>, the new microcoding approach that the Parrot developers are hoping to implement soon. The first step on the checklist, creating a proper compiler for our ops code <a href="http://en.wikipedia.org/wiki/Domain_Specific_Language">DSL</a> is already complete. Today at #parrotsketch <a href="http://irclog.perlgeek.de/parrotsketch/2010-07-06#i_2523352">Allison also mentioned some things </a>about Lorito, and how we should start focusing more effort on it. I, for one, am very happy about that.<br /><br />In this post I'm going to play architect and spell out a vision for Lorito. At the very least, this will be a good play-excercise. I don't expect everybody to like all the things I say here, but I do expect this post to generate some thought and discussion.<br /><br />On the ground floor, Lorito needs to be able to do what C code does now. Actually, it really needs to be able to do much of what the underlying hardware machine does now. C is just a useful abstraction over the hardware, one that people are familiar with. What we don't want to be doing is creating our own <a href="http://en.wikipedia.org/wiki/Application_binary_interface">ABI</a>, or creating new low-level calling conventions or anything like that. Those kinds of problems are already resolved and if we want to be able to tap into the myriad of existing libraries we will want to stay compatible with existing conventions.<br /><br />We want Lorito to interact with raw integers and pointers, including pointer dereferences and pointer arithmetic. This is important so that we can easily work with C-level arrays and pointers. I can't think of a modern architecture where pointers and integers are different sizes and are treated differently, but I can't say I'm familiar with every architecture in current use. I don't foresee any huge problems with creating an opset that works transparently with integers and pointers.  We also want Lorito to be able to call <a href="http://en.wikipedia.org/wiki/X86_calling_conventions#cdecl">C-level functions</a>, including indirect calls through a function pointer. There's no hard requirement yet stated that Lorito needs to be binary compatible with compiled C code, but I think we can all agree that such would be a major benefit. In fact, if we had a utility that could compile Lorito directly into C code, that would be the best intermediate step we could take. As I will discuss next, such a tool would make the conversion of Parrot to using Lorito easier in the long run. We probably don't want Lorito-to-C conversion to be a permanent part of our build, but it does get us moving now.<br /><br />The PASM ops are currently written in C. If Lorito does everything that C can do, eventually they could all be rewritten in Lorito instead. That raises the interesting idea that groups of Lorito ops can be composed into more complex higher-level ops. PASM then becomes little more than a set of predefined convenience compositions, though it certainly does not represent the complete set of possible compositions. Dynops would just be custom predefined Lorito compositions and, since they wouldn't be defined in machine-code libraries, their definitions could be included directly in bytecode for later use.<br /><br />In fact, while we are moving down this though path, we get to the idea that we could identify repeated patterns of Lorito ops at compile time, and define custom compositions on the fly. This allows us to compress packfiles for size without really adding all the overhead of general-purpose compression algorithms. When optimizing code, if we can apply an optimization to any composed op, even those identified on the fly, those optimizations can be immediately used anywhere the composition op is. This allows us to prune branches out of the parse tree when optimizing quickly.<br /><br />Any language for which a compiler exists to convert it to Lorito can be considered an "overlay" language for Lorito. We can then use any overlay language any place where we can use Lorito. For instance, if NQP is converted to output Lorito (and composition ops) directly, we can then use NQP to define all the PASM ops, all the core PMCs, and several parts of Parrot's core. That would be quite the turnaround from how NQP is used currently.<br /><br />Conversely, almost any C code can be rewritten in Lorito, so long as we have a step in the build to preprocess Lorito back into valid C code. In fact, I see no reason why we cannot interleave code written in both languages, in a manner analogous to how the Q:PIR construct allows PIR code to be written in NQP source. If we had a preprocessor that scanned code files and converted Lorito ops into equivalent C code line-by-line, we could start slowly rewriting much of Parrot, if not all of it, in Lorito. Then, once we have converted all the code over that we need, we could change the build process to convert those code files to bytecode instead of machine code, and run large parts of Parrot's code through the runcore.<br /><br />Alternatively, instead of writing core code in Lorito directly, we could write core code in any Lorito overlay language. NQP comes to mind here. <br /><br />The huge benefit to be had is that if user programs are written in a Lorito overlay, and Parrot itself is written primarily in Lorito or an overlay, our eventual JIT can record traces across the API boundary, and optimize hot sections of the Parrot core on the fly at runtime. <br /><br />Here ends the part of the blog post concerned with overarching architecture discussions. Let's get down to the nitty-gritty details.<br /><br />Lorito is going to want some basic arithmetic operations: addition, subtraction, multiplication and division on integers (pointers) and floating point numbers. We're also going to want modulus, address-of (C &) and pointer dereference (C unary *) for integer/pointer types, int-to-float and float-to-int cast operations. Logical operations are probably essential as well: and, or, xor, not. Logical inversion (C unary !) would probably be necessary as well. Assuming we can find a way to share ops for int/pointer and float operands (which I doubt we can do in an elegant way), that's still about 20 ops we're going to want to even perform basic manipulations on numbers. I can't imagine any modern, robust, mature virtual machine which doesn't perform these operations readily.<br /><br />On top of basic mathematical operations, we're going to need some important operations for calling subroutines: Passing and retrieving arguments, calling subroutines, returning with values. I don't know how low-level Lorito intends to get, but let's face the reality of the world: Hardware machines are stack-based. Every library function we want to call is probably going to be passing arguments on the system stack. If we want to be defiant and call these ops "pass_arg" and "retrieve_arg" to hide the fact that Parrot is using the system stack, that's fine by me. The "stacks are evil" mantra, while occasionally misguided, is definitely firmly ingrained in Parrot culture.<br /><br />In a minimalist world, the only ops we would really need are ops to call functions with passed arguments. We could implement every other op as a huge library of functions to call. Of course this would be extremely sub-optimal, but it does open a new possible avenue: Any operation which is sufficiently uncommon could be turned into a function call instead of having a dedicated op. We could encapsulate the call in a composite op. There are lots of options here, we have to weigh the desire to have a smaller op set against the need to have ready access to a huge myriad of low-level operations.<br /><br />Having ops to do basic ops is necessary but not sufficient. I don't think we can sit back on our laurels and be happy with an op set that only does a subset of what C can do. That's worthless. Parrot needs to provide access to it's PMC and STRING types, and also to its interpreter. We want ops to load registers with values from the constants table in the bytecode file. We want to treat PMCs and STRINGs as opaque pointers at the user-level. They aren't like other pointers which can be manipulated, they are GCable objects that Parrot treats specially. We don't, for instance, want to be passing a PMC pointer willy-nilly to an arithmetic operation. We also don't want such a mistake to imply a call to one of the addition VTABLEs.<br /><br />That said, we want to be able to get the VTABLE structure from a PMC, introspect information about that, and be able to call the various VTABLE interface functions there without having to calculate pointer offsets. This might make a good use of composite ops, where we can still do the pointer derefs in Lorito, but hide the nonsense behind some PASM-levle composite ops. We already have most of these ops already, but I think we're going to want to rework some of them. We definitely need to radically reduce the number of VTABLE interface functions, or else interacting with all of them from Lorito will be extremely ungainly.<br /><br />So far as we are talking about a major redesign of the system, maybe it's time to start considering an idea chromatic has been talking about with making all vtables into methods so we can share a common lookup mechanism, common dispatch mechanism, common MMD behaviors, common inheritance behaviors, etc. That's not a bad idea, but we either need dramatic improvements to PCC performance, or we need to create a PCC fast-path for calls which are made without constructing a call object and without doing too many marshalling operations to get arguments where they need to be.<br /><br />In fact, on a tangentially-related topic, I definitely think PCC should have a fast-path for functions which do not participate in MMD and which have fixed argument lists containing only positional args (no :optional, no :slurpy, no :named, no :call_sig, etc). This is, I think, an extremely common case and there are plenty of optimizations to be had here if we want them.<br /><br />To round out the low-level opset, we need ops to move data between registers, between registers and memory, and maybe even ops to move data between memory locations directly, without moving them to a register first.<br /><br /><br />That's my conception for Lorito: probably 64 ops or less, a capability to add composite ops, treating PASM as a series of common composite ops, and the ability to write low-level code interchangably in C or Lorito. I think this plan for it provides a great development path without too many abrupt stops or course changes. We are quickly going to find ourselves in desperate need of a robust, modern JIT. We are going to be able to move to a proper precise GC since all the Lorito code will be using Parrot's registers to store working values, not relying on stack space which will need to be traced.<br /><br />I am highly interested in hearing what other people have to say about Lorito, and what changes Parrot should be considering so long as we are writing this blank check for a massive refactor.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='3172948605427003663'></a>
+    <p class='blogger-comment-body'>
+        I have a lot of interest in programming languages, virtual machines, compilers, etc. I have built several language systems over the years. <br /><br />I have been following Parrot for some time now. I'm even considering using it for some project. However, what really scares me is that there are so many pieces to this puzzle, so many Parrot components. Perhaps it is just my lack of understanding but it comes across as a bit of a mess and that makes it appear to outsiders as a never-ending hack. (Sorry to use the h-word.) And now you are contemplating yet another language! <br /><br />Perhaps some sort of roadmap and/or block diagram would make it all seem clear.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/07314779456711848276'>PaulTopping</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#3172948605427003663'>
+                7/10/2010 8:40:30 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='3192349509814645412'></a>
+    <p class='blogger-comment-body'>
+        If you take a look at the low-level assembly languages used by other virtual machines, you will see some similarities. For instance, the .NET assembly language is mostly hidden from the C#/VB.NET programmer, but every program written in those language is compiled down into .NET assembly/bytecode before execution. Since the assembly language of a VM or a hardware machine basically has a 1:1 correspondence with the compiled machine code/bytecode, compiling down to one or the other is basically equivalent.<br /><br />That said, if you look at .NET assembly language, you will see it is extremely low-level: ops to perform basic arithmetic, casting, stack manipulations, function/method calls, etc. Java's assembly/bytecode is very similar: low-level ops that look nothing like the high-level languages (Java, C#, etc) that programmers usually use.<br /><br />Now here's the thing: When Parrot was first designed and implemented, it had an assembly language called PASM. The problem is that PASM wasn't sufficiently low-level. PASM has over 1200 ops, some of which are very complicated, or very specialized. This has gotten Parrot so far, but the limitations of this design are becoming apparent. <br /><br />What Parrot needs is to re-design it's assembly language to be more similar in concept and level of abstraction to the assembly languages of the Java or .NET VMs. If we replace PASM (big, bloated, complicated) with the new Lorito (small, fast, focused) we gain a lot of benefits. Nothing else really changes at the higher levels, so compiler designers who are using PCT or NQP or other abstracting tools to build compilers will be immune from the changes (probably). I'll see if I can put together a block diagram or something for a future post.<br /><br />Thanks for the comment.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#3192349509814645412'>
+                7/10/2010 9:16:43 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='6811680090041729124'></a>
+    <p class='blogger-comment-body'>
+        x86_64: int is 32 bits, pointer is 64 bits<br />SPARC 64 is the same, I believe.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://matthewwalton.myopenid.com/'>MattW</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#6811680090041729124'>
+                7/11/2010 4:22:51 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='8214172917237574029'></a>
+    <p class='blogger-comment-body'>
+        "int" is a compiler term. The C standard declares that an "int" must be as long or longer than a "short", and as long or shorter than a "long". By convention, most major compilers use sizeof(int) == 4 for compatibility with code written for 32-bit processors. This doesn't mean anything about the size of the general-purpose registers, which is the size of native integers on that platform.<br /><br />On AMD64 in long mode, the general-purpose registers (rax, rbx, etc) are all 64-bit and the stack is always walked in 8-byte steps.<br /><br />I'm not super-familiar with Sparc64, but I can't find any evidence in a quick google search that it's native integer and pointer sizes are different.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#8214172917237574029'>
+                7/11/2010 7:23:33 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='7590054739369918725'></a>
+    <p class='blogger-comment-body'>
+        Interesting stuff, Whiteknight. It seems to me, though, that it's not clear yet what Lorito would actually look like, not in terms of syntax so much, but the level of detail. What would be the concepts of Lorito, the constructs (register access, pointers, etc), perhaps some example syntax, and perhaps most important: actual use cases: How would one implement a "simple" "higher level" op with a couple of basic ops?
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'>kjs</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7590054739369918725'>
+                7/11/2010 8:26:19 AM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

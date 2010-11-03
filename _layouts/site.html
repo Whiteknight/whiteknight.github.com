@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Whiteknight: {{ page.title }}</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" href="file:///home/andrew/projects/whiteknight.github.com/stylesheets/whiteknight.css" type="text/css">
+    </head>
+    <body>
+        <div id="main-title-div" class="widebar">
+            <table id="main-title-table" cellspacing="5px">
+                <tr>
+                    <td>
+                        <h1 id="main-title">{{ page.title }}</h1>
+                    </td>
+                    <td id="main-logo-A">&nbsp</td>
+                    <td id="main-logo-B">&nbsp</td>
+                    <td id="main-logo-C">&nbsp</td>
+                    <td id="main-logo-D">&nbsp</td>
+                    <td id="main-logo-E">&nbsp</td>
+                </tr>
+            </table>
+        </div>
+        <div id="main-content">
+            <div id="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">About</h3>
+                    {% include about.textile %}
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">Links</h3>
+                    {% include links.textile %}
+                </div>
+            </div>
+            <div id="content">
+                {{ content }}
+            </div>
+        </div>
+        <div id="main-footer" class="widebar">
+            {% include footer.textile %}
+        </div>
+    </body>
+</html>

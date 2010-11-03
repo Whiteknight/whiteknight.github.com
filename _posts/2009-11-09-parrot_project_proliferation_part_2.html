@@ -1,0 +1,27 @@
+---
+layout: bloggerpost
+title: Parrot Project Proliferation Part 2
+publish: true
+categories: [Parrot, ParrotProjects]
+---
+
+It's part two of my series on Parrot-related projects. There are a handful of these cool new projects that I know about, but I would love to hear some ideas from readers too. We can't give too much free publicity to cool Parrot projects!<br /><br /><span style="font-size:180%;">Kakapo</span><br /><br />NQP is a thin subset of the Perl6 syntax that's used as part of PCT to help build compilers. It's a very nice little language that tends to be relatively close to the underlying PIR code, and it's a real big help when building compilers. Part of the charm of NQP is that it doesn't include a runtime library. It's a bare-bones language, and provides only the few features necessary to build compilers.<br /><br />Sometimes people using NQP are interested in a runtime library anyway. Sometimes, people need more then what the bare NQP compiler provides. To this end the <a href="http://gitorious.org/kakapo">Kakapo project</a>, started by <a href="http://gitorious.org/%7Eaustin">Austin Hastings</a>, aims to provide a runtime of interesting functions that the NQP coder can use to perform common tasks. There are helpful objects, methods, and subroutines that can be used to interact with Parrot in a more natural way then having to descend into streams of inlined PIR.<br /><br />Kakapo is a really interesting project, because it serves a few purposes:<br /><ol><li>Offers to turn NQP from just "a part of PCT" into a full-fledged and fully-capable programming language for Parrot development.<br /></li><li>Provides some interesting and effort-reducing utilities that can be used by compiler designers to get off to a quicker start</li><li>Provides those utilities in a way that can be used from PIR programs and programs written in other languages on Parrot</li></ol>When you get a chance, you should check Kakapo out and give it a spin. It may turn out to make your Parrot development work much easier.<br /><br /><span style="font-size:180%;">Blizkost</span><br /><br /><a href="http://github.com/jnthn/blizkost">Blizkost</a>, started by <a href="http://github.com/jnthn">Johnathan Worthington</a>, is a project that I never thought I would ever see: Perl5 on Parrot.<br /><br />Let that sink in for a minute. Perl5 is so idiosyncratic that there only is, and can really only be, one implementation. The official Perl5 specification is whatever the <a href="http://search.cpan.org/%7Eadamk/PPI-1.201/lib/PPI.pm#Background">official Perl5 executable happens to parse and execute</a>. The solution to work around this single-implementation problem is to simply embed the Perl5 interpreter into Parrot, instead of trying to develop a new parser from the ground up.<br /><br />This is what Blizkost does: It implements a handful of new PMC types that act as wrapper for the Perl5 interpreter object and the various Perl5 object types. These PMC types allow Parrot programs to call into Perl5 code, and receive returned results back. Current functionality is limited, but there are a handful of interested (and talented!) contributors. If you know a thing or two about Perl5 internals, I'm sure they could use some help.<br /><br /><span style="font-size:180%;">Winxed</span><br /><br />NotFound started a very interesting little project: a javascript-like language compiler named <a href="http://code.google.com/p/winxed/">Winxed</a>. The twist is that instead of using PCT like most other projects do, he hand-wrote the lexer, parser, and code generators in C++.<br /><br />Technically the word "compiler" covers a wide range of utilities, but most casual coders would probably refer to it as a "translator" instead. Winxed takes the javascript-like language input and outputs plain-text PIR code which can be compiled and executed by Parrot.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='2523899298068011054'></a>
+    <p class='blogger-comment-body'>
+        You misspelled Winxed in the text. The url is correct.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16938423018520850346'>NotFound</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#2523899298068011054'>
+                11/9/2009 8:11:01 AM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

@@ -1,0 +1,43 @@
+---
+layout: bloggerpost
+title: The AOT Advantage
+publish: true
+categories: [JIT, Parrot, Optimization]
+---
+
+In my previous blog post I briefly mentioned PHP, <a href="http://github.com/facebook/hiphop-php">HipHop</a>, and AOT. For readers coming late to the party, HipHop is a native code compilation system for PHP, created by Facebook. The idea is that compiling down a relatively large subset of PHP (basically everything besides eval) to C++ code and passing it to an optimizing compiler can produce a much more efficient program than interpretation alone or even compiling to bytecode in advance and executing that.<br /><br />Let's look at this same idea, but in relation to Parrot's intended LLVM backend system.<br /><br />We can start off with a basic PHP compiler. The compiler doesn't need to be particularly fast since compilation happens once in advance. Sure, we don't want compilation to take forever because that slows down development, but it doesn't have the same kind of speed mandate we would have in an interpreted environment where we compile the script every single time we run it.<br /><br />Our basic, feature-light compiler compiles the PHP code down to PAST. From there we kick in a series of optimization stages. Again, if we know we're doing ahead-of-time compilation, we can add more optimization stages up front and take a little more time to compile. For a release build of a high-throughput application, maybe we really want to swing for the fences with this one and enable every optimization in the book. Let's hope it's a long, well-written book.<br /><br />We compile the PAST down to Parrot bytecode, after all the optimizations have run their course. At this point, we hand off the bytecode to the LLVM backend. LLVM converts the Parrot bytecode into LLVM IR, and passes that through it's own impressive suite of optimizations. At the end, LLVM spits out a native executable which is screaming fast.<br /><br />The converse side is a case where we want to shorten the turnaround time, such as when we are doing direct interpretation, or even making executables for debugging purposes and don't want our developers sitting around for a long time <a href="http://xkcd.com/303/">waiting for the thing to compile</a>. We don't want to completely avoid optimizations, because after compilation the developers have huge and expensive test suites to run which can take much much longer.<br /><br />What we do in this case is compile the code to PAST, maybe run a handful of "good bang for the buck" (GBFTB) optimizations like constant folding, and compile the PAST down to bytecode. We'll avoid the last step and just execute the bytecode directly, since this is a debug build. When we run it, the JIT engine will kick in to do basic runtime compilation of detected hot spots, giving us nice speedups for programs with tight loops. The JIT compiler will likewise use a few of the GTFTB optimizations, but won't go crazy; we're doing this at runtime now and we have a user waiting.<br /><br />There are some people in the world of scripting languages who view the complete lack of native executable support as a virtue. After all, they say, the nature of these languages is fast turnaround; We can make changes and run them directly without needing to invoke a separate compiler to produce a separate executable. Plus, the immediate availability of human-readable source code furthers the common goals of open source software and knowledge sharing.<br /><br />Fast turnaround, from script to execution, certainly is a virtue--in development. Once we're ready to cut that release however, things change pretty dramatically. At my job, I write some applications in C#. During development, I keep things in "Debug" mode, and do lots of tests very quickly. When it's time to cut that release I change the VisualStudio configuration to "Release" and then click "Build All". Where I was doing incremental debug builds, now I'm doing a full release build with optimizations turned on and debugging symbols stripped out. I also build a separate installer project, and to test everything I need to install the software first and run it from it's installed location. This is a lot of extra cost, but I don't do it frequently. I go from about a 10 second compile time turnaround to almost 10 minutes worth of compilation and installation work. The net result is a faster, better executable for my end users.<br /><br />In the case of Facebook, using HipHop to compile PHP down to native machine code improves throughput performance by 30%, which translates into lower server load, lower wait times for users and, at the end of the day, real money. Say what you want to about obfuscation of the source code, 30% is nothing to ignore.<br /><br />I like to think that the Parrot infrastructure will support any workflow that our end users want. Having speedy interpretation around for people who want that is a very good thing, and we do it already. But, having the ability to employ tiered libraries of optimizations and create native machine binaries for fast execution is a very very good thing as well. This is why I keep pushing for our eventual JIT system to also support AOT as well. LLVM will already handle all the nitty-gritty, so the amount of scaffolding we'll have to provide in Parrot is minimal in comparison.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='5124721191596624947'></a>
+    <p class='blogger-comment-body'>
+        AOT means ... ?
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/10241615516525637519'>kid51</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#5124721191596624947'>
+                6/5/2010 8:33:33 PM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='436120298383806422'></a>
+    <p class='blogger-comment-body'>
+        Good question. I always forget to explain my jargon. AOT is "ahead of time" compilation. It's the third option for running programs, like JIT and pure interpretation. A C compiler, for instance, compiles the source code into an executable ahead of time, and then the executable is run directly when we need to use it. AOT is one of those things that you use so often and so commonly that you don't even know there's a name for it.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#436120298383806422'>
+                6/5/2010 8:36:21 PM
+            </a>
+        </span>
+    </div>
+</div>
+</div>

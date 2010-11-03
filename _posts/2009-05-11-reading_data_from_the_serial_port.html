@@ -1,0 +1,75 @@
+---
+layout: bloggerpost
+title: Reading Data from the Serial Port
+publish: true
+categories: [Work, C#, IO]
+---
+
+At work I'm building a program that is, in part, a serial port console like HyperTerminal. It's not a pure drop-in replacement, we have some specific requirements that HyperTerminal didn't quite meet. However, a lot of the port-handling logic in my program could probably be repurposed for creating a more faithful drop-in replacement if the need arose.<br /><br />The biggest problem for me at the beginning was deciding how to read data from the port. Obviously, we can't do the reading synchronously, in the case of a TTY-like program that just doesn't make any sense. I had two real options for asychronous operation:<br /><ol><li>Create a worker thread that reads from the port, sleeps for a certain timeout, and then repeats.</li><li>Use the DataReceived handler on the SerialPort object to automatically call a callback when incoming data is received.</li></ol>People who read my <a href="/2009/05/03/aio_on_windows.html.html">discussion about AIO in Parrot</a> will probably recognize that item #1 does not appeal to me at all. First there is the issue of synchronizing the thread and getting it to start and stop when I need it to do each. I also need to be able to pass settings to the reader, which would require cross-thread synchronization logic that could get really messy really quickly. Plus, if we have a thread timeout of 1second for example, there could be up to a one second delay between the time data is received and when it becomes visible to the user. We could easily set a timeout to zero seconds, but then we have a background thread endlessly looping over the port, usually reading nothing. Not exactly a performance killer, but still needlessly wasteful. Nothing we are doing is so time-critical that a 1second sleep timer for instance between reads would kill us, but it's still a clunky-feeling mechanism that will make the interface look amateur.<br /><br />On top of all those reasons, as if I need another one, I feel like using an explicitly-managed thread here is a particularly inelegant solution.  In short, I decided to use the DataReceived event handler to do my port reading (when I put my port into asynchronous read mode, that is).<br /><br />That question out of the way, I needed to decide how to do input buffering. Do I buffer by line (<a href="http://msdn.microsoft.com/en-us/library/system.io.ports.serialport.readline.aspx">SerialPort.ReadLine</a>), "buffer" by character (<a href="http://msdn.microsoft.com/en-us/library/system.io.ports.serialport.readchar.aspx">SerialPort.ReadChar</a>), or do I not buffer (<a href="http://msdn.microsoft.com/en-us/library/system.io.ports.serialport.readexisting.aspx">SerialPort.ReadExisting</a>)? On the one hand I need to support both buffered and non-buffered input. On the other hand I don't want to be stacking up DataReceived events with Timeout events endlessly, because that could create a stability problem.<br /><br />My design goes as follows: I use the DataReceived event handler to signal me when data is ready. From within the handler I use SerialPort.ReadExisting to read the incoming data into a buffer, and from there slice and dice the input into the forms needed by modules higher up in my program. I admit that this may not be the most attractive or elegant code I have ever written, but it has demonstrated itself to be very performant and robust solution for my needs:<br /><pre>private string readBuffer;<br />private SerialPort port;<br />private bool unBuffNeedNewline = false;<br /><br />private void InitPort()<br />&#123;<br />  this.port = new SerialPort();<br />  this.port.DataReceived += new SerialDataReceivedHandler(DataReceiver_Handler);<br />&#125;<br /><br />private void DataReceiver_Handler(object sender, SerialDataReceivedEventArgs e)<br />&#123;<br />  if(this.bufferMode == ConnectionHelpers.ReadBuffering.LineBuffered)<br />    this.DataReceiverLineBuffered();<br />  else<br />    this.DataReceiverCharBuffered();<br />&#125;<br /><br />private void DataReceiverLineBuffered()<br />&#123;<br />  try &#123;<br />    string x;<br />    lock(this.readBuffer) &#123;<br />        x = this.readBuffer + this.port.ReadExisting();<br />    &#125;<br />    char[] delim = new char[2] &#123;'\n', '\r'&#125;;<br />    while(x.Length > 1 && (x.Contains("\n") || x.Contains("\r"))) &#123;<br />        String[] ary = x.Split(delim, 2);<br />        this.ReadHandler(ary[0], true);<br />        x = ary[1] + this.port.ReadExisting();<br />    &#125;<br />    lock(this.readBuffer) &#123;<br />        this.readBuffer = x;<br />    &#125;<br />  &#125; catch(Exception e) &#123;<br />    this.StatusReporter("Serial Read Error: " + e.ToString());<br />  &#125;<br />&#125;<br /><br />private void DataReceiverCharBuffered()<br />&#123;<br />  try &#123;<br />    string x;<br />    lock(this.readBuffer) &#123;<br />        x = this.readBuffer + this.port.ReadExisting();<br />    &#125;<br />    while(x.Length >= 1) &#123;<br />        string c = x.Substring(0, 1);<br />        if(c == "\r" || c == "\n") &#123;<br />            this.unBuffNeedNewline = true;<br />            x = x.Substring(1) + this.port.ReadExisting();<br />        &#125;<br />        else if(this.unBuffNeedNewline) &#123;<br />            this.ReadHandler("", true);<br />            this.unBuffNeedNewline = false;<br />        &#125; else &#123;<br />            this.ReadHandler(c, false);<br />            x = x.Substring(1) + this.port.ReadExisting();<br />        &#125;<br />    &#125;<br />  &#125; catch(Exception e) &#123;<br />    this.StatusReporter("Serial Read Error: " + e.ToString());<br />  &#125;<br />&#125;</pre> <br /><br />The function "ReadHandler" takes two arguments: The string value that's read (without carriage return or linefeed characters) and a boolean value indicating whether the given string is followed by a newline or not. Further up the call chain the display function will take that information to display timestamps and do other per-line formatting fanciness. It's worth noticing that since we are calling from within an event handler, ReadHandler probably needs to call BeginInvoke to pass it's incoming data to the GUI (that's what my code does, anyway).<br /><br />The way I lock the readBuffer repeatedly was something that I figured out later. When data is incoming quickly (like 115200 baud or higher) we can get multiple DataReceived events being triggered and stacking up if we lock through the entire function. This can cause noticeable program slowdowns when a number of event handlers acquire the lock subsequently. Instead, I lock smaller parts of the code and let additional handler instances run concurrently but with no input. Throughput performance is better in these cases, and is not noticeably different otherwise.<br /><br />So that's my implementation of a buffered asynchronous serial port reader in C#. It's not perfect, but it gets the job done, has pretty good throughput, and is relatively fault tolerant.
+                <div class='old-blogger-comments'>
+                    <h2 class='old-comment-header'>Comments</h3>
+                
+<div class='blogger-comment-div'>
+    <a name='2100734592257966680'></a>
+    <p class='blogger-comment-body'>
+        Hi Andrew! What is ConnectionHelpers.ReadBuffering.LineBuffered? Tnx
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.studioware.eu'>Massimiliano</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#2100734592257966680'>
+                10/16/2009 10:54:52 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='7357981969581916105'></a>
+    <p class='blogger-comment-body'>
+        Ah good question. I should have been more clear. ConnectionHelpers.ReadBuffering.LineBuffered is an enum value that specifies that the incoming data should be line buffered. Alternatively, I had defined ConnectionHelpers.ReadBuffering.CharBuffered values to describe streams that should be sent character-at-a-time.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#7357981969581916105'>
+                10/16/2009 11:16:47 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='801857437925509841'></a>
+    <p class='blogger-comment-body'>
+        sorry but it's a .net library?
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.studioware.eu'>Massimiliano</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#801857437925509841'>
+                10/16/2009 11:35:34 AM
+            </a>
+        </span>
+    </div>
+</div>
+
+<div class='blogger-comment-div'>
+    <a name='3956590293197311558'></a>
+    <p class='blogger-comment-body'>
+        no .NET library. All of this is my own creation. I'm only showing part of it here for brevity.
+    </p>
+    <div class='blogger-comment-author-div'>
+        <span class='blogger-author-sig'><a class='blogger-author-uri' href='http://www.blogger.com/profile/16207472474429254890'>Whiteknight</a>
+</span>
+        <span class='blogger-comment-datestamp'>
+            <a class='blogger-comment-link' href='{{ post.url }}#3956590293197311558'>
+                10/16/2009 11:51:13 AM
+            </a>
+        </span>
+    </div>
+</div>
+</div>
