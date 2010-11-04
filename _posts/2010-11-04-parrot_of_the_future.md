@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot]
+categories: [Parrot, ParrotDesign]
 ---
 
 Several days ago I wrote up
