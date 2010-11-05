@@ -2,13 +2,13 @@
 layout: bloggerpost
 title: Software Anti-Pattern&#58; The Exception Repeater
 publish: true
-categories: [BadCode]
+categories: [Personal, Software]
 ---
 
 Since I've seen this pattern several times in a software project I'm trying to maintain, I've decided to give it a name: The Exception Repeater <a href="http://en.wikipedia.org/wiki/Antipattern">anti-pattern</a>. Here's a particularly succinct implementation of it, direct from the repo:<br /><pre><br />public static void ValidateData() &#123;<br />  try &#123;<br />     ValidateDataInner();<br />  &#125; catch (Exception e) &#123;<br />     throw e;<br />  &#125;<br />&#125;<br /></pre><br />Since I've seen this exact thing several times in the codebase today, I'm wondering if maybe it has some kind of magical benefit or side-effect that I'm not aware of. The only benefit that I can think of is that an unintelligent programmer can claim to be programming "defensively", or something like that.
                 <div class='old-blogger-comments'>
                     <h2 class='old-comment-header'>Comments</h3>
-                
+
 <div class='blogger-comment-div'>
     <a name='5128556137517751577'></a>
     <p class='blogger-comment-body'>
