@@ -19,14 +19,14 @@ energy can be made.
 
 I say at least three developers for several reasons:
 
-# Not everybody is super-familiar with all the embedding code we currently
+1. Not everybody is super-familiar with all the embedding code we currently
 have, nor the huge myriad of capabilities that Parrot should expose but
 currently does not (or does, but in a lousy way).
-# We don't just need help picking through the messiest parts of the code. We
+2. We don't just need help picking through the messiest parts of the code. We
 would also like to increase the ever-important bus number for embedding tasks.
 We aren't just looking for temporary help, we are looking to create new
 experts.
-# It's not just a series of wrapper functions to be written or rewriten over
+3. It's not just a series of wrapper functions to be written or rewriten over
 existing mechanisms. Later stages of the API are going to necessitate some
 non-trivial changes to the core behaviors of Parrot. We are *definitely* going
 to need plenty of development and testing help when we get to those parts
