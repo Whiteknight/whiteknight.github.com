@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot, ParrotProductManagement, Embedding]
+categories: [Parrot, ParrotProductManagement, Embedding, ParrotDesign]
 title: Parrot's Embedding API
 ---
 

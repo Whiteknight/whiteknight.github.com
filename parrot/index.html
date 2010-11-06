@@ -3,6 +3,10 @@ layout: site
 ---
 
 <h3>ParrotTheory Posts</h3>
+ParrotTheory posts are intended to be educational, and help readers to
+understand some of the concepts and terminology that I use throughout my blog.
+<br />
+<br />
 <table id="posts-table">
 {% for post in site.categories.ParrotTheory limit:5 %}
     <tr>
@@ -14,7 +18,16 @@ layout: site
 {% endfor %}
 </table>
 
+<br />
+<br />
+
 <h3>ParrotDesign Posts</h3>
+ParrotDesign posts are critical reviews of existing architecture and subsystem
+design, and proposals for new systems and designs. These posts are my personal
+opinions only, and do not reflect the ideas of Parrot's Architectural team or
+those of the greater Parrot community in any way
+<br />
+<br />
 <table id="posts-table">
 {% for post in site.categories.ParrotDesign limit:5 %}
     <tr>
@@ -26,8 +39,33 @@ layout: site
 {% endfor %}
 </table>
 
+<br />
+<br />
+
+<h3>ParrotCommunity Posts</h3>
+ParrotCommunity posts talk about the greater community of Parrot: the users
+and developers.
+<br />
+<br />
+<table id="posts-table">
+{% for post in site.categories.ParrotCommunity limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<br />
+<br />
 
 <h3>ParrotFoundation Posts</h3>
+These posts discuss my role as a board member of the Parrot Foundation, and
+the roles of other members on the board
+<br />
+<br />
 <table id="posts-table">
 {% for post in site.categories.ParrotFoundation limit:5 %}
     <tr>
@@ -38,3 +76,4 @@ layout: site
     </tr>
 {% endfor %}
 </table>
+

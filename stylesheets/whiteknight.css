@@ -65,12 +65,13 @@ h1#main-title {
     margin-left: 3em;
 }
 
-td.post-date {
-    color: #808080;
+span.post-date {
+    font-size: smaller;
 }
 
 span.post-tags {
     font-size: smaller;
+    color: #808080;
 }
 
 span#main-intro-site-stats {
@@ -80,12 +81,7 @@ span#main-intro-site-stats {
 }
 
 div.widebar {
-    /*border: 2px solid #2B91AF;*/
     padding: 5px;
-    /*
-    background-color: #F8F8F8;
-    color: #282828;
-    */
     background-color: #1F2429;
     color: #B8C8D6;
     margin-left: 5em;
@@ -107,16 +103,17 @@ div#main-footer {
 }
 
 blockquote {
-    border: 2px solid #2B91AF;
-    background-color: #E0E0E0;
-    color: #282828;
+    border: 2px solid #D99425;
+    background-color: #1F2429;
+    color: #B8C8D6;
     padding: 5px;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
 div.blogger-comment-div {
-    border-top: 1px solid #2B91AF;
+    border-top: 1px solid #3680C2;
+    margin-bottom: 2em;
 }
 
 div.blogger-comment-author-div {
@@ -129,7 +126,7 @@ div.blogger-comment-body {
 
 span.small-note {
     font-size: smaller;
-    color: #C0C0C0;
+    color: #808080;
 }
 
 table#main-title-table {

@@ -2,8 +2,9 @@
 layout: site
 ---
 
+<span class="post-date">{{ page.date | date_to_string }}</span>
+<br />
 <span class="post-tags">
-    Tags:
     {% for category in page.categories %}
         {% if forloop.first %}
             {{ category }}
@@ -13,13 +14,13 @@ layout: site
     {% endfor %}
 </span>
 <br />
-<br />
 {{ content }}
 <br/>
 <br/>
 <span class="small-note">
 This entry was originally posted on <a href="http://wknight8111.blogspot.com">Blogger</a>
-and was <a href="http://github.com/Whiteknight/blogger2jekyll">automatically converted</a>. There
-may be some broken links and other errors in the conversion.
+and was <a href="http://github.com/Whiteknight/blogger2jekyll">automatically converted</a>.
+There may be some broken links and other errors due to the conversion. Please let me know
+about any serious problems.
 </span>
 
