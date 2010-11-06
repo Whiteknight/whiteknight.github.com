@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Blogger2Jekyll
-categories: [Personal]
+categories: [Personal, C#]
 ---
 
 As I mentioned in my

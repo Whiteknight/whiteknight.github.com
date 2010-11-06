@@ -21,11 +21,50 @@ understand some of the concepts and terminology that I use throughout my blog.
 <br />
 <br />
 
+<h3>Parrot4Newbies Posts</h3>
+Parrot4Newbies posts talk about small projects that new developers can tackle
+to get familiarized quickly with Parrot. Some of these posts may be suitable
+for GSoC and Google Code-In students as well.
+<br />
+<br />
+<table id="posts-table">
+{% for post in site.categories.Parrot4Newbies limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<br />
+<br />
+
+<h3>ParrotProjects Posts</h3>
+ParrotProjects posts are my way of shining the spotlight on new and exciting
+projects in the Parrot ecosystem.
+<br />
+<br />
+<table id="posts-table">
+{% for post in site.categories.ParrotProjects limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<br />
+<br />
+
 <h3>ParrotDesign Posts</h3>
 ParrotDesign posts are critical reviews of existing architecture and subsystem
 design, and proposals for new systems and designs. These posts are my personal
 opinions only, and do not reflect the ideas of Parrot's Architectural team or
-those of the greater Parrot community in any way
+those of the greater Parrot community in any way.
 <br />
 <br />
 <table id="posts-table">
@@ -61,9 +100,28 @@ and developers.
 <br />
 <br />
 
+<h3>ParrotProductManagement Posts</h3>
+ParrotProductManagement posts talk about my role on Parrot's Product
+Management team, and some of the team goals and projects.
+<br />
+<br />
+<table id="posts-table">
+{% for post in site.categories.ParrotFoundation limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<br />
+<br />
+
 <h3>ParrotFoundation Posts</h3>
 These posts discuss my role as a board member of the Parrot Foundation, and
-the roles of other members on the board
+the roles of other members on the board.
 <br />
 <br />
 <table id="posts-table">
