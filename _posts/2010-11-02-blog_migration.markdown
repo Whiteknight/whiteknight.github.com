@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Blog Migration
-categories: Personal
+categories: [Personal, Github]
 ---
 
 I decided a few months ago that it was time for me to move off of Blogger and
