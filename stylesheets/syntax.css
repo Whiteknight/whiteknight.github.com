@@ -1,5 +1,10 @@
-.highlight      { background: #282828; color: #C0C0C0; }
-.highlight .c   { color: #00DD00; font-style: italic } /* Comment */
+.highlight      {
+    background: #282828;
+    color: #C0C0C0;
+    padding: 5px;
+    border: 1px solid #3680C2;
+}
+/*.highlight .c   { color: #00DD00; font-style: italic }  Comment */
 .highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
 .highlight .k   { color: #008080; font-weight: bold } /* Keyword */
 .highlight .o   { font-weight: bold } /* Operator */
@@ -32,7 +37,7 @@
 .highlight .no  { color: #008080 } /* Name.Constant */
 .highlight .ni  { color: #800080 } /* Name.Entity */
 .highlight .ne  { color: #990000; font-weight: bold } /* Name.Exception */
-.highlight .nf  { color: #990000; font-weight: bold } /* Name.Function */
+.highlight .nf  { color: #C0C0C0; font-weight: bold } /* Name.Function */
 .highlight .nn  { color: #2B91AF } /* Name.Namespace */
 .highlight .nt  { color: #000080 } /* Name.Tag */
 .highlight .nv  {  } /* Name.Variable */

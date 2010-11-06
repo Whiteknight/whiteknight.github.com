@@ -1,18 +1,15 @@
 body {
-    background-color: #282828;
-    color: #AAAAAA;
+    background-color: #1F2429;
+    color: #B8C8D6;
+    font-family: arial;
 }
 
 a {
-    color: #2B91AF;
+    color: #3680C2;
 }
 
 a:hover {
-    color: #008080;
-}
-
-a:visited {
-    color: #800000;
+    color: #D99425;
 }
 
 div#main-content {
@@ -21,14 +18,9 @@ div#main-content {
 }
 
 div#content {
-    border: 2px solid #2B91AF;
     padding: 5px;
-    /*
-    background-color: #F8F8F8;
-    color: #282828;
-    */
-    background-color: #000000;
-    color: #C0C0C0;
+    background-color: #1F2429;
+    color: #B8C8D6;
 
     margin-right: 330px;
 }
@@ -39,14 +31,14 @@ h2#content-title {
 div#sidebar {
     float: right;
     width: 300px;
-    border: 2px solid #2B91AF;
+    /*border: 2px solid #2B91AF;*/
     padding: 5px;
     /*
     background-color: #F8F8F8;
     color: #282828;
     */
-    background-color: #000000;
-    color: #C0C0C0;
+    background-color: #1F2429;
+    color: #B8C8D6;
 }
 
 div#main-title-div {
@@ -88,14 +80,14 @@ span#main-intro-site-stats {
 }
 
 div.widebar {
-    border: 2px solid #2B91AF;
+    /*border: 2px solid #2B91AF;*/
     padding: 5px;
     /*
     background-color: #F8F8F8;
     color: #282828;
     */
-    background-color: #000000;
-    color: #C0C0C0;
+    background-color: #1F2429;
+    color: #B8C8D6;
     margin-left: 5em;
     margin-right: 5em;
 
@@ -111,6 +103,7 @@ h3.sidebar-heading {
 div#main-footer {
     margin-top: 1em;
     margin-bottom: 3em;
+    color: #808080;
 }
 
 blockquote {
@@ -144,27 +137,3 @@ table#main-title-table {
     margin: 5px;
 }
 
-td#main-logo-A {
-    width: 60px;
-    background-color: #282828;
-}
-
-td#main-logo-B {
-    width: 60px;
-    background-color: #808080;
-}
-
-td#main-logo-C {
-    width: 60px;
-    background-color: #008080;
-}
-
-td#main-logo-D {
-    width: 60px;
-    background-color: #2B91AF;
-}
-
-td#main-logo-E {
-    width: 60px;
-    background-color: #800000;
-}
