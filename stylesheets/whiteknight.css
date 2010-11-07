@@ -1,69 +1,87 @@
+/* Global stuff */
+
 body {
     background-color: #1F2429;
     color: #B8C8D6;
     font-family: arial;
 }
 
-a {
-    color: #3680C2;
-}
-
-a:hover {
-    color: #D99425;
-}
+a { color: #3680C2; }
+a:hover { color: #D99425; }
 
 div#main-content {
     margin-left: 5em;
     margin-right: 5em;
 }
 
-div#content {
+div.widebar {
     padding: 5px;
     background-color: #1F2429;
     color: #B8C8D6;
-
-    margin-right: 330px;
+    margin-left: 5em;
+    margin-right: 5em;
 }
 
-h2#content-title {
-}
 
-div#sidebar {
-    float: right;
-    width: 300px;
-    /*border: 2px solid #2B91AF;*/
-    padding: 5px;
-    /*
-    background-color: #F8F8F8;
-    color: #282828;
-    */
-    background-color: #1F2429;
-    color: #B8C8D6;
-}
+/* Main Title */
 
 div#main-title-div {
     margin-top: 3em;
     margin-bottom: 1em;
 }
 
-h1 {
+div#main-title-div h1#main-title {
     margin-top: 2px;
     margin-bottom: 2px;
-}
-
-h2 {
-    margin-top: 2px;
-    margin-bottom: 2px;
-}
-
-h3 {
-    margin-top: 2px;
-    margin-bottom: 2px;
-}
-
-h1#main-title {
     margin-left: 3em;
 }
+
+/* Page Content */
+
+div#content {
+    padding: 5px;
+    background-color: #1F2429;
+    color: #B8C8D6;
+}
+
+div#content h2#content-title {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+div#content h3 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+/* Sidebar */
+
+div#sidebar {
+    float: right;
+    width: 15em;
+    padding: 5px;
+    background-color: #1F2429;
+    color: #B8C8D6;
+    margin-left: 1em;
+    margin-bottom: 2em;
+}
+
+div.sidebar-section {
+    margin-bottom: 1em;
+}
+
+h3.sidebar-heading {
+}
+
+/* Footer */
+
+div#main-footer {
+    margin-top: 1em;
+    margin-bottom: 3em;
+    color: #808080;
+}
+
+/* Post Lists */
 
 span.post-date {
     font-size: smaller;
@@ -74,33 +92,7 @@ span.post-tags {
     color: #808080;
 }
 
-span#main-intro-site-stats {
-    float: right;
-    color: #808080;
-    font-size: smaller;
-}
-
-div.widebar {
-    padding: 5px;
-    background-color: #1F2429;
-    color: #B8C8D6;
-    margin-left: 5em;
-    margin-right: 5em;
-
-}
-
-div.sidebar-section {
-    margin-bottom: 1em;
-}
-
-h3.sidebar-heading {
-}
-
-div#main-footer {
-    margin-top: 1em;
-    margin-bottom: 3em;
-    color: #808080;
-}
+/* Miscellaneous */
 
 blockquote {
     border: 2px solid #D99425;
@@ -110,6 +102,13 @@ blockquote {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+span.small-note {
+    font-size: smaller;
+    color: #808080;
+}
+
+/* Blogger compatibility */
 
 div.blogger-comment-div {
     border-top: 1px solid #3680C2;
@@ -124,13 +123,4 @@ div.blogger-comment-body {
     margin-right: 3em;
 }
 
-span.small-note {
-    font-size: smaller;
-    color: #808080;
-}
-
-table#main-title-table {
-    width: 100%;
-    margin: 5px;
-}
 
