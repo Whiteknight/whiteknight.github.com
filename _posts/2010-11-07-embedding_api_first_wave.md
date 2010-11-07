@@ -20,7 +20,7 @@ to a prior post where he talked about his difficulties with the embeddng API.
 I already have a function in place to resolve the one problem he mentioned
 specifically. That function, `Parrot_load_bytecode_file` needs to be renamed
 and moved to a new file of official embedding API functions. This will
-certainly be in place by the 2.10 release on November 16^th^. The big result
+certainly be in place by the 2.10 release on November 16th. The big result
 that comes from this first wave is the creation of the
 [Product Management team](http://trac.parrot.org/parrot/wiki/ProductManagementTeam)
 and the [Embedding API task](/2010/11/05/embedding_api_team.html) force. We're
@@ -29,7 +29,7 @@ also using this opportunity to do some proper, forward-thinking design, so th
 In my mind the second wave will involve fixing the Parrot executable so that
 it only interacts with libparrot through actual API function calls. This is
 going to be a little bit more tricky, but I have full confidence that we can
-get it done by the 2.11 release on December 21^st^.
+get it done by the 2.11 release on December 21st.
 
 I have prepared a list of all libparrot functions that are called from the
 Parrot executable, and a list of all structure fields which it pokes into
