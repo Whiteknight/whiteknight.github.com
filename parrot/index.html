@@ -21,10 +21,31 @@ understand some of the concepts and terminology that I use throughout my blog.
 <br />
 <br />
 
+<h3>ParrotProjectIdeas Posts</h3>
+In the ParrotProjectIdeas posts, I talk about ideas for new projects. These
+are things that Parrot probably needs. If you're a developer looking for a new
+project, this is the place to start. This is also a place where I will discuss
+possible Google Summer of Code projects.
+<br />
+<br />
+<table id="posts-table">
+{% for post in site.categories.Parrot4Newbies limit:5 %}
+    <tr>
+        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td class="post-info">
+            <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<br />
+<br />
+
 <h3>Parrot4Newbies Posts</h3>
 Parrot4Newbies posts talk about small projects that new developers can tackle
-to get familiarized quickly with Parrot. Some of these posts may be suitable
-for GSoC and Google Code-In students as well.
+to get familiarized quickly with Parrot. I will also talk about potential
+Google Code-In projects here.
 <br />
 <br />
 <table id="posts-table">
