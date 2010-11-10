@@ -29,7 +29,14 @@ For that matter, passing commandline arguments to an embedded interpreter for
 any kind of parsing really seems wrong. There should be API functions
 available to set all the different options from anywhere, without making any
 assumptions about where those settings will be coming from or what the
-command-line interface should be doing.
+command-line interface should be doing. By convention, the `:main` sub in PIR
+is called with an array of strings that are received on the commandline, but
+that convention has more to do with the behavior of the Parrot executable than
+it has anything to do with the underlying interpreter or the PIR language. An
+embedding application should be able to specify any combination of arguments
+to the `:main` function. We need to expose this kind of flexibility to our
+embedders, but we also need to provide convenience methods to convert an
+`char **argv` array into a `ResizableStringArray` too.
 
 The next question is IMCC, Parrot's current PIR compiler. IMCC previously
 handled all command-line argument parsing, but some of the processing was
@@ -58,11 +65,12 @@ embedding applications may not always include it. If you have an HLL
 compiler that parses it's own language and outputs Parrot bytecode directly,
 there's no reason whatsoever to include IMCC in your application. If, on the
 other hand your application may occasionaly require runtime evaluations of
-PIR snippets, or loads bytecode libraries that do, you'll want IMCC around.
+PIR snippets, or loads bytecode libraries that do, you'll want IMCC around
+(or, whatever replaces IMCC in the future).
 
 If we have a consistent mechanism by which we can load external language
 compilers, this really becomes a non-issue. The embedding application can do
-something like this, written in PIR:
+something like this, written in PIR for brevity:
 
     load_language "PIR"
     $P0 = compreg "PIR"
@@ -114,10 +122,10 @@ Notice also that if we can't find the IMCC binary just using the search string
 {% endhighlight %}
 
 That should give maximum flexibility to other embedding applications to load
-their own custom compiler frontends, if a compiler is even needed. If you're
-running a precompiled bytecode file you can probably save a few cycles by not
-loading the compiler at all, though you won't be able to do runtime eval on
-strings without one.
+their own custom compiler frontends, including supplying a custom variant of
+an existing compiler. If you're running a precompiled bytecode file you can
+probably save a few cycles by not loading the compiler at all, though you
+won't be able to do runtime eval on strings without one.
 
 Anyway, let me get back to my original topic: Commandline arguments. No matter
 where IMCC lives, or how it is loaded, I don't think that IMCC is the correct
@@ -137,3 +145,5 @@ agnostic about using different frontends in the future. Eventually, when we
 do decide to kick IMCC out the door for good, it won't be nearly as hard as
 trying to do everything at once.
 
+With this idea in place, tomorrow I will give a sneak preview of what the
+new embedding API might be looking like when it's complete.
