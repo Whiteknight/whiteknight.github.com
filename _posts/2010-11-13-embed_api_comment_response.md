@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Comment Response, Embed API Design Review
-categories: [Parrot, Embedding, ParrotProuctDesign]
+categories: [Parrot, Embedding, ParrotProductManagement]
 ---
 
 A few days ago I [posted a response][firstresponse] to a comment made by Parrot
