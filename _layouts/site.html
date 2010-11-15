@@ -9,7 +9,16 @@
     </head>
     <body>
         <div id="main-title-div" class="widebar">
-            <h1 id="main-title">Whiteknight</h1>
+            <!--<h1 id="main-title"><a href="{{ site.url }}">Whiteknight</a></h1>-->
+            <image src="{{ site.url }}/images/logo.png"/>
+            <div id="main-title-snippet">
+                <script type="text/javascript">
+                    var snippets = new Array();
+                    {% include snippets.js %}
+                    var idx = Math.floor(Math.random() * snippets.length);
+                    document.write(snippets[idx]);
+                </script>
+            </div>
         </div>
         <div id="main-content">
             <div id="sidebar">

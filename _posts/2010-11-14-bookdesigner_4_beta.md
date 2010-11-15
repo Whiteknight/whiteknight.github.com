@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [MediaWiki, EmbedVideo]
-Title: BookDesigner Version 4 Beta Testing
+title: BookDesigner Version 4 Beta Testing
 ---
 
 I've been working on the [BookDesigner][bookdesigner] tool for a very long

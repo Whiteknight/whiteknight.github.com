@@ -26,14 +26,25 @@ div.widebar {
 /* Main Title */
 
 div#main-title-div {
-    margin-top: 3em;
-    margin-bottom: 1em;
+    margin-top: 1em;
+    /*margin-bottom: 1em;*/
+}
+
+div#main-title-div div#main-title-snippet {
+    font-size: smaller;
+    margin-left: 10em;
+    color: #808080;
 }
 
 div#main-title-div h1#main-title {
     margin-top: 2px;
     margin-bottom: 2px;
     margin-left: 3em;
+}
+
+div#main-title-div h1#main-title a {
+    text-decoration: none;
+    color: #B8C8D6;
 }
 
 /* Page Content */
