@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Embedding API Initialization Details
-Categories: [Parrot, Embedding, ParrotProductManagement]
+categories: [Parrot, Embedding, ParrotProductManagement]
 ---
 
 My last few posts about initialization have attracted a good amount of
