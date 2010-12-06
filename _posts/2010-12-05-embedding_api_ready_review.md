@@ -28,7 +28,10 @@ exists, this isn't possible. Part of the reason is because of a shortcoming
 in the exception system where I can't simply register a C function as a
 handler. Instead we have to register a `parrot_runloop_t` structure as a
 handler, which contains a reference to a `jmp_buf` structure. I don't know if
-we will want the user to be passing in `jmp_buf` handlers o
+we will want the user to be passing in `jmp_buf` handlers through the API or
+not, but I strongly suspect that the answer is "no". `jmp_buf` structures are
+way too low-level for this kind of work, and the less we have to expose the
+users to that, the better.
 
 [errorhandling]: /2010/12/01/embedding_error_io.html
 
