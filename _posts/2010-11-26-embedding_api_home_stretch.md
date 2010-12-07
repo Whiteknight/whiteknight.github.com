@@ -8,7 +8,7 @@ As of yesterday, with substantial help from contributor [bluescreen][], the
 `embed_api` branch completely builds. Not all tests are passing yet, but we're
 passed the first major hurdle.
 
-[bluescreen]:
+[bluescreen]: https://github.com/bluescreen10
 
 Despite reaching this milestone, there are some big questions left to answer.
 Many of the remaining issues are intimately involved with the remaining
@@ -100,7 +100,7 @@ current API function. The embedding application can then continue it's own
 operations, possibly even attempting to retry the operation or start a new
 operation in the interpreter.
 
-[funcreturns]:
+[funcreturns]: /2010/11/06/embedding_api.html
 
 So where is the problem? The problem is that the `exit` opcode (and the
 related `die` opcode) don't just exit: They *throw a special type of exit

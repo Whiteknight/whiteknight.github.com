@@ -76,3 +76,4 @@ it to the MediaWiki extensions repository.
 
 [bookdesigner]: http://github.com/Whiteknight/mediawiki-bookdesigner
 [issues]: https://github.com/Whiteknight/mediawiki-bookdesigner/issues
+[wittie]: http://wittieproject.org

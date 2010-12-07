@@ -91,17 +91,19 @@ all. However, some things like warning flags really want to be
 externally. I have a few paths to consider:
 
 1. We could replace these flags with `char *` strings, and parse them out to
-get the real values. I've already done this with the [GC flags][gcflagsparse],
-though I'm not sure I want to do this with some of the more common
-flag-setting options.
+   get the real values. I've already done this with the GC flags,
+   though I'm not sure I want to do this with some of the more common
+   flag-setting options.
 2. I could duplicate the enum/flag definitions into a new header file. This
-would solve my problem the most quickly, but it would heavily violate the
-principle of [DRY][] and it creates a huge maintenance burden trying to keep
-two differen definitions in sync.
+   would solve my problem the most quickly, but it would heavily violate the
+   principle of [DRY][] and it creates a huge maintenance burden trying to keep
+   two differen definitions in sync.
 3. I could take the time to tease the headerfiles apart to include all
-public/private flags in a handful of files
+   public/private flags in a handful of files
 4. Forget flags and values. Instead, we have one API function to set or clear
-each and every flag for each and every option.
+   each and every flag for each and every option.
+
+[DRY]: http://en.wikipedia.org/wiki/DRY
 
 I think we all can agree that option 2 above is not desirable and option 4
 has the same problem to a larger magnitude. Option 1 makes sense
