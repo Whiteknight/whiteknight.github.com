@@ -1,6 +1,6 @@
 ---
 layout: post
-category: [Parrot]
+categories: [Parrot]
 title: My Plan for PIR
 ---
 

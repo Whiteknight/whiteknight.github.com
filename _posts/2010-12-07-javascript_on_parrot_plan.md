@@ -1,6 +1,6 @@
 ---
 layout: post
-category: [Parrot, JavaScript]
+categories: [Parrot, JavaScript]
 title: JavaScript in JavaScript, on Parrot
 ---
 
