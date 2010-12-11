@@ -1,4 +1,10 @@
-Last night was the big face-to-face meeting between Christoph, Allison and
+---
+layout: post
+categories: [Parrot, ParrotDesign, Lorito]
+title: Lorito Design, First Thoughts
+---
+
+Thursday night was the big face-to-face meeting between Christoph, Allison and
 chromatic to discuss the future of Parrot, especially as it pertains to
 *Lorito*. Lorito has traditionally been many things depending on who you
 talked to or how you thought about it about it. Now it's starting to take a
@@ -30,7 +36,9 @@ In some modern CISC processor architectures, the processor "front-end"
 translates the incoming CISC ops into a sequence of internal RISC "micro-ops".
 These micro-ops, though there are more of them, are easier to work with and
 are passed into an internal "microcore" which is highly optimized and operates
-at a higher clock speed.
+at a higher clock speed. This is exactly the metaphore that I was using for
+the relationship between PIR and Lorito: PIR "meta-ops" are translated to
+a sequence of simpler and faster Lorito ops for actual execution.
 
 There are many differences between a hardware processor implementation and a
 software virtual machine implementation, of course. Parrot can't just bump
@@ -92,3 +100,35 @@ PMCs can be shared. Or, we define copy-on-write (COW) semantics for PMCs that
 say we can share a read-only copy, but if somebody wants to make a
 modification to one we do a full copy and split the two apart never to be
 reattached (or, not without explicitly sending a message to do so).
+
+I don't want to harp on and on about concurrency, but I see that as being both
+a huge necessity for Parrot in the long term and a huge challenge that we need
+to start planning for *right now*. If we make decisions today that are not
+concurrency-friendly, we are going to be regretting them in the future when
+the time comes to actually start implementing a concurrency system. Of course,
+like I mentioned above, no matter what we do there are going to be some
+problems, and in many cases our only option will be to pick which problems
+we want to deal with and then do our best to minimize them.
+
+I think that the new system will work well with a basic [green threads][]
+implementation for now, so maybe that's something I try to put together on
+top of Lorito before we have to worry about a more complete threading system.
+
+[green threads]: /2010/06/02/parrottheory_green_threads.html
+
+Some other things that I like from the initial Lorito notes are that STRING
+and PMC types are going to be combined together, so the user will only have
+to worry about String PMCs (with proper methods, etc) instead of having a
+separate STRING structure. This is going to be a big benefit in many places,
+especially inside our GC where it will reduce complexity by a significant
+amount. I also like the idea that the MOP will be more deeply integrated into
+things, and that we handle security at the MOP level instead of at the op
+level. That's a great idea and I think it solves a lot of conceptual problems
+Parrot will be running into in the future.
+
+I think Christoph mentioned that he was going to [write a post][reparrot]
+about Lorito sometime soon once he has time to get all his thoughts together.
+I'm looking forward to that post of his, and I'm sure I'll have more reactions
+to post about it when we get there.
+
+[reparrot]: http://reparrot.blogspot.com/
