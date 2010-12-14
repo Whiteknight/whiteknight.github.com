@@ -1,25 +1,42 @@
-A few people have requested it recently, so this post is going to be a
-basic introduction to the concepts of GC and memory management in general. I'm
+---
+layout: post
+categories: [Parrot, ParrotTheory, GC]
+title: GC For Newbies, Memory
+---
+
+A few people have requested it recently, so this post is the first in a short
+series about Garbage Collection and memory management in general.  I'm
 not going to get into too many of the nitty-gritty details, and I'm going to
 try to give short code examples in higher-level languages like Perl and C# so
 everybody can follow along.
+
+Today I am going to discuss some basics of *computer memory*. This should be
+review for most readers. In later posts I will talk about allocation, GC, and
+various GC algorithms.
 
 In the C standard library we have two functions for managing dynamic memory:
 `malloc` to allocate a block of memory and `free` to return that memory to the
 system. Blocks of memory returned by `malloc` are allocated on the system
 *heap*, as opposed to program flow control and local variables which are
-allocated on the system *stack*. Stack space is pretty quick and easy to use
-but it's limited in size and has some pretty strict rules about when and how
-it is used. For instance, stack space is typically specified at *compile
+allocated on the system *stack*.
+
+Stack space is quick and easy to use, but is extremely rigid. The stack can
+be used to allocate variables, but it is also used for system bookkeeping and
+control flow.  For instance, stack space is typically specified at *compile
 time*. That is, the layout of the stack is determined from the structure of
 your source code. I can take a look at any arbitrary C source code and tell
 you what your stack allocation will probably look like (ignoring the massive
 mangling of an optimizing compiler, which I won't talk about here). Space that
-you allocate on the stack for local variables ands things will be
-automatically allocated and managed by the compiler, and will be automatically
-cleaned up at the end of every function. I'm dramatically oversimplifying
-here, but the fact is this: Stack space is rigid and is determined at compile
-time.
+you allocate on the stack for local variables will be automatically allocated
+and managed by the compiler, and will be automatically cleaned up at the end
+of every function. I'm dramatically oversimplifying here, but the short
+version is this: Stack space is rigid and is determined at compile time.
+
+Every time you call a function in C, the system allocates a block of memory
+called a *stack frame* on the stack. The stack frame contains storage for
+the function parameters, the function variables, and a handful of necessary
+system pointers. When you return from a C function, that allocated space is
+cleaned up.
 
 In C, you can allocate an integer on the stack with the simple declaration:
 
@@ -30,6 +47,9 @@ int main (void) {
     ...
 
 {% endhighlight %}
+
+In this example, the variable `x` is allocated on the stack as part of the
+stack frame for function `main`.
 
 Heap space, on the other hand, is a lot more dynamic and flexible, but has to
 be accessed through `malloc` and needs to be explicitly freed with `free`.
@@ -42,20 +62,21 @@ them, you can exhaust the available memory of your computer. This is unlikely
 because many modern computers have huge amounts of memory available through
 the use of virtual memory pages.
 
-In short, think about memory this way: The storage your computer has is your
-hard disk. Hard disks are big but slow. When you turn the computer on, it can
-start to read certain bits of data from the slow disk into RAM. RAM acts like
-a smaller, but faster data cache, so things that your processor wants to work
-on can be made more readily available than if they were on disk. The more you
-work with RAM, the faster your program; the more you work with the hard disk,
-the slower your program. If your computer has 1Gb of RAM and your program
-allocates 2Gb of memory through `malloc`, some of that data is going to have
-to be stored on slow disk instead of in fast RAM. This creates a phenominon
-called "Thrashing".
+Think about memory this way: The storage your computer has is your hard disk.
+Everything else (RAM, CPU cache, CPU registers) represent successively smaller
+but faster windows into your hard disk. Hard disks are big but slow. When you
+turn the computer on, it can start to read certain bits of data from the slow
+disk into RAM. RAM acts like a smaller, but faster data cache, so things that
+your processor wants to work on can be made more readily available than if
+they were on disk. The more you work with RAM, the faster your program; the
+more you work with the hard disk, the slower your program. If your computer
+has 1Gb of RAM and your program allocates 2Gb of memory through `malloc`, some
+of that data is going to have to be stored on slow disk instead of in fast
+RAM. This creates a phenominon called "Thrashing".
 
 Thrashing happens when we have more memory allocated than we have space in
 RAM to hold. Some of the data gets stored on the hard disk. When we need to
-access data from the disk, we need to first clear out space in RAM, by writing
+access data from the disk, we need to first clear out space in RAM by writing
 old data to disk. Then when we have everything saved we read the data we need
 from disk into RAM. Constantly shuffling data between disk and RAM is slow
 because disk is slow.
