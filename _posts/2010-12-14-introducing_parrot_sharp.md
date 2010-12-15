@@ -8,14 +8,16 @@ A few days ago I started a new project that I am provisionally calling
 *Parrot#* ("Parrot-Sharp"). This new project provides bindings for Parrot
 in C# or other .NET code using Parrot's new embedding API.
 
-A while back I showed an example on this blog of a very short toy program,
-written in C#, which embedded Parrot and printed out a short "hello world"
-message. I knew, after having done that example, that I would be able to get
-this new project working without too much trouble. The big saving grace here
-is that the API works almost exclusively on PMC, STRING, and simple types,
-which makes wrapping the function calls very easy. I wrap the low-level
-pointers up in custom C# proxy types that include calls to the native
-functions in libparrot.
+A while back I showed an [example on this blog][parrotincsharp] of a very
+short toy program, written in C#, which embedded Parrot and printed out a
+short "hello world" message. I knew, after having done that example, that I
+would be able to get this new project working without too much trouble. The
+big saving grace here is that the API works almost exclusively on PMC, STRING,
+and simple types, which makes wrapping the function calls very easy. I wrap
+the low-level pointers up in custom C# proxy types that include calls to the
+native functions in libparrot.
+
+[parrotincsharp]: /2010/04/10/parrot_in_c.html
 
 Tonight, I have an example program that runs. Here's the C# code of the
 test executable:
