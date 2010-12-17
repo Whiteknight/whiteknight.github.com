@@ -41,7 +41,7 @@ I'm obviously being a little facetious here. Obviously we have a boostrapping
 problem. We will never be able to create any PMCs if we must have a PMC before
 we can create one. Somewhere along the line we need the ability to create a
 PMC of a standard type so that we can get this process started. I could have
-(and probably will eventually have) a function `Parrot_api_pmc_box_string',
+(and probably will eventually have) a function `Parrot_api_pmc_box_string`,
 which would take a `Parrot_String` and return a String PMC. That's a pretty
 standard operation, and one the API will likely want to support at some point.
 However, like I mentioned above, we don't want to be looking up types with
@@ -53,7 +53,7 @@ Parrot_PMC array type. I use this for passing the argv array from C to the
 main function in bytecode. This function is named
 `Parrot_api_build_argv_array`. In reality, I should rename it to
 `Parrot_api_pmc_string_array` or something similar, and use it as a general
-purpose routine for converting a C `char**` into an array Parrot_PMC. With
+purpose routine for converting a C string array into an array Parrot_PMC. With
 this utility, we are now able to create a PMC:
 
 1. Create a C string array
