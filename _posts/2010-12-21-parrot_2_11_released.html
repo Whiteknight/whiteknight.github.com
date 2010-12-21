@@ -1,0 +1,64 @@
+---
+layout: post
+categories: [Parrot, Releases]
+title: Parrot 2.11.0 "At The ROFLBBQ" Released!
+---
+
+<p>On behalf of the Parrot team, I'm proud to announce Parrot 2.11.0 &quot;At The ROFLBBQ.&quot; <a href="http://parrot.org">Parrot</a> is a virtual machine aimed at running all dynamic languages.</p>
+
+<p>Parrot 2.11.0 is available on <a href="ftp://ftp.parrot.org/pub/parrot/releases/devel/2.11.0/">Parrot's FTP site</a>, or by <a href="http://parrot.org/download">following the download instructions</a>. For those who want to hack on Parrot or languages that run on top of Parrot, we recommend <a href="http://github.com/parrot">our organization page</a> on GitHub, or you can go directly to the official Parrot Git repo on <a href="http://github.com/parrot/parrot">Github</a>.</p>
+
+<p>To clone the the Parrot Git repo into a directory called 'parrot', use the following:</p>
+<pre>
+    git clone git://github.com/parrot/parrot.git
+</pre>
+
+<p>If you want it to be in a directory other than 'parrot', then just give that as a second
+argument to clone:</p>
+<pre>
+    git clone git://github.com/parrot/parrot.git parrot_foo
+</pre>
+
+<p>Parrot 2.11.0 News:<br/>
+<pre>
+New in 2.11.0
+- Core
+ + Just In Time native call frame generation using LibFFI
+ + PIR op find_codepoint is no longer experimental, it is now supported
+ + Several public functions in libparrot have been brought up to standard
+   naming conventions.
+ + Improved linked-list implementation in GC
+ + set_addr opcode is being replaced with the new set_label opcode in core libraries
+ + Removed deprecated CodeString PMC
+ + Added close, is_closed, read, readline methods to Socket
+ + Added experimental MappedByteArray PMC type
+ + Added Parrot_warn_experimental, to warn the user about experimental features
+ + Code for frontend executables moved from src/ to frontend/
+ + Support for chunked receive in LWP library.
+ + Added a "quickcover" make target
+- Languages
+ + PIRC
+   - left the nest and is currently at https://github.com/parrot/pirc/
+ + Community
+   - Our README was translated into the following languages
+    by Google Code-In students and mentors:
+        Polish      README.polski
+        Spanish     README.espanol
+        German      README.deutsch
+- Documentation
+- Tests
+ + Test coverage increase on PMCs: String, Integer, NameSpace, Complex, EventHandler
+ + 'make quickcover' target added to speed up most essential
+    parts of coverage analysis
+ + 'tools/dev/headerizer.pl' refactored to improve maintainability
+    (no change in functionality)
+</pre></p>
+
+<p>The SHA256 sum for the downloadable tarball is:</p>
+<pre>
+1a62db8793a5baf727a790d9fd58415dcc9f2c0c28b44608701b39792627241c
+</pre>
+
+<p>Thanks to all our contributors for making this possible, and our sponsors for supporting this project.  Our next release is 18 January 2011.</p>
+
+<p>Enjoy!</p>
