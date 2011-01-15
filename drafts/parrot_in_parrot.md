@@ -5,7 +5,7 @@ back of my head and with some of the recent [IMCC][imcc_cleanups] and
 started formulating an interesting idea about what to do with Parrot's
 frontend in the coming months.
 
-[jsinjs]:
+[jsinjs]: http://whiteknight.github.com/2010/12/07/javascript_on_parrot_plan.html
 [imcc_cleanups]:
 [packfile_tasklist]:
 
@@ -54,7 +54,7 @@ In PIR:
 In C Again:
 9. Destory the interpreter and exit the program.
 
-[pirpmc]:
+[pirpmc]: http://whiteknight.github.com/2011/01/14/exception_backtraces.html
 
 This doesn't necessarily look any simpler, but the reality is that we end up
 with much cleaner code. All the code in PIR for instance can be wrapped in
