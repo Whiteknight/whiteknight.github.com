@@ -1,15 +1,20 @@
-The Google Code-In (GCI) program is coming up on it's last week and things are
-reaching a fevered pitch. Students are circling like hungry sharks in the
-water, snapping at every task we throw their way. Frankly, we're having
-trouble keeping up with some of the more prolific participants. As of last
-night we had crossed 150 completed tasks, and there is no indiciation that
-things are slowing down at all.
+The Google Code-In (GCI) program has been over for a little while, and I'm
+finally ready to reflect on it a little bit. Frankyly, the whole experience
+was completely *exhausting*. The students were totally ravenous and ate up
+tasks as quickly as we could create them. Every morning when I woke up I had
+to review, test, and merge submissions. Every day I had to create as many new
+tasks as I possibly could and answer questions about them. It was a lot of
+work but extremely fun, extremely beneficial, and completely worthwhile.
+
+When all was said and done, we had nearly 200 tasks completed by many
+students, about a half-dozen of them were working on Parrot tasks nearly every
+day of the program.
 
 I think now is a good time to reflect on the program, talk about what we've
 learned, what we can do better next year, and what I think can change about
 the program as whole.
 
-Over the course of this program Parrot has offered a number of tasks for it's
+Over the course of this program Parrot had offered a number of tasks for it's
 students. In the beginning we had plenty of time to prepare an initial
 selection, and there was much diversity in the first crop of tasks: We had
 tasks involving code, testing, documentation, translations, user outreach, and
@@ -59,29 +64,33 @@ exclusively. We do need to keep a nice balance.
 
 So what have we learned this year in GCI?
 
-The first lesson I've discovered is
-that the students will eat up code-related tasks as quickly as we create them.
-Their desire to write code is insatiable. To be ready for GCI next year we
-should have at least 100 code-related tasks available up front, and be
-prepared to create several more for the duration of the program.
+The first lesson I've discovered is that the students will eat up code-related
+tasks as quickly as we create them. They loved code. Their desire to write it
+was insatiable. To be ready for GCI next year we should have at least 100
+code-related tasks available up front, before the program even starts. We
+should be prepared to write dozens more too. There were so many days during
+GCI when we had no tasks left in the queue and the students were waiting
+around for us to create more. That's an unacceptable waste of manpower and we
+shouldn't let that happen again.
 
 Translation tasks can be easy to do and are relatively popular with students,
-but don't always yield results. We have received several good submissions of
-documentation translations, but we also received several which were not good
-and almost could not become good after cycles of feedback and resubmission.
-This can be a bit of a waste of time for the student and mentor alike. Also,
-it's not always easy to find a developer to be a mentor or proof-reader for
-translations in all languages. On at least one occasion one of our developers
-had to call in a favor with a colleague to get a translation proof-read.
-Luckily for us the translation was high-quality and didn't require much
-feedback or modification.
+but don't always yield great results. We have received several good
+submissions of documentation translations, but we also received several which
+were not good and almost could not become good after cycles of feedback and
+resubmission. This can be a bit of a waste of time for the student and mentor
+alike. Also, it's not always easy to find a developer to be a mentor or
+proof-reader for translations in all languages. On at least one occasion one
+of our developers had to call in a favor with a colleague to get a translation
+proof-read. Those are not the kinds of favors we want to be expending without
+good reason. Luckily for us the translation in question was high-quality and
+didn't require much feedback or modification.
 
-Other types of tasks such as documentation, research, and outreach tasks, are
-less popular. They are also much harder for us to come up with in sufficient
-numbers. Students will do these if there are no other options, but it's
-becoming clear that these kinds of tasks will sit in the queues while students
-focus on the code. Even if students loved these tasks, there's no way we could
-create enough of them to keep up with demand.
+Other types of tasks such as documentation, research, and outreach tasks are
+less popular. Luckily they are also much harder for us to come up with in
+sufficient numbers. Students will do these if there are no other options, but
+it's becoming clear that these kinds of tasks will sit in the queues while
+students focus on the code. Even if students loved these tasks, there's no way
+we could create enough of them to keep up with demand.
 
 Students have been very willing and even eager to jump into tasks for various
 ecosystem projects such as [Parrot-Linear-Algebra][pla], [ParrotSharp][ps],
