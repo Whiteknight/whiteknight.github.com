@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, GCI]
+Title: Google Code-In, Final Review
+---
+
 The Google Code-In (GCI) program has been over for a little while, and I'm
 finally ready to reflect on it a little bit. Frankyly, the whole experience
 was completely *exhausting*. The students were totally ravenous and ate up
