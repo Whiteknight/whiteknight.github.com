@@ -118,4 +118,4 @@ going to start to see some novel and amazing new tools using Parrot and
 running on top of it. The first step in all this is getting Packfiles fixed
 and cleaned up, which I think we are going to do soon.
 
-[embedding_pmcs]:
+[embedding_pmcs]: http://whiteknight.github.com/2010/11/06/embedding_api.html
