@@ -5,7 +5,7 @@ Title: Problems with extend_vtable.c
 ---
 
 A few days ago on IRC we were having a discussion about the new API, and the
-role that PMC VTABLEs are gong to play in it. The old embedding API provided
+role that PMC VTABLEs are going to play in it. The old embedding API provided
 a series of direct accessors to PMC vtables, in a file called
 `src/extend_vtable.c`. Don't go looking for that file in the repo on github,
 however. `src/extend_vtable.c` is automatically generated during the Parrot
