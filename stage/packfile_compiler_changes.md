@@ -5,12 +5,14 @@ title: Packfile Changes and new Compilers
 ---
 
 PackFiles are going to be getting a pretty big upgrade in the coming months.
-In fact, some of the big changes are already happening. As much as I can I
-want to help with this effort and talk about it so people know where we are
-going and can start getting excited too.
+In fact, some of the big changes are [already happening][packfile_backref].
+As much as I can I want to help with this effort and talk about it so people
+know where we are going and can start getting excited too.
+
+[packfile_backref]: https://github.com/parrot/parrot/commit/48b41743ca233c1dc017eecfbb8dd364be22795a
 
 PackFiles in Parrot right now are an assortment of various low-level C
-structures. These structures represent an in-memory representation of the
+structures. These structures are an in-memory representation of the
 contents of a .pbc file. These structures interact in complex ways and are not
 friendly to work with. Admittedly they could become much more friendly to work
 with if their logic was properly encapsulated behind a nice API, but it isn't
