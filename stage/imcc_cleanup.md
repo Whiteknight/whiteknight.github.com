@@ -107,7 +107,7 @@ initial and subsequent packfiles was almost completely internalized to the
 packfile subsystem. This was a good start, but I was running into a few
 problems and felt like I could do better.
 
-Since We can't merge anything before 3.0, and since I had a few more ideas, I
+Since we can't merge anything before 3.0, and since I had a few more ideas, I
 just kept working. I added a few more (properly named) accessor functions into
 `src/packfile/api.c` to interact with `interp->initial_pf` and `interp->code`.
 Then I jumped into IMCC and started using those accessors instead of the
