@@ -14,20 +14,29 @@ isn't going to happen unless we modify IMCC to return a PackFile PMC properly,
 and *that* isn't going to happen if we don't understand, cleanup, and refactor
 the call-in interfaces to IMCC.
 
+[pircompiler]: http://trac.parrot.org/parrot/ticket/1967
+
 In the `imcc_cleanups` branch I've been working on, I moved a number of
 functions around, I've deleted some dead code, and I've started refactoring
-one of the several call-in interfaces. I decided, to make the rest of the
-work easier, to diagram the call-chain and the responsibilities chain for the
-various interfaces, so I can have an at-a-glance view of what is happening, 
-what the various interfaces do, and what expectations are made about each.
+one of the several call-in interfaces. [Parrot 3.0][parrot30] was released
+this morning followed shortly thereafter by the merge of the `imcc_cleanups`
+branch. This is the first part of a multi-part cleanup and refactor project
+of IMCC, and I am happy to see it merged into master.
 
-Here's my quick diagram. Lines in parenthesis are basic descriptions of
-processes, the details of which are not necessarily important to understand
-or don't play much of a role in the upcoming refactors. Things not in
-parenthesis are the actual function names which are called. First, here's a
-function which I've been working on diligently in the past few days:
+I decided, to make the rest of the work easier, to diagram the call-chain
+and the responsibilities chain for the various interfaces. This gives me an
+at-a-glance view of what is happening and where. With this little diagram I
+have a much more clear understanding of what various interfaces do and what
+expectations are made about each.
 
-    imcc_run_api
+Lines in parenthesis are basic descriptions of processes, the details of which
+are not necessarily important to understand or don't play much of a role in
+the upcoming refactors. Things not in parenthesis are the actual function
+names which are called. Sometimes I've included little comments as well.
+First, here's a function which I've been working on diligently in the past
+few days in the `imcc_cleanups` branch:
+
+    imcc_run_api # called only from frontend/parrot/main.c
         imcc_parseflags
         imcc_run (returns PackFile* As UnManagedStruct PMC)
             (Setup yyscanner)
@@ -63,8 +72,18 @@ the type of the input file (PIR or PASM), set up the bison scanner object,
 and set it's input file handle (`imc_yyin_set`). If we've invoked Parrot with
 the `-E` command-line argument, it will preprocess the input file only,
 dumping the poorly-formatted, and not syntactically correct preprocessed
-source to `stdout`, then exit. If we are not preprocessing, which is just
-about always, we move into the function `compile_to_bytecode`.  This is where
+source to `stdout`, then exit.
+
+On a side note, I would really like to have a Parrot equivalent of [ccache][]
+to help speed up lengthy builds. We're never going to have something like this
+unless we get a good preprocessor routine working. `do_pre_process` hardly
+qualifies as "good enough" for this purpose, so improvements are necessary
+there.
+
+[ccache]: http://ccache.samba.org/
+
+If we are not preprocessing, which is just about always since the preprocessor
+is dead-broke, we move into the function `compile_to_bytecode`. This is where
 things get a little bit interesting.
 
 `compile_to_bytecode` creates a new `PackFile*` structure, setting it as
@@ -74,31 +93,32 @@ moves to `imcc_run_compilation`. `imcc_run_compilation` is basically the heart
 of IMCC. It sets up a home-brew, basic kind of exception handling mechanism
 with some macros and a call to `setjmp`, then calls `yyparse` and
 `imc_compile_all_units`. I didn't trace any further down the call chain, I
-know that `imc_compile_all_units` does all the actuall compilation work of
+know that `imc_compile_all_units` does all the actual compilation work of
 turning the parse tree into a bytecode file, but understanding that mechanism
 is a different project for a different day.
 
 Notice that these functions don't do any monkeying with Parrot contexts,
 Parrot namespaces, or anything else like that. The `imcc_run` function assumes
-that it is being run first in Parrot, and that there is no existing PBC file
+that it is being run first in Parrot, that there is no existing PBC file
 loaded, and that no compilations have occured previously during this process.
-In the master branch this function also blocks Parrot's GC from running during
-the compilation, but in the `imcc_cleanups` branch that logic has been moved
-out into the Parrot executable front-end code and the new embedding API.
+In the master branch this function had also blocked Parrot's GC from running
+during the compilation, but with the `imcc_cleanups` branch merge that logic
+has been moved out into the Parrot executable front-end code and the new
+embedding API.
 
 What I most notice about these functions here is that the logic seems to be
 split into routines not because it makes good logical sense to break things
-up in a certain way, but simply because without breaking it up the functions
-would be too large. Of the functions I list above, hardly any of them are used
+up in a certain way, but simply because larger functions could be broken up
+into smaller ones. Of the functions I list above, hardly any of them are used
 throughout the source more than once. These blocks of code were not designed
 to be reusable, and were certainly not named to be more readable or
 understandable. It's not until we get down to `imcc_run_compilation` that
 code starts to be reused between frontends. Everything else, no matter how
-common or generic, is duplicated.
+common or generic, is almost always duplicated.
 
 `imcc_run_api` is called from `frontend/parrot/main.c`, where it acts as the
 entry point for IMCC from the command-line. It is one of *six* total
-interfaces to IMCC. Actually in master there are *eight* of them, but I
+interfaces to IMCC. Actually in master there were *eight* of them, but I
 discovered two were dead code and removed them in my branch.
 
 These next two functions may not look familiar, but they are. These are the
@@ -111,7 +131,7 @@ function `imcc_compile_pir_ex`. The PASM compreg, likewise, is a very thin
 wrapper around `imcc_compile_pasm_ex`. These two functions, in turn, are very
 thin wrappers around the function `imcc_compile`, and they throw Parrot
 exceptions if `imcc_compile` returns any errors.
-     
+
     imcc_compile_pasm_ex
     imcc_compile_pir_ex
         imcc_compile (Returns Eval PMC*)
@@ -138,11 +158,9 @@ exceptions if `imcc_compile` returns any errors.
         (if we have an error message, throw it as an exception)
 
 Unlike the `imcc_run_api` function call chain I showed above, the
-`imcc_compile` function actually is reused among these two and two more of
-the remaining call-in functions that I will be discussing. That function is
+`imcc_compile` function actually is reused among these two functions. It is
 extremely ugly and duplicates more than a little functionality from
-`imcc_run`, but it is itself reused more than once. This makes me suspect that
-there is some hope here for unification of all these callpaths.
+`imcc_run`, but it is itself reused more than once.
 
 `imcc_compile` sets up the Bison scanner object and blocks Parrot's GC,
 essentially just like the `imcc_run` function does (or, it *did* in master).
@@ -160,21 +178,22 @@ compilation. Here's a short PIR snippet that explains how:
             .end
         $P0($S0)
     .end
-    
+
 Fun. `imcc_compile` seems to either handle this correctly or at least attempts
 to handle it correctly. I would be surprised if any tests for this behavior
-existed in our test suite.
+existed in our test suite. I'm not going to test it; I sincerely do not want
+to know the results.
 
 `imcc_compile` detects a reentrant compile and does some bookkeeping for it
 if necessary. Then, it pushes a new Parrot CallContext so that the compilation
 has a parent context to do it's compilations and load/init/immediate flag
-handling inside of. It creates a new PackFile_ByteCode segment and loads it
+handling inside of. It creates a new `PackFile_ByteCode` segment and loads it
 into Parrot, saving the old one. From here we descend into `compile_string`,
 Which saves the current bison buffer (if any), sets up the output vector,
 and then calls into `imcc_run_compilation` which we've seen before.
 
 Some obvious things jump out at me. First, all interfaces should detect and
-handle reentrant compiles. There's no reason not to, even in cases like the 
+handle reentrant compiles. There's no reason not to, even in cases like the
 Parrot frontend where we know IMCC is being called before anything else. It
 doesn't make any sense for us to have two call-in interface functions which do
 essentially the same thing but one of them handles a reentrant situation and
@@ -192,33 +211,38 @@ call into an unsafe situation, it should do the necessary prep work to ensure
 it's call graph is prepared for it.
 
 Fourth, we shouldn't be updating Parrot's `interp->initial_pf` or
-`interp->code` fields. This function should either take a fresh packfile to
+`interp->code` fields. I'm going to keep repeating this phrase like...well,
+a parrot. These functions should either take a fresh packfile to
 use or it should create a fresh one, populate it, and return it without ever
-storing temporary values in the interpreter. This is a subject for another
-post, but it's probably the most important thing I say today.
-            
+storing temporary values in the interpreter or storing global values, or
+whatever. This is a subject for another post, but it's probably the most
+important thing I say today.
+
 The next two functions on our grand tour, `IMCC_compile_pasm_s` and
 `IMCC_compile_pir_s` are used only from the function
 `src/embed.c:Parrot_compile_string`. That function isn't used anywhere in the
-Parrot repo besides in some examples and tests for the old embedding API.
-Besides the names and the fact that these do not perform any error handling,
-these two functions are nearly identical to `imcc_compile_pasm_ex` and
-`imcc_compile_pir_ex` above, so I won't go into any more details about them.
-Expect these functions, and `Parrot_compile_string` to be deleted as soon as
-we're allowed to under the deprecation policy.
+Parrot repo besides in some examples and tests for the old embedding API. I
+don't know if any of our embedders or extenders are using
+`Parrot_compile_string`, but I can guarantee that it is going to be
+[deleted][embed_deprecation] eventually (Don't worry, it will be replaced with
+something nice before I try to rip it out). Besides the names and the fact
+that these do not perform any error handling, these two functions are nearly
+identical to `imcc_compile_pasm_ex` and `imcc_compile_pir_ex` above, so I
+won't go into any more details about them. Expect these functions to disappear
+as soon as `Parrot_compile_string` does.
 
     IMCC_compile_pasm_s
-    IMCC_compile_pir_s 
+    IMCC_compile_pir_s
         imcc_compile (seen above)
             compile_string (seen above)
         (return error message to caller instead of throwing exception)
 
 Finally we have `imcc_compile_file`. The difference between this function and
 `imcc_compile_pir_ex` and `imcc_compile_pasm_ex` from above is that this
-function compiles a file from a given file name, instead of compiling a string
-directly. That's the only difference, but as we will see, almost all of the
-code here is faithfully duplicated from `imcc_compile`, and almost all of the
-functionality is duplicated from `imcc_run`. 
+function compiles a file from a given file name instead of compiling a string
+directly. That's the only difference and as we will see almost all of the
+code here is faithfully duplicated from `imcc_compile`. Almost all of the
+functionality is duplicated from `imcc_run`.
 
     imcc_compile_file
         (setup reentrant compile)
@@ -244,33 +268,34 @@ difference is that we detect the type of the input file (which is what
 flags based on that information, and call `imc_yyin_set` to set the input
 file handle instead of inserting the raw string into the bison buffer. From
 here we call into `compile_file` which is almost identical to `compile_string`
-except we read from the file instead of a string, and then call into 
+except we read from the file instead of a string, and then call into
 `imcc_run_compilation`.
 
 So what are the action items to take away from all this? Let me enumerate:
 
 1. We should move logic concerning the Parrot GC and Parrot contexts out of
    IMCC. We should always assume we are calling into IMCC from a running
-   PBC program.
-2. We should set up a simple function, `imcc_handle_reentrant_compile`, which
-   performs the bookkeeping necessary to support reentrancy. We should always
-   expect that we are calling into IMCC in a reentrant way, because it's
-   extremely cheap to detect and avoid it.
+   PBC program. Parrot should do the work of keeping IMCC safe, and IMCC
+   should not assume that it is built into libparrot (because eventually it
+   won't be).
+2. We should set up a simple function, macro, or new API interface to
+   automatically handle reentrant compilations. We should just always provide
+   that feature, because we never know what kind of crafty stuff our embedders
+   are going to do with Parrot.
 3. Setting up the bison input source, be it from a string or a file, is very
-   easy to do. We should have two functions `imcc_compile_string` and
-   `imcc_compile_file`, which set up the bison input buffer, and then call
-   into a common core function (`imcc_handle_reentrant_compile`, or some
-   variant of that).
+   easy to do. It would be pretty easy to set up a source-agnostic interface
+   for specifying an input.
 4. Below the call-in functions, we shouldn't need to know whether we are
    compiling from a string or from a file. Bison's input buffer should already
    be set up. All we need to do is run the compilation, then output directly
-   to a new PackFile.
-   
+   to a new PackFile. Besides a handful of thin interface functions we should
+   have a single primary code path that turns code into PBC.
+
 In reality, I think this process can become very simple, and we can excise a
 hell of a lot of code from IMCC in the process. Combine that with a few basic
 refactors, an improved interface, a new PIRCompiler compreg PMC, and the
 ability to return a PackFile PMC without monkeying with the interpreter's
-internal state, and suddenly IMCC doesn't seem so bad. 
+internal state, and suddenly IMCC doesn't seem so bad.
 
 In fact, with all this cleanup work done, IMCC might nearly become pleasant.
 It will almost be a shame to have to wrap it up and kick it out of the Parrot
