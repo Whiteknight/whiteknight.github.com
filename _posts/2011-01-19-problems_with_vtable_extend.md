@@ -13,7 +13,7 @@ build and contains a long series of simple wrappers for all VTABLE interface
 functions.
 
 I think this is a big problem, and the new embedding API doesn't provide any
-such director accessors. At least, it doesn't provide such a large set of
+such direct accessors. At least, it doesn't provide such a large set of
 them, and doesn't use a tool to blindly generate them. In this post, I'm going
 to explain why.
 
