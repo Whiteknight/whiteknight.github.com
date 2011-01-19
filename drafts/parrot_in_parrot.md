@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Embedding]
+title: Parrot in Parrot
+---
+
 Several days ago I wrote a post about writing a new
 [JavaScript in JavaScript][jsinjs] compiler for Parrot. With that idea in the
 back of my head and with some of the recent [IMCC][imcc_cleanups] and
@@ -6,8 +12,8 @@ started formulating an interesting idea about what to do with Parrot's
 frontend in the coming months.
 
 [jsinjs]: http://whiteknight.github.com/2010/12/07/javascript_on_parrot_plan.html
-[imcc_cleanups]:
-[packfile_tasklist]:
+[imcc_cleanups]: /2011/01/15/packfile_changes_and_compilers.html
+[packfile_tasklist]: /2011/01/15/packfile_changes_and_compilers.html
 
 For the basic PIR compiler frontend (better known as the current Parrot
 executable), with the task of compiling and executing a program written in PIR
@@ -54,7 +60,7 @@ In PIR:
 In C Again:
 9. Destory the interpreter and exit the program.
 
-[pirpmc]: http://whiteknight.github.com/2011/01/14/exception_backtraces.html
+[pirpmc]: /2011/01/18/imcc_interface_functions.html
 
 This doesn't necessarily look any simpler, but the reality is that we end up
 with much cleaner code. All the code in PIR for instance can be wrapped in
@@ -63,6 +69,17 @@ single C API call for success. PIR is also the most natural place to be
 creating PMCs like the PIR compiler PMC, registering it, and calling methods
 on it. Plus, we really get a jump on the idea of rewriting portions of Parrot
 in Lorito.
+
+The new PIR PMC that I've been talking about will probably be written in C
+initially, but with a PIR frontend we can write the compiler wrapper itself
+in PIR, and register it there. Also, we can start to do really cool things,
+like:
+
+    .sub main :main :multi(...)
+    .end
+
+So a packfile can define a multisub as it's main entry point, and the frontend
+can process the necessary arguments and dispatch to it
 
 Here is a short example of what a basic entry-point routine in Parrot would
 look like, after some of the proposed changes to the PIR compiler and
@@ -114,3 +131,5 @@ Notice also that to create a new executable for a different compiler, like
 Rakudo, we would only need to make a relatively small number of changes to the
 logic above (Load in the Rakudo library, register the Rakudo compiler instead
 of the PIR compiler, etc).
+
+We actually gain a large amount from this kind of technique.
