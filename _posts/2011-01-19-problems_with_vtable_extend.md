@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Parrot, Embedding]
-Title: Problems with extend_vtable.c
+title: Problems with extend_vtable.c
 ---
 
 A few days ago on IRC we were having a discussion about the new API, and the
