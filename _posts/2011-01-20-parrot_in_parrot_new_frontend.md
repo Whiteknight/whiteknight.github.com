@@ -42,6 +42,7 @@ things in the makefile, but it shouldn't be too hard. The sequence would look
 like this:
 
 In C:
+
 1. Create the interpreter, parsing the necessary subset of commandline
    arguments.
 2. Wrap up the commandline arguments into an array PMC (or even a Hash PMC)
@@ -50,6 +51,7 @@ In C:
    passing all remaining arguments.
 
 In PBC:
+
 4. Create a new [PIR compiler PMC][pirpmc]. Register it with `compreg`.
 5. Parse out the remaining commandline arguments, separating out the ones that
    go to the user program, and using the rest to set parameters on the interp
@@ -60,6 +62,7 @@ In PBC:
 8. Do any necessary cleanup and exit the prefix program.
 
 In C Again:
+
 9. Destory the interpreter and exit the program.
 
 [pirpmc]: /2011/01/18/imcc_interface_functions.html
