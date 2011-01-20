@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Parrot, Embedding]
-title: Parrot in Parrot
+title: Parrot in Parrot, A New Frontend
 ---
 
 Several days ago I wrote a post about writing a new
