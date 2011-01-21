@@ -4,7 +4,7 @@ categories: [Parrot, Exceptions]
 title: Parrot ExceptionHandlers Redux
 ---
 
-When I invoke an exception in Parrot's PIR, the operation more-or-less looks
+When I invoke an exception in Parrot's PIR, the operation more or less looks
 like this:
 
     .sub foo
@@ -27,16 +27,27 @@ Continuation. Invoking an ExceptionHandler, like invoking a Continuation,
 acts similarly to a `goto` construct in other languages; It jumps control
 flow to the specified location. When I call `push_eh` with a label value, I'm
 essentially creating a new Continuation and setting it's target to the given
-label. When I invoke the ExceptionHandler, I jump to that label.
+label. When I invoke the ExceptionHandler, control flow jumps to that label.
 
 I create a new Exception object, set up some data in it (in this case, just a
 string message, but there are many other fields we could set), and `throw` it.
 
-Internally, this is where things get a little bit interesting. The exceptions
-subsystem calls into the scheduler to get a list of available handlers. The
-scheduler in turn asks the current Parrot context for a list of active
-handlers, then iterates over each until it finds one which is capable of
-handling the current exception. How do we know if a handler can handle a
+Internally, this is where things get a little bit interesting. What needs to
+happen at this point is easy to describe: We need to find a suitable handler
+for the exception and we need to jump to it. It seems extremely simple, but
+the reality is not so much.
+
+First thing we need to do is set up some necessary bookkeeping information
+in the exception: a stack trace, information about the context where it is
+being thrown from, a resume continuation, information about type and severity,
+the [exit code to use if the exception is unhandled][unhandled_ex_api] and it
+forces the interpreter to exit, etc. When everything is ready, we begin the
+search for a handler.
+
+The exception subsystem calls into the scheduler to get a list of available
+handlers. The scheduler in turn asks the current context object for a list of
+active handlers, then iterates over each until it finds one which is capable
+of handling the current exception. How do we know if a handler can handle a
 given Exception? By calling the `"can_handle"` method on each handler. Simply
 throwing an uncommon exception in a system with multiple active handlers can
 generate dozens of method calls. As anybody will tell you, method calls in
@@ -45,23 +56,37 @@ Parrot are currently not cheap, especially not method calls made from C code.
 At this point, we set up a normal Parrot Calling Conventions (PCC) invocation
 with signature "P->" (one argument, the exception, and no expected return
 values) and invoke the ExceptionHandler continuation. In a system with one
-active handler, it takes 2 PCC invokations to throw a single exception, but
-we don't have hardly any flexibility with this system. We get one Exception
-object which, in the basic case, gets one payload field. We can also
-[subclass Exception][exception_subclass] to add more stuff to it, but the
-Exception role is pretty complex and any errors in implementing it will
-probably cause Parrot to crash. Possible, but not currently useful.
+active handler it takes 2 PCC invokations to throw a single exception. This is
+expensive, but we don't gain anything in particular from the added expense.
+The exceptions system is not particularly flexible, robust, or feature-full.
+We get one Exception object which, in the basic case, gets one payload field.
+We can also [subclass Exception][exception_subclass] to add more stuff to it,
+but the Exception role is pretty complex and any errors in implementing it
+will probably cause Parrot to crash. Possible, but not currently useful.
 
 This is all not to mention that to set up an ExceptionHandler to receive only
 a single type of Exception requires *at least* one additional method call to
-pass in the necessary type constraints. That's three method calls if you're
-doing anything even remotely fancy. And by "fancy", I mean "normal".
+pass in the necessary type constraints. That's three PCC invocations made
+at the C level (recursing into new runloops each time) if you're doing
+anything even remotely fancy. And by "fancy", I mean "normal".
 
-We can do better. Today I'm going to brain-storm some ideas about how.
+People expect exceptions systems to be a little bit less performant than other
+control flow systems, but we're really taking quite the liberties in this
+regard. We can do better. Today I'm going to brain-storm some ideas about how.
 
 If Exceptions are properly subclassable, and if ExceptionHandlers are just
 continuations and are invoked through PCC, we can use Parrot's powerful
-multidispatch system to dispatch them.
+multidispatch system to dispatch them. This seems like a reasonable use for a
+system which Parrot already provides to subroutine invocations almost for
+free. All we need the ExceptionHandler to do is expose a parameter signature
+which expresses the type information of the exceptions it handles to Parrot's
+MMD engine, and we easily turn a list of possible candidate handlers into a
+single best match.
+
+We can ask the context to give us a list of all active handlers and use this
+as the candidate pool. A better option would be to go through the list of all
+active handlers and only pick the top one for each unique signature string.
+Older handlers are overshadowed by newer ones with the same signature.
 
 If ExceptionHandlers are properly subclassable, we can define subclasses of
 Exception which always take certain subclasses of Exception. This reduces the
