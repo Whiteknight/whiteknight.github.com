@@ -1,6 +1,17 @@
-Now that we've covered memory and allocations, it's time to talk about GC.
-GC, as I've mentioned other times before, consists of two basic phases: mark
-and sweep.
+---
+layout: post
+categories: [Parrot, ParrotTheory, GC]
+title: GC For Newbies, Mark and Sweep
+---
+
+This is the third installment in the GC For Newbies series of posts. The
+[first entry][gc_for_newbies_1] talked about memory and system `malloc`. The
+[second entry][gc_for_newbies_2] talked about slab-style allocations. Today,
+we're going to talk about how we account for allocated memory and how we
+collect it using the *mark and sweep* algorithm.
+
+General GC algorithms, as I've mentioned other times before, consist of two
+basic phases: mark and sweep.
 
 In the mark phase, we account for all the live memory. In the sweep phase we
 free anything that isn't alive. Here is our familiar slab, where `X` are
@@ -16,7 +27,7 @@ set is the interpreter itself.
 {% highlight perl %}
 
 foreach my $item (@root) {
-    mark_item($item);
+    gc->mark_item($item);
 }
 
 {% endhighlight %}
@@ -28,11 +39,17 @@ through references, so we have to recurse:
 {% highlight perl %}
 
 sub mark_item {
+    my $gc = shift;
     my $item = shift;
-    foreach my $subitem ($item->references()) {
-        mark_item($subitem);
+    foreach my $subitem ($item->references) {
+        $gc->mark_item($subitem);
     }
-    mark_item_alive($item);
+    $item->mark_alive();
+}
+
+sub mark_item_alive {
+    my $item = shift;
+    $item->state = "alive";
 }
 
 {% endhighlight %}
@@ -46,20 +63,39 @@ a color. Here's our mark function now:
 {% highlight perl %}
 
 sub mark_item {
+    my $gc = shift;
     my $item = shift;
-    mark_item_grey($item);
-    foreach my $subitem ($item->references()) {
-        mark_item($subitem);
+    $item->set_color("grey");
+    foreach my $subitem ($item->references) {
+        $gc->mark_item($subitem);
     }
-    mark_item_black($item);
+    $item->set_color("black");
 }
 
 {% endhighlight %}
 
-Every object in the system would have a "color" property that would keep track
-of it's current status.
+As a bit of reference to Parrot's system, the loop over '$item->references'
+is all handled in `VTABLE_mark`:
 
-GC then works like this:
+{% highlight perl %}
+
+sub mark_item {
+    my $gc = shift;
+    my $item = shift;
+    $item->set_color("grey");
+    VTABLE_mark($item);
+    $item->set_color("black");
+}
+
+{% endhighlight %}
+
+`VTABLE_mark` is basically a routine where every item passes all it's children
+to the `mark_item` routine in the GC. This is how we find all references; we
+expect each type to know where it keeps it's own data.
+
+Every object in the system would have a "color" property that would keep track
+of it's current status. GC then works like this:
+
 1. Set all objects white.
 2. Mark items black, starting with the root set
 3. Anything that is still white at the end of the mark is dead and can be
@@ -67,39 +103,61 @@ GC then works like this:
 
 {% highlight perl %}
 
-for my $item (@slab) {
-    mark_item_white($item);
-}
-for my $item (@root) {
-    mark_item($item);
-}
-for my $item (@slab) {
-    if (!is_free($item) && is_white($item))
-        free_item($item);
+sub gc_mark_all {
+    my $gc = shift;
+    my @slabs = $gc->all_slabs;
+    our @root;   # global, contains all root items
+    
+    for my $slab (@slabs) {
+        for my $item ($slab->all_items) {
+            $item->set_color("white");
+        }
+    }
+    for my $item (@root) {
+        $gc->mark_item($item);
+    }
+    for my $slab (@slabs) {
+        for my $item ($slab->all_items) {
+            if (!$item->is_free && $item->color eq "white")
+                $slab->free_item($item);
+        }
+    }
 }
 
 {% endhighlight %}
 
 It's actually very simple when you look at a basic naive implementation like
-this. This is actually extremely naive, there's no reason why we need three
-loops. The first and the third loop actually iterate over every single item
-in the slab which is extremely wasteful to do even once, but it's a huge
-pain to do it twice.
+this. This is also extremely naive, there's no reason why we need three
+loops, especially when we're nesting like this over each slab and then each
+item in the slab. The first and the third loop actually iterate over every
+single item in every slab which is extremely wasteful to do even once, but is
+a huge pain to do it twice.
 
-As a quick performance improvement, we can define `$black` and `$white` as
-variables instead of constants. Now:
-
+As a quick performance improvement, we can define `$black` and `$white` fields
+on the slab instead of constants. Then, instead of having to manually swap all
+black items to white, we swap the meanings of those two variables. This
+has the exact same effect, but is a single operation but doesn't require a
+loop. Here is this idea in action:
 
 {% highlight perl %}
 
-for my $item (@root) {
-    mark_item($item);
+sub gc_mark_all {
+    my $gc = shift;
+    my @slabs = $gc->all_slabs;
+    our @root;   # global, contains all root items
+    for my $item (@root) {
+        $gc->mark_item($item);
+    }
+    for my $slab (@slabs) {
+        for my $item ($slab->all_items) {
+            if (!$item->is_free && $item->color == $slab->white)
+                $slab->free_item($item);
+        }
+    
+    my $temp = $slab->black;
+    $slab->black = $slab->white;
+    $slab->white = $slab->back;
 }
-for my $item (@slab) {
-    if (!is_free($item) && is_white($item))
-        free_item($item);
-}
-swap(\$black, \$white);
 
 {% endhighlight %}
 
@@ -122,8 +180,8 @@ Everything white is now free:
     |BBBB  BB  BBBB      BBB                                |
     +-------------------------------------------------------+
 
-Now, we `swap(\$black, \$white)`, so all the black flags are now white flags
-instead without having to iterate over the pool:
+Now we swap what white and black are, so all the black flags are now white
+flags instead without having to iterate over the pool:
 
     +-------------------------------------------------------+
     |WWWW  WW  WWWW      WWW                                |
@@ -131,3 +189,8 @@ instead without having to iterate over the pool:
 
 So there we are, we move from a simple naive mark and sweep algorithm, we
 make a small improvement, and we've cut the complexity of our GC by 1/3.
+
+This is the basic mark and sweep algorithm, which is essentially what Parrot
+uses in its current gc. There are many other GC algorithms and modifications
+on various algorithms. In the fourth installment of GC for Newbies I'll
+discuss the generational algorithm, which Parrot is hoping to move to soon.
