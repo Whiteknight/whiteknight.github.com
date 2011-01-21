@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, PIR, Packfiles]
+title: Tagged Subs in PIR
+---
+
 There has been a certain amount of confusion recently about the PIR subroutine
 flags `:init`, `:main`, and `:load`. Certain people, myself included, were
 tryting to deprecate the `:load` flag, while other people (specifically people
@@ -10,15 +16,18 @@ The core idea of tags like `:init`, `:main`, and `:load` is that we want to be
 able to attach metadata to subroutines in PIR (and, by extension, other
 languages), and be able to execute subs with the given tag in certain
 situations. When we use the `load_bytecode` op to load a bytecode file as a
-library, for instances, we want to trigger all `:load` functions, in any
+library, for instance, we want to trigger all `:load` functions, in any
 order. When we load a bytecode file as an executable, we want to trigger all
-the `:init` functions, in any order, followed by a single `:main` function.
+the `:init` functions in any order, followed by a single `:main` function.
 
 Fast forward a few months and assume that we now have a working
 [PIR compiler PMC type][pirpmc], which we can attach methods and data
 attributes to. I'm going to execute this little snippet:
 
+    pircompiler = compreg "PIR"
     $P0 = pircompiler.'compile'(source_filename)
+
+[pirpmc]:
 
 What happens in this situation? Or, more importantly, what should happen?
 We know that the `$P0` PMC is going to be a [PackFile PMC][packfilepmc], but
@@ -31,13 +40,19 @@ into its `:main` method. Or, maybe the user wants to introspect the packfile,
 to calculate complexity metrics. Maybe the user wants to run an in-place
 optimizer over the packfile. We simply don't know what the user wants to do.
 
+[packfilepmc]:
+
 Assuming that the user wants to treat this like a library and trigger all the
 `:load` functions is going to be wrong in many cases. Assuming that the user
 wants to treat this like an executable and trigger `:init` and maybe `:main`
 is frequently also going to be wrong. And when Parrot makes these kinds of
 assumptions we're going to have users who have difficulty with it and need to
 implement ugly workarounds to get what they want without Parrot doing too much
-without asking.
+without asking. It's my opinion that Parrot should never do what you don't
+want it to do without asking first. It's also my opinion that Parrot is tool,
+a library for creating a dynamic language runtime, not the end program in
+itself. The programmer uses it as a base to do what is needed; Parrot doesn't
+always know what that should be.
 
 What we really need is a way for the user to specify exactly what they want
 to happen and when. It's not for Parrot to decide. `:init`, `:main`, and
@@ -89,3 +104,46 @@ we execute the sub and then remove the flags. The current process for firing
 `:init` and `:load` is destructive, which means that once you do it you can't
 do it again. This doesn't come up much, but it's still an ugly restriction.
 
+Some people would probably argue that we don't need to be adding a million new
+methods to the PackFile PMC. The [single responsibility][srp] of the PackFile
+PMC should be working with the PackFile structures and file format, not
+executing subroutines. Especially not assuming to know how those subroutines
+should be executed. In answer to that I suggest maybe we could do something
+like this:
+
+      $P0 = packfile.'get_tagged_subs'("init")
+      $P1 = iter $P0
+    trigger_init_top:
+      unless $P1 goto trigger_init_bottom
+      $P2 = shift $P1
+      $P2()
+      goto trigger_init_top
+    trigger_init_bottom:
+
+This is a little bit more work, but not a whole lot. Also, it would be trivlal
+to encapsulate this logic into a subroutine and reuse it for all your phasors.
+The benefit of this situation is that the packfile is only responsible for
+providing read access to the list of subs, the user can decide whether to
+execute each and if so, how. For the common case, this code would be hidden
+away in the
+
+We also start to get the idea that maybe these phasor subs could start to take
+arguments, or return results. I can think of at least a handful of reasons why
+I would like to have that feature available in a PIR-based Parrot frontend
+program like I was envisioning a few days ago. Other languages, such as Rakudo
+would have their own entrypoint routine and would be able to decide when, if
+and how to trigger each of it's tagged sub types.
+
+One criticism I can forsee is that different libraries and executables may
+use different sets of tags that are expected to be executed in different
+orders or with different parameters than the "normal" set. This is true, but
+I would counter to say that the way to load and initialize a library is part
+of that library's API and should be well documented and understood by users
+before use.
+
+The more I think about this idea the more I like it. This should help to clean
+up a lot of code in libparrot, especially some code which is very ugly and
+buggy. We free up a lot of ugly flag logic in IMCC and in the packfiles system
+and replace it with a simple keyword search (and maybe a hash for better
+performance). We should be able to resolve a handful of long-standing tickets
+and issues, and provide a lot of new flexibility to the users of libparrot.

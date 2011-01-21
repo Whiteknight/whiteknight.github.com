@@ -1,9 +1,15 @@
+---
+layout: post
+categories: [Parrot, Exceptions]
+title: Parrot ExceptionHandlers Redux
+---
+
 When I invoke an exception in Parrot's PIR, the operation more-or-less looks
 like this:
 
     .sub foo
         push_eh my_handler
-        
+
         $P0 = new ['Exception']
         $P0["message"] = "You done goofed!"
         throw $P0
@@ -17,9 +23,11 @@ like this:
 tracing through this program is pretty helpful, even though it appears
 straight-forward enough. The `push_eh` opcode pushes a new handler onto the
 stack of handlers. An ExceptionHandler is a PMC type which is a subclass of
-Continuation. When I call `push_eh` with a label value, I'm essentially
-creating a new Continuation and setting it's target to the given label. When
-I invoke the ExceptionHandler, I jump to that label.
+Continuation. Invoking an ExceptionHandler, like invoking a Continuation,
+acts similarly to a `goto` construct in other languages; It jumps control
+flow to the specified location. When I call `push_eh` with a label value, I'm
+essentially creating a new Continuation and setting it's target to the given
+label. When I invoke the ExceptionHandler, I jump to that label.
 
 I create a new Exception object, set up some data in it (in this case, just a
 string message, but there are many other fields we could set), and `throw` it.
@@ -32,16 +40,17 @@ handling the current exception. How do we know if a handler can handle a
 given Exception? By calling the `"can_handle"` method on each handler. Simply
 throwing an uncommon exception in a system with multiple active handlers can
 generate dozens of method calls. As anybody will tell you, method calls in
-Parrot are currently not cheap.
+Parrot are currently not cheap, especially not method calls made from C code.
 
 At this point, we set up a normal Parrot Calling Conventions (PCC) invocation
 with signature "P->" (one argument, the exception, and no expected return
 values) and invoke the ExceptionHandler continuation. In a system with one
 active handler, it takes 2 PCC invokations to throw a single exception, but
 we don't have hardly any flexibility with this system. We get one Exception
-object which, in the basic case, gets one payload field. We can also subclass
-Exception to add more stuff to it, but the Exception role is pretty complex
-and any errors in implementing it will probably cause Parrot to crash.
+object which, in the basic case, gets one payload field. We can also
+[subclass Exception][exception_subclass] to add more stuff to it, but the
+Exception role is pretty complex and any errors in implementing it will
+probably cause Parrot to crash. Possible, but not currently useful.
 
 This is all not to mention that to set up an ExceptionHandler to receive only
 a single type of Exception requires *at least* one additional method call to
@@ -69,18 +78,18 @@ snippets of code to illustrate what we could have:
     # First, we can get the currently active handler multi from the context
     handler = context.'get_active_handler'()
     handler(exception)  # Might be a multisub or new "MultiHandler"
-    
+
     # Second, in lieu of multihandlers, we ask the context for a matching
     # Handler:
     handler = context.'get_suitable_handler'(exception')
     handler(exception)
-    
+
     # Third, if we don't want to do things manually, we can tell the Exception
     # to just do whatever it wants. This emulates current behavior of the
     # throw opcode, without the opcode. Internally, this probably does the
     # same as code snippet 1 or 2 above
     exception.'throw'()
-    
+
 Here's where things start to get pretty interesting: What if we didn't
 restrict exception handlers to only taking a single argument? What if they
 were like any other invocable and could take any number of arguments?
@@ -92,7 +101,7 @@ pass the two individually. Further, we could pass more than a single object
 as a payload.
 
     exception.'throw'(arg1, arg2, arg3, ...)
-    
+
 What we start to do here is separate out the Exception object, which becomes a
 slimmed-down cache for some bookkeeping information, from the actual payload
 object of the exception itself. The payload, which can be any object we want,
@@ -110,7 +119,7 @@ payload separately:
        .param pmc exception
        .param pmc payload
        ....
-       
+
 As an aside, we did recently close a ticket as WONTFIX that suggested using
 `.param` notation for exception handler arguments instead of `.get_results()`.
 Without a system where exception handlers can take multiple parameters, such
@@ -121,14 +130,14 @@ By completely separating out the payload from the Exception, and changing
 ExceptionHandlers to being normal, first-class invokables, we can start to
 slim down the Exception PMC so it becomes smaller, cheaper, and has a simpler
 interface to subclass.
-    
+
 The most compelling thing for me is this: If Exceptions are thrown by a
 method call:
 
     exception.'throw_to'(handler, args, ...)
-    
+
     # or
-    
+
     handler.'catch'(exception, args, ...)
 
 Suddenly the entire exceptions subsystem becomes almost completely
@@ -155,7 +164,7 @@ need to implement, and just do all our exception dispatching based on existing
 multidispatch semantics of Parrot. I suspect we can cut the scheduler
 completely out of the process, and just ask the context directly for a
 suitable handler when we want one.
-    
+
 In closing, here's a short code example of what I'm talking about. Keep in
 mind that this is all just rough brainstorming, I'm sure if we want to move
 forward with some of these ideas that we can improve the look of the interface
@@ -165,40 +174,40 @@ significantly.
         $P0 = get_class ["Exception"]
         $P1 = subclass $P0, "FooException"
         $P2 = subclass $P0, "BarException"
-        
+
         $P0 = get_class ["ExceptionHandler"]
         $P1 = subclass $P0, "FooHandler"
         $P2 = subclass $P0, "BarHandler"
-        
+
         $P0 = new "FooHandler"
         push_eh $P0
         $P0 = new "BarHandler"
         push_eh $P0
-        
+
         $P0 = new "FooException"
         $P1 = get_context_multi_handler
         $P1.'catch'($P0, "payload!") # the catch method is overridden in subclasses
         # default behavior returns us here, but we could also invoke a
         # continuation and go elsewhere
     .end
-  
+
     .namespace ["FooHandler"]
-    
+
     .sub 'catch' :method :multi(FooException,_)
         .param pmc exception
         .param pmc payload
         say "Caught a Foo with a payload!"
     .end
-    
+
     .sub 'catch' :method :multi(FooException)
         .param pmc exception
         say "Caught a Foo!"
         $P0 = getattribute self, "continuation"
         $P0()  # my_handler
     .end
-    
+
     .namespace ["BarHandler"]
-    
+
     .sub 'catch' :method :multi(BarException)
         .param pmc exception
         say "Caught a Bar!"
@@ -206,7 +215,6 @@ significantly.
     .end
 
 This all requires a hell of a lot more thought, but I think there is some
-gold to be mined here.
-   
+gold to be mined if we pursue this idea a little further.
 
- 
+
