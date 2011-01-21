@@ -1,9 +1,14 @@
 Somebody asked me what the plan was for removing IMCC from libparrot. I
 mentioned that there was no written plan, just a series of steps in my head.
+This isn't really a great thing, Parrot is a community that likes to have
+plans, likes to have review of plans, likes to increase the bus number on
+important projects, and likes to keep things written down. That in mind, in
+this post I'm going to lay out my general plan for cleaning, refactoring, and
+finally removing IMCC from libparrot.
 
-Some ground work is [already done][imcc_cleanups]. From here, the next steps
-are:
-
+The process basically consists of three parts: cleanup the interfaces, wrap
+it into a PMC, and then make that PMC optional. Here's my gameplan in more
+detaile terms:
 
 1. Continue cleaning and unifying the IMCC interface functions. We want to
    have a very small set of interface functions with non-overlapping
@@ -27,5 +32,10 @@ are:
    its own shared library, and link it into the Parrot executable.
 
 At this point, seven short steps from now, we will be able to build and
-install libparrot without IMCC. It will still be readily available, but it
-won't be available by default from libparrot.
+install libparrot without IMCC. It will still be readily available on demand,
+of course, and the parrot executable frontend will still make
+
+Some ground work is [already laid][imcc_cleanups] in the area of cleaning
+IMCC's interface functions. I've already started a new branch to continue
+some of that work, and check item #1 off the list.
+are:
