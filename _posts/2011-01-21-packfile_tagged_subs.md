@@ -91,6 +91,8 @@ and a new `:end` phasor for post-facto cleanup:
     main_sub(main_args)
     packfile.'trigger_phasors'("end")
 
+[parrot_in_parrot]: /2011/01/20/parrot_in_parrot_new_frontend.html
+
 What do these new flags look like in PIR? Here's one idea:
 
     .sub foo :tag("init")
