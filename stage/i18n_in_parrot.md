@@ -8,7 +8,7 @@ We can talk about all the programming languages that either comprise Parrot,
 or run on top of it. But when we are talking about spoken languages, Parrot
 is completely monolingual. English is the language of Parrot. All it's method
 names are English. Type names are English. Error messages are English. This is
-just fine if you live in an english-speaking country or if you know English as
+just fine if you live in an English-speaking country or if you know English as
 a second language, but it leaves everybody else out.
 
 Luckily, there are standards out there that software programs can follow, one
@@ -22,7 +22,7 @@ In MediaWiki, where I've done a little bit of development on extensions and
 the like, i18n support is handled in a pretty straight-forward way. Every
 user-facing text string is represented in the code by a slug, or an identifier.
 Elsewhere, in another code file specifically for messaging (typically named
-`*.i18n.php`), we define a hashtable that maps slugs to actual user messages,
+`*.i18n.php`), we define a hash table that maps slugs to actual user messages,
 depending on language. Here's an example slug table from my [EmbedVideo][]
 extension:
 
