@@ -95,7 +95,7 @@ positively never ever use "goto". The first two become optional once you turn
 
 PIR fills a stupid middle area between the human and the machine. If I
 divorced PIR from Parrot, and wrote a PIR compiler that ran by itself and
-outputed x86 machine code instead of PBC byte code, would you use it for
+outputted x86 machine code instead of PBC byte code, would you use it for
 anything? If your boss comes to you and says "I need the database analyzed and
 a report generated about it, and I need it *yesterday*", do you crack your
 knuckles, grab a sports drink, and start furiously writing *PIR*? No. If your
@@ -126,14 +126,14 @@ Machine. Lorito will be small, low-level, and not human-friendly. In the new
 Parrot world, we will be writing software in languages that we want to write
 in, and let the compilers generate the low-level Lorito code. Nobody should
 ever have to write Lorito directly unless they want to. Nobody should ever
-have to write PIR again unless they specificaly want to. Parrot is an enabling
+have to write PIR again unless they specifically want to. Parrot is an enabling
 force for powerful, modern dynamic languages. Remember all those promises we
 told ourselves and other people about how Parrot would allow you to write a
 website in PHP, and seamlessly load in a library written in Perl6, or Ruby,
 or whatever? We need to start believing that kind of thing is possible, and
 we need to start moving in that direction *today*. It's time to start ditching
-this low-level PIR crap that we are embarassing ourselves with, and move up to
+this low-level PIR crap that we are embarrassing ourselves with, and move up to
 the kinds of real programming languages that we actually want to use.
 
-PIR is the problem. Lorito is the anwer. It's time for us to embrace that.
+PIR is the problem. Lorito is the answer. It's time for us to embrace that.
 
