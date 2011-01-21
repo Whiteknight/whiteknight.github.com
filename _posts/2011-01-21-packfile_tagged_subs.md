@@ -27,7 +27,7 @@ attributes to. I'm going to execute this little snippet:
     pircompiler = compreg "PIR"
     $P0 = pircompiler.'compile'(source_filename)
 
-[pirpmc]:
+[pirpmc]: /2011/01/18/imcc_interface_functions.html
 
 What happens in this situation? Or, more importantly, what should happen?
 We know that the `$P0` PMC is going to be a [PackFile PMC][packfilepmc], but
@@ -40,7 +40,7 @@ into its `:main` method. Or, maybe the user wants to introspect the packfile,
 to calculate complexity metrics. Maybe the user wants to run an in-place
 optimizer over the packfile. We simply don't know what the user wants to do.
 
-[packfilepmc]:
+[packfilepmc]: /2011/01/17/packfile_and_imcc_branches.html
 
 Assuming that the user wants to treat this like a library and trigger all the
 `:load` functions is going to be wrong in many cases. Assuming that the user
