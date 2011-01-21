@@ -44,7 +44,7 @@ The first thing we did was offer several translation tasks to get our various
 documents translated into several languages. What we ended up with was a huge
 pile of translated documents of various levels of quality, but for which we
 didn't even have an organizational infrastructure in place to manage. In fact,
-thats a problem that the Parrot Foundation still hasn't solved: Where do we
+that's a problem that the Parrot Foundation still hasn't solved: Where do we
 put all these translated documents, how do we evaluate them, and how do we go
 about keeping them up to date? At the time of writing this blog post, The
 Parrot repository contains several branches which have translated documents
@@ -61,7 +61,7 @@ are very difficult or even open-ended. While we still have hundreds of more
 tickets, most of them are probably not suitable for a GCI task.
 
 Later we started making several tasks to include code coverage of our test
-suite. For some things, like the new Embedding API, this brough a huge influx
+suite. For some things, like the new Embedding API, this brought a huge influx
 of valuable tests for the API which I am sincerely grateful for, but we also
 got accused of "spamming" tasks and allowing certain students to inflate their
 scores by rapidly completing tasks that were too easy. I'm happy to explain
@@ -129,7 +129,7 @@ PLA. Several new features and an entire new test suite were added for
 ParrotSharp. I find these things to be very valuable, and I would sincerely
 hope that in future years the ecosystem projects represent a much higher
 percentage of tasks for students to perform. These ecosystems represent a huge
-variety in terms of tasks, technologies, and skillsets. I think students
+variety in terms of tasks, technologies, and skill sets. I think students
 do enjoy the variety.
 
 [pla]: http://github.com/Whiteknight/parrot-linear-algebra
