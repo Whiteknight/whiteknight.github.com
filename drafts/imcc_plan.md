@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, IMCC]
+title: The IMCC Plan
+---
+
 Somebody asked me what the plan was for removing IMCC from libparrot. I
 mentioned that there was no written plan, just a series of steps in my head.
 This isn't really a great thing, Parrot is a community that likes to have
@@ -38,4 +44,4 @@ of course, and the parrot executable frontend will still make
 Some ground work is [already laid][imcc_cleanups] in the area of cleaning
 IMCC's interface functions. I've already started a new branch to continue
 some of that work, and check item #1 off the list.
-are:
+
