@@ -127,7 +127,9 @@ to encapsulate this logic into a subroutine and reuse it for all your phasors.
 The benefit of this situation is that the packfile is only responsible for
 providing read access to the list of subs, the user can decide whether to
 execute each and if so, how. For the common case, this code would be hidden
-away in the
+away in the [Parrot executable frontend][pir_frontend].
+
+[pir_frontend]: /2011/01/20/parrot_in_parrot_new_frontend.html
 
 We also start to get the idea that maybe these phasor subs could start to take
 arguments, or return results. I can think of at least a handful of reasons why

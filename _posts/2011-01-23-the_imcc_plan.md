@@ -39,9 +39,12 @@ detaile terms:
 
 At this point, seven short steps from now, we will be able to build and
 install libparrot without IMCC. It will still be readily available on demand,
-of course, and the parrot executable frontend will still make
+of course, and the parrot executable frontend will still make use of it. From
+the perspective of a PIR user, nothing will have changed, but internally
+everything will be better.
 
 Some ground work is [already laid][imcc_cleanups] in the area of cleaning
 IMCC's interface functions. I've already started a new branch to continue
 some of that work, and check item #1 off the list.
 
+[imcc_cleanups]: /2011/01/18/imcc_interface_functions.html
