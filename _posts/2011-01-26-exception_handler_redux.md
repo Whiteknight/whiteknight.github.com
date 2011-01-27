@@ -20,7 +20,7 @@ like this:
         say $S0
     .end
 
-tracing through this program is pretty helpful, even though it appears
+Tracing through this program is pretty helpful, even though it appears
 straight-forward enough. The `push_eh` opcode pushes a new handler onto the
 stack of handlers. An ExceptionHandler is a PMC type which is a subclass of
 Continuation. Invoking an ExceptionHandler, like invoking a Continuation,
@@ -43,6 +43,8 @@ being thrown from, a resume continuation, information about type and severity,
 the [exit code to use if the exception is unhandled][unhandled_ex_api] and it
 forces the interpreter to exit, etc. When everything is ready, we begin the
 search for a handler.
+
+[unhandled_ex_api]: /2010/11/26/embedding_api_home_stretch.html
 
 The exception subsystem calls into the scheduler to get a list of available
 handlers. The scheduler in turn asks the current context object for a list of
