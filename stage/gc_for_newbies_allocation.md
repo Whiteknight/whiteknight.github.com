@@ -107,7 +107,7 @@ sub allocate_fixed_size {
 This is how Parrot's memory allocator works, in the most simple sense. It's a
 very good design and is pretty speedy. It's not the absolute fastest algorithm
 available, and there are some tweaks and improvements we could make for
-modest gains. 
+modest gains.
 
 Now that we've discussed memory and allocations, next time we are going to
 start discussiong GC algorithms like *mark and sweep*.
