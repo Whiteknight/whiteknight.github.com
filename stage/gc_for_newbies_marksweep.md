@@ -10,8 +10,11 @@ This is the third installment in the GC For Newbies series of posts. The
 we're going to talk about how we account for allocated memory and how we
 collect it using the *mark and sweep* algorithm.
 
-General GC algorithms, as I've mentioned other times before, consist of two
-basic phases: mark and sweep.
+[gc_for_newbies_1]: /2010/12/13/gc_for_newbies_memory.html
+[gc_for_newbies_2]: /2011/02/04/gc_for_newbies_allocation.html
+
+Most common GC algorithms, as I've mentioned other times before, consist of
+two basic phases: mark and sweep.
 
 In the mark phase, we account for all the live memory. In the sweep phase we
 free anything that isn't alive. Here is our familiar slab, where `X` are
@@ -32,9 +35,9 @@ foreach my $item (@root) {
 
 {% endhighlight %}
 
-Inside the mark_item subroutine we have to mark the item as "alive". This is
-an extremely simple example, of course. Objects connect to each other
-through references, so we have to recurse:
+Inside the `mark_item` subroutine we have to mark the item as "alive". This is
+an extremely simple example, of course. The reality is that objects connect to
+each other through references. c
 
 {% highlight perl %}
 
@@ -56,9 +59,9 @@ sub mark_item_alive {
 
 Actually, this isn't even a complete example. Parrot uses a tri-color scheme
 where all the items have one of three "colors": White, black, and grey. White
-means the object is dead, Black means the object is alive, and Grey means the
-object is in the middle of being marked. Objects which are free do not have
-a color. Here's our mark function now:
+means the object is dead or unreferenced, Black means the object is alive, and
+Grey means the object is in the middle of being marked. Objects which are free
+do not have a color. Here's our mark function now:
 
 {% highlight perl %}
 
@@ -107,7 +110,7 @@ sub gc_mark_all {
     my $gc = shift;
     my @slabs = $gc->all_slabs;
     our @root;   # global, contains all root items
-    
+
     for my $slab (@slabs) {
         for my $item ($slab->all_items) {
             $item->set_color("white");
@@ -126,12 +129,15 @@ sub gc_mark_all {
 
 {% endhighlight %}
 
-It's actually very simple when you look at a basic naive implementation like
-this. This is also extremely naive, there's no reason why we need three
-loops, especially when we're nesting like this over each slab and then each
-item in the slab. The first and the third loop actually iterate over every
-single item in every slab which is extremely wasteful to do even once, but is
-a huge pain to do it twice.
+GC is pretty simple conceptually when you look at a basic implementation like
+this. However, what I've shown above is pretty naive and needlessly wasteful.
+We've got many loops, including loops inside of loops, and we're iterating
+over a memory pool which could conceivably contain hundreds, thousands, or
+even millions of data objects.
+
+The first and the third loop actually iterate over every single item in every
+slab, an operation which is extremely wasteful to do even once. It's extremely
+bad for us to do it twice on *every GC run*.
 
 As a quick performance improvement, we can define `$black` and `$white` fields
 on the slab instead of constants. Then, instead of having to manually swap all
@@ -153,13 +159,17 @@ sub gc_mark_all {
             if (!$item->is_free && $item->color == $slab->white)
                 $slab->free_item($item);
         }
-    
+    }
     my $temp = $slab->black;
     $slab->black = $slab->white;
     $slab->white = $slab->back;
 }
 
 {% endhighlight %}
+
+Now, `$white` and `$black` are variables instead of hardcoded values, and we
+can swap the meanings of those two variables instead of needing to iterate
+over the entire slab, manually setting each flag from one color to the next.
 
 Here's an example. We start off with the same memory diagram. W is white,
 B is black, and space is free:
