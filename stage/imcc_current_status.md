@@ -76,6 +76,8 @@ This took me a little while to track down, and it's a non-trivial though
 straight-forward fix. First, take a quick look at [TT #1990][tt_1990] for
 some background information.
 
+[tt_1990]: http://trac.parrot.org/parrot/ticket/1990
+
 IMCC outputs a `PackFile*` structure pointer. In my embedding API work, I
 added wrapper routines to wrap those raw pointers into an UnManagedStruct
 PMC. UnManagedStruct is basically a dumb wrapper object around a pointer, and
