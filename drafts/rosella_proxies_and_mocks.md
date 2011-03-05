@@ -1,9 +1,15 @@
+---
+layout: post
+categories: [Parrot, Rosella]
+title: Proxies and Mocks with Rosella
+---
+
 Late last week I finaly got to work on two projects I had wanted to start for
 a while: a proxy library and a mock object library. Both of these are parts of
 [Rosella][]. Today I'm going to talk a little bit about what each of these
 are, how they are used, and why it's so cool to have them available.
 
-[Rosella]:
+[Rosella]: http://github.com/Whiteknight/Rosella
 
 ## Proxies
 
@@ -15,7 +21,7 @@ of the real thing. Here are just a small number of uses. Each of these uses
 the same general idea of proxying, but may have a slightly different
 implementations of it:
 
-[proxy_pattern]:
+[proxy_pattern]: http://en.wikipedia.org/wiki/Proxy_pattern
 
 1. The target object is extremely expensive to create and we want to only
    create it lazily, on demand. In these cases we create a cheap proxy, pass
@@ -80,18 +86,65 @@ interceps calls to VTABLE_does (and eventually will intercept "isa", and
 
 Builders tell the proxy to intercept certain requests and redirect them to the
 controller. By creating your own builders and controllers, you can implement
-all sorts of interesting behavior for proxies. One particularly interesting
-use, to me, is the creation of mock objects for test.
+all sorts of interesting behavior for proxies. For example, here is a short
+example I've thrown together just now to implement memoization on proxied
+subs:
+
+    INIT { pir::load_bytecode("rosella/mockobject.pbc"); }
+
+    class MemoizerController is Rosella::Proxy::Controller {
+        has %!cache;
+        has &!block;
+        method BUILD(&block) { %!cache := {}; &!block := &block; }
+
+        method invoke($proxy, @pos, %named)
+        {
+            my $key := pir::sprintf__SSP('%d,%d,%d', @pos);
+            my $result := %!cache{$key};
+            if pir::defined($result) {
+                pir::say("Found cached result!");
+                return $result;
+            }
+            $result := &!block(|@pos, |%named);
+            %!cache{$key} := $result;
+            return $result;
+        }
+    }
+
+    my &block := sub($a, $b, $c) { return $a + $b * $c; }
+    my $factory := Rosella::build(Rosella::Proxy::Factory, pir::typeof__PP(&block), [
+        Rosella::build(Rosella::Proxy::Builder::InvokeIntercept)
+    ]);
+    my $p := $factory.get_proxy(Rosella::build(MemoizerController, &block));
+    $p(1, 2, 3);
+    $p(1, 2, 3);
+    $p(1, 2, 3);
+    $p(1, 2, 3);
+
+This is just a short example, but if you run it with current Rosella you will
+see that indeed it does perform transparent memoization as expected. I haven't
+done any benchmarking so I can't say how expensive this mechanism is and
+therefore how expensive a sub must be before such a memoization tool would
+lead to usable savings. I've thought about turning this into a separate
+memoization library, but I suspect I would need to add a lot of code to make
+this mechanism general enough for common use. That extra machinery would just
+make this system even slower and therefore less useful. Regardless, this
+little example does show the power of this proxy library.
+
+One other particularly interesting use of proxies is, to me, the creation of
+mock objects for testing.
 
 ## Mock Objects
 
-The theory of mock objects is that you create a stand-in (proxy) object and
-use that to test the behaviors of separate system. In a mock-object test, you
-set up the mock object (or, simply "mock") with a number of expectations. On
-each request, such as a method or attribute access, you look up to see if
+The theory of [mock objects][] is that you create a stand-in (proxy) object
+and use that to test the behaviors of separate system. In a mock-object test,
+you set up the mock object (or, simply "mock") with a number of expectations.
+On each request, such as a method or attribute access, you look up to see if
 there is a matching expectation. If there isn't, it's a failure. If there is,
 it's a match. At the end of the test we should have no unexpected accesses,
 and all of our expectations should have been matched.
+
+[mock_objects]: http://en.wikipedia.org/wiki/Mock_Object
 
 What mock objects allow us to do is test not only the external interfaces for
 an object, but also the internal interfaces as well. I can test my calls
@@ -149,22 +202,34 @@ MockObject libary *right now*:
     # capabilities of our code.
     $c.expect().once().method("next").will_throw("whoops!");
 
+    # Expect that this proxy is invoked like a Sub, with the arguments
+    # 1, 2, 3, and will return the value 4. (requires a flag to be set in the
+    # proxy factory for this to work)
+    $c.expect().once().invoke().with_args(1, 2, 3).will_return(4);
+
 If this were a mock object library for a different VM, I could probably
 declare what I have now to be feature completeness. However, since this is
 Parrot and it has some cool functionality not found too often in other VMs,
 I have more features to add. Specifically I need to add the ability to
-intercept VTABLE_invoke, so we can mock Sub PMCs. Also, I want to add the
-ability to intercept various other vtables, so that a mock can convincingly
-look like primitive types (Integer, String), and aggregates
-(ResizablePMCArray, Hash).
+intercept various other vtables, so that a mock can convincingly look like
+primitive types (Integer, String), and aggregates (ResizablePMCArray, Hash).
 
 Mocks start to become extremely powerful when you combine them with a
 dependency injection container. If the code you are testing uses the container
 to resolve objects, you can silently add mocks to the container for testing.
 When you run your code for your test, it automatically receives mocks from
 the container instead of the "normal" objects, and we can start testing the
-internal algorithms and pathways of our system that otherwise would not be
-accessible from the test suite. Lucky for everybody involved, Rosella provides
-just such a [Container][] type.
+internal algorithms and pathways of our system directly. We do not need to
+duplicate our algorithms and sequences in our tests, and risk the tests
+getting out of date with the code. Instead, we can test the production code
+in-place, exactly as it is used in our program. Lucky for everybody involved,
+Rosella provides just such a [Container][] type.
 
-[Container]:
+[Container]: /2011/02/16/introducting_parrot-container.html
+
+## Rosella Release
+
+I'm getting to be pretty happy with the list of features provided by Rosella,
+and I'm starting to think about preparing a stable release of the software.
+I suspect I will try to target a release against Parrot 3.2, after that comes
+out.
