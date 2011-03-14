@@ -1,9 +1,11 @@
 Rosella is still a very young project, but a few days ago I decided to
-basically throw out all the existing code and rewrite it in winxed. Winxed,
-for those readers who aren't familiar with the entire Parrot ecosystem, is a
-JavaScript-ish language written by core developer NotFound. Winxed borrows
-some syntax and ideas from JavaScript (and, occasionally, C++), and aims to
-be a very low-level and light-weight language for use with Parrot.
+basically throw out all the existing code and rewrite it in winxed.
+[Winxed][], for those readers who aren't familiar with the entire Parrot
+ecosystem, is a JavaScript-ish language written by core developer NotFound.
+Winxed borrows some syntax and ideas from JavaScript (and, occasionally, C++),
+and aims to be a very low-level and light-weight language for use with Parrot.
+
+[Winxed]: http://code.google.com/p/winxed
 
 The first version of Rosella was written in NQP, the perl6 subset language
 which was developed both as a tool for writing Rakudo but also as a general

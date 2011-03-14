@@ -11,9 +11,9 @@ The Rosella Query library has two main portions: The Query and Path classes.
 
 ## Rosella Query
 
-The query library is my reimagining of the C# "System.Linq" library for
-Parrot. Actually, it's a small reimagining of a very small portion of Linq,
-but the inspiration is clear.
+The query library is, in part, my reimagining of the C# "System.Linq" library
+for Parrot. Actually, it's a small reimagining of a very small portion of
+Linq, but the inspiration is clear.
 
 With `Rosella::Query` and related helper classes you have a few tools
 available which make work with collections of things easier and more
@@ -21,7 +21,7 @@ familiar. This module provides three helper functions: map, filter, and
 fold. These are analogs for the Linq functions `.Select()`, '.Where()`,
 and `.Aggregate()`, respectively. The `Rosella::Query` module is basically
 a facade over the underlying mechanism `Rosella::Query::Provider`.
-`Provider`, and its subclasses provide the actual implementations of these
+`Provider` and its subclasses provide the actual implementations of these
 search functions for different data types. We have `Provider::Array` and
 `Provider::Hash` classes now, but other options could easily be added
 later.
