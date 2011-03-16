@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot, Parrot-Test]
+categories: [Parrot, Rosella]
 title: Introducting Parrot-Test
 ---
 
