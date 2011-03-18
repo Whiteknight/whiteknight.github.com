@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot, ParrotContainer]
+categories: [Parrot, Rosella]
 title: Introducing Parrot-Container
 ---
 
