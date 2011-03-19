@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot, GSOC]
+categories: [Parrot, GSOC, JavaScript]
 Title: GSoC Idea - JavaScript Compiler
 ---
 
