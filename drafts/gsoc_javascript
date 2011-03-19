@@ -1,15 +1,8 @@
-To help kick off GSoC in 2011, I'm going to publish a series of blog post about potential project ideas. The ideas that I post here on my blog do not need to be used
-by students verbatim, and this also isn't a restrictive list. Students should feel free to make any proposals that they want and that they feel would be suitable and desirable for a GSoC project on Parrot.
 
-Short versions of these proposals and more are available on
-[the Parrot wiki][gsoc11_tasklist]. I'll be quoting from that page pretty
-extensively.
-
-[gsoc11_tasklist]: http://trac.parrot.org/parrot/wiki/GSoc2011
+To start off the GSoC season, I'm going to post an idea which is near and dear
+to my heart: JavaScript on Parrot.
 
 ## Problem Statement
-
-To start off, I'm going to post an idea which is near and dear to my heart, JavaScript on Parrot:
 
 > Implement a JavaScript compiler on Parrot, written either mostly or entirely
 > in JavaScript. The student may start with an existing project (such as
@@ -38,7 +31,9 @@ The goal of this project is really a simple one. We want a JavaScript
 compiler, preferrably one which is written mostly in JavaScript and
 boostrapped. My thesis on the idea is that JavaScript hackers want to write
 JavaScript, not C or NQP or any other "standard" compiler implementation
-language.
+language. There are a lot of coders in the world who know JavaScript but may
+not know any of the other languages and technologies which are normally used
+to build compilers.
 
 This project is an interesting one because the decisions made by the student
 can have a dramatic effect on the overall project difficulty. If the student
@@ -50,8 +45,8 @@ which aims to be very similar. Jaspers would like to use the existing PEG.js
 parser generator library and an existing JavaScript language grammar to
 implement a JavaScript compiler for Parrot.
 
-[cafe]:
-[Jaspers]:
+[cafe]: https://github.com/zaach/cafe
+[Jaspers]: https://github.com/leto/jaspers
 
 ## Difficulty
 
@@ -62,9 +57,7 @@ kind of project which can expand dramatically if the first few stages go more
 quickly than normal, but can still produce working results in the span of a
 few months if things go very very poorly.
 
-Here are some general ideas for projects, and how they map to my difficulty
-estimates on the scale of 1-5 (where 1 is very easy, 5 is very hard,
-especially considering the limited timespan of GSoC):
+Here are some ideas and points for consideration:
 
 ### Start with a working JavaScript compiler
 
@@ -80,8 +73,14 @@ code without the need for an external JS compiler to boostrap from.
 
 *Difficulty*: 3/5 - 4/5
 
-Start with an existing JavaScript parser library such as jison or PEG.js and implement the rest of the compiler. You could parse directly to an existing intermediate format like PAST, and let PAST worry about the dirty details of backend code generation. At least, PAST can do the work in stage 1 of a
-two-stage bootstrapped build.
+Start with an existing JavaScript parser library such as [jison][] or
+[PEG.js][peg_js] and implement the rest of the compiler. You could parse
+directly to an existing intermediate format like PAST, and let PAST worry
+about the dirty details of backend code generation. At least, PAST can do the
+work in stage 1 of a two-stage bootstrapped build.
+
+[jison]: https://github.com/zaach/jison
+[peg_js]: http://pegjs.majda.cz/
 
 Where this gets difficult is that you need to have working code running on
 Parrot in order to generate PAST. So you would likely need a two-stage
@@ -89,6 +88,9 @@ bootstrapped built and you would need to rely on an existing JS compiler
 (Rhino, node.js, etc) to get the process started. Basically, you use an
 existing compiler to generate the "real" compiler, which runs on Parrot and
 understands PAST.
+
+Don't pick this variant of the project unless you're good at thinking in
+circles!
 
 ### Implement a Prototype-Based Object Model
 
