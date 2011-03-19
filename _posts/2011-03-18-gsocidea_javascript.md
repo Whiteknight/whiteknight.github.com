@@ -1,3 +1,8 @@
+---
+layout: post
+categories: [Parrot, GSOC]
+Title: GSoC Idea - JavaScript Compiler
+---
 
 To start off the GSoC season, I'm going to post an idea which is near and dear
 to my heart: JavaScript on Parrot.
