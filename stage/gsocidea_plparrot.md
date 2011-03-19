@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, GSOC]
+title: GSoC Idea - PL/Parrot Update
+---
+
 As part of my series of GSoC project ideas for 2011, here is an idea about
 fixing and refactoring PL/Parrot.
 
@@ -14,10 +20,31 @@ In short, update PL/Parrot to use the new embedding API.
 
 ## Difficulty
 
+*Difficulty*: 2/5
+
 On the GSoC tasklist page, this task is ranked 4/5. I tend to think that this
 project could be on the easier side. I would instead rank it around 1/5 or 2/5
 assuming you don't run into any crazy problems which need major fixing at the
 Parrot level.
+
+There also doesn't seem to be a lot of room for this project as-written to
+expand. Once you've reimplemented the system using the new API,
+there isn't going to be a whole lot of concrete things to do to fill up extra
+time. There are some bugs which could be tracked down and fixed in Parrot and
+in PL/Parrot, and some optimizing that can be done, but nothing major that
+could fill up a month or more if your project was just to update PL/Parrot
+to the new API.
+
+If you're a very competent, very fast C coder, this project might be in the
+"too easy" realm.
+
+That said, if you propose to update PL/Parrot to use the new API *and* add
+some other new features such as improved data mapping, bindings for additional
+languages (PL/Winxed? PL/Cardinal? PL/partcl? PL/Pynie?), that could definely
+fill the time and maybe make you sweat a little at the end.
+
+Take a look through the [list of issues and TODOs][plparrot_issues] to get
+an idea of other projects which you could tackle.
 
 ## Deliverables
 
