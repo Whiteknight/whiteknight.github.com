@@ -11,7 +11,11 @@ This one is very straight-forward:
 > Implementation of Python3 on Parrot, written in pure python as much as
 > possible, that targets PIR or Winxed.
 
-Simple: Parrot wants a compiler for Python 3.
+Simple: Parrot wants a compiler for Python 3. We want it very badly.
+
+Actually, I probably don't need to advertise this idea at all on my blog. In
+the past few days we have been in contact with no less than three separate
+students who are interested in working on this, or on a related project.
 
 ### Alternate Ideas
 
@@ -84,3 +88,9 @@ get in touch with some of its developers like Allison.
 If you are interested in taking on a big open-ended language project, know
 Python, and have some background with compilers this is a project for you. If
 those things don't describe you, don't even attempt this one.
+
+As I mentioned at the beginning of the post, the field for this project is
+already very competitive with several students having expressed interest
+in working on something for Python. Because of the numbers, we would likely
+only accept the best of the best proposals for this project from highly
+qualified students.
