@@ -30,7 +30,7 @@ After the refactors, that same test would be written like this:
     }
 
 This is a little bit less verbose and much more flexible. Here's a list of the
-obvious things that changed:
+obvious things that changed between the two snippets:
 
 1. Test classes can be any class, you do not need to inherit from
    `Rosella::Test::Testcase` anymore. In fact, the Testcase class (with the
@@ -93,6 +93,20 @@ survives between test runs. Inside your test, you can call the methods
 accessor `$!context.get_data("name")` to get that data back. This is extremely
 useful for storing state information between tests.
 
+In the [Parrot-Linear-Algebra][pla] test suite, I use a library of generic
+test classes which I subclass for different specific matrix types. In this way
+I can write certain tests, like those for keyed element access, only one time
+and inherit those for specific types like ComplexMatrix2D and NumMatrix2D.
+
+[pla]: https://github.com/Whiteknight/parrot-linear-algebra
+
+In order to abstract out many of the details into various subclasses, each
+type provides a factory object which can be used to instantiate the correct
+type of matrix object depending on the specific subtype of test I am running.
+Previously, I had to create a new matrix factory object for every single test
+in the suite. Now with the shared data in the TestContext, I can create only
+a single factory object per file, which cuts down on test time considerably.
+
 ## Configurability
 
 What makes TestContext so interesting is that it, like most parts of this
@@ -133,6 +147,11 @@ completely custom tailored to your needs.
 If you use a custom TestCase type, you do need to provide certain attributes
 by name, but you can add additional attributes and even methods if you want
 them to be available in all your tests.
+
+There are more configurability options which I can add in the future. I
+already have a few new ideas in mind, although I don't know when I will get
+to work on implementing them. Many new changes and additions will be simple to
+make in the new test architecture.
 
 ## Future Work
 
