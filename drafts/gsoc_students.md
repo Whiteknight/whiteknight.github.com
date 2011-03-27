@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, GSoC]
+title: GSoC Students - Next Steps
+---
+
 We've already heard from a number of prospective GSoC students. Some of them
 are existing Parrot community members, others are fresh new faces who are
 looking to get involved for the first time. Many of these students have at
@@ -118,3 +124,12 @@ Fill out the proposal template, and make sure to including plenty of detail
 in these areas. Send a link to your proposal to the parrot-dev mailing list
 so all developers can read it and give feedback. The more you get, the better
 your proposal will be.
+
+## Do Your Best
+
+Here's a very important thing to remember: **Parrot will probably get more
+proposals than we have slots**. There will be competition. Some proposals
+will not be accepted. If you don't do your best, and don't follow the advise
+in this post, yours could be one of the ones that isn't accepted.
+
+Do your best, Good luck!
