@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, GSOC, Testing, Rosella]
+title: Introduction to Unit Testing
+---
+
 In my previous posts about ideas for GSoC projects, I've mentioned the need to
 do proper testing and have proper test suites as part of the project
 deliverables. Some prospective students asked about it on IRC, and I decided
@@ -6,13 +12,13 @@ it is, why we do it, why it's important, and how to get started with it in
 your GSoC project.
 
 As part of this tutorial I am going to be showing most of the examples using
-Rosella, because... well, that's just the project that I use for my testing.
-This isn't the only tool to be used, but it will help to keep several of my
-examples brief. I'll be writing code examples in both Winxed (a low-level
-Parrot language which is similar to JavaScript) and in NQP (a low-level
-subset language of Perl6). Most students under the Parrot organization are
-going to be writing software in multiple languages anyway, so it's good to
-just start that mindset here.
+[Rosella][], because... well, that's just the project that I use for my
+testing. This isn't the only tool to be used, but it will help to keep several
+of my examples brief. I'll be writing code examples in both Winxed (a
+low-level Parrot language which is similar to JavaScript) and in NQP (a
+low-level subset language of Perl6). Most students under the Parrot
+organization are going to be writing software in multiple languages anyway, so
+it's good to just start that mindset here.
 
 ## What is Testing?
 
@@ -22,8 +28,9 @@ chunks, and verify that it does what we think it should do. Testing serves
 two primary purposes:
 
 1. Verifies that the software works as intended, including across different
-   platforms.
-2. Verifies that the software *continues to work* even after we make changes.
+   platforms (different OS, different versions of Parrot, etc).
+2. Verifies that the software *continues to work* even after changes are made
+   in your software and in your dependencies.
 
 In the case of a large complex project like Parrot, unit testing helps to make
 sure that your software works as intended even if some of your dependencies
@@ -73,12 +80,14 @@ By convention, all the source code for our project will be in a folder called
 "src", and all your tests will be in a folder called "t". You could name these
 whatever you want, really, but this is a nice common convention and I do
 recommend you stick with it unless you have some kind of major problem with
-it.
+it. Several existing tools expect this kind of setup, and if you break
+convention those tools won't work (or won't work as nicely).
 
 The exact way to organize your tests is also up to you. Again, by convention,
 each code file or each code class would get a corresponding test file. So if
 you have a file `src/stuff.c`, you would have a test file `t/stuff.t`. The
-`.t` suffix is another part of the convention.
+`.t` suffix is another part of the convention. Again, I would use `.t` for
+your test suite unless you have a very very good reason not to.
 
 The idea of 1 test file per 1 source file/class is a good one, but really
 doesn't offer the flexibility you will want. For instance, if you are working
@@ -139,14 +148,15 @@ Here's an example of a function which does a few different things (I'm writing
 this example in Winxed):
 
     function DoStuff(var a, var b) {
-        var c = a + b;
+        var c = 2 * (a + b) - (3 * a * b);
         a.doSomethingElse(c, b);
         say("I just did stuff with a: " + a);
         return c;
     }
 
-So this function does three things: It creates the new variable `c = a + b`,
-it calls the `a.doSomethingElse(c, b)` method to update the variable `a`, and
+So this function does three things: It creates the new variable `c` from a
+weird formula using variables `a` and `b`. It calls the
+`a.doSomethingElse(c, b)` method to update the variable `a`, and
 it outputs some stuff to the console to tell the user what happened. This is
 a trivial example of course, but we can still rewrite this to make it more
 testable:
@@ -165,21 +175,24 @@ can be pretty certain that `DoStuff` is going to work correctly, even without
 writing any tests for `DoStuff` directly. We will still want to write tests
 for it, but we have all the internal stuff covered.
 
+A piece of code is testable if you can verify all the effects of the software
+in a controlled way. You should be able to check everything output, every
+variable modified, every status update made, etc. Also, you should break
+software up into logical blocks. Each function or method should do exactly
+one thing, and you should be able to test that one thing completely.
+
 But wait! We're not done. How do we test `TellUserAboutIt` in an automated
 way? We want to capture the text that it is printing out, to make sure the
 user is being told the correct things. So, let's update that method to take
 a handle to an output object. In the normal case, this will be a handle to the
 `stdout` console file, but it doesn't have to be.
 
-    function DoStuff(var outfile, var a, var b) {
+    function DoStuff(var a, var b) {
         var c = Combine(a, b);
         a.doSomething(c, b);
-        TellUserAboutIt(outfile, a);
+        var stdout = GetStdout();
+        TellUserAboutIt(stdout, a);
         return c;
-    }
-
-    function Combine(var a, var b) {
-        return a + b;
     }
 
     function TellUserAboutIt(var outfile, var a) {
@@ -318,6 +331,12 @@ writing a test to prove it works. Write a feature, write a test. Write a
 feature, write a test. Repeat until you're done. Alternatively, if you're into
 the whole TDD thing (and a lot of very good coders love it), you write a test
 then write a feature, etc.
+
+It sounds like you're writing twice as much code, but that's an
+over-simplification. The value in testing is that once you write a test, you
+save yourself effort in the future fixing and debugging problems. You also
+can prevent breaking the things you've already written, which saves you the
+effort of fixing them.
 
 Testing is a way for you to say "My code works, and I can prove it". That's
 a very powerful and reassuring thing. The last thing you want is to come down
