@@ -1,3 +1,5 @@
+http://amix.dk/blog/post/19615#Model-View-Controller-History-theory-and-usage
+
 I refactored the Rosella TAP Harness library to use an MVC architecture, and
 that got me to thinking: Maybe I should provide an MVC framework library that
 not only can be used by my TAP harness, but also would be easily adoptable by
@@ -95,7 +97,18 @@ Controller becomes the single point of communication between the View and the
 Model. That is, the Model does not directly talk to the View, and the View
 does not directly feed back to the Model. All communications travel through
 the controller, which in some sense is like a network router. This is the
-style of MVC done in Cocoa, for instance.
+style of MVC done in Cocoa, for instance. Some people might suggest that the
+Mediator-based approach to MVC is really called something else like "MVP"
+("Model-View-Presenter") instead. In this case, the Presenter is just an
+implementation of a Controller which is also a Mediator. Other people may
+suggest different or similar-but-nuanced definitions of "Presenter". I won't
+concern myself with this difference here too much. If the definition of what
+MVC is is kept sufficiently vague, we can just say MVP and MVVM (and any other
+variant) are just different flavors of MVC. In that case, if Rosella provides
+a library which is sufficiently flexibile, we can support all these things
+with relative ease. For the purposes of this post, I will refer to all related
+schemes as "MVC", and assume the reader can pick out cases that could possibly
+be named something more specialized. But, I digress.
 
 Another model for MVC, which is slightly more complex but also more
 "traditional" is the system used by the original Smalltalk implementations.
@@ -161,4 +174,39 @@ modifications to a trusted Model. A protected ViewModel and a Controller which
 does not provide any mechanism for modifying the Model (at least not in a way
 that would surive massive API change on the part of the Model) would be very
 helpful in many cases.
+
+There's also the idea of a dumb or passive View. That is, the View has display
+information but does not implement *any* logic, except the bare minimum needed
+to redirect accesses to the Controller. In this scheme, the Controller
+implements all logic for the View, and the View is a "slave" of the Controller
+"master". This type of scheme is very important for testability, because the
+Controller becomes completely testable without a View, and the Controller
+also becomes more independent of any View. Testing and testability is very
+important for Rosella, but this also isn't the type of requirement that can be
+enforced. In a web application where the View is just a template of HTML, this
+is easy. The HTML syntax would only admit basic tags and content, and would
+have some hooks for inserting data from the Model (or ViewModel/DataContext).
+
+Where the difficulty in this scheme becomes apparent is when we try to change
+to a different underlying View technology. Imagine if we have a model and a
+Controller with a View that provides HTML for a webpage. If we want to reuse
+the logic core of our application in a desktop program with Qt widgets,
+suddenly our entire View infrastructure has to get tossed out the window and
+we can't make guarantees that our View is going to be dumb.
+
+If Rosella wants to specialize on something like HTML webserving, we could
+make a pretty robust infrastructure for templating and serving text using
+dumb Views. If Rosella wants to be more agnostic, we can't make any of these
+kinds of guarantees, and can't assume that the View is going to be a simple
+text template. The View can really be any mechanism for presenting data to the
+outside world, including a mechanism that is only read by computers (web
+service, library API, etc).
+
+So there is my long-winded brain-dump about MVC on Rosella. The fact is that
+I really do want to create some kind of MVC library for Rosella, but I am
+trying to find a good design for it that is both flexible enough to support
+the widest variety of schemes, but isn't so flexible that it's no more useful
+than a blank file and your favorite text editor. If I can find a solution
+which both provides powerful defaults and admits useful modifications, I will
+certainly start putting finger to keyboard and develop it.
 
