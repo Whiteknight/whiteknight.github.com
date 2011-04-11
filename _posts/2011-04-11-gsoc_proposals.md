@@ -76,7 +76,7 @@ may not have enough background knowledge to complete your task adequately.
 I say this all the time, yet so many students seem to take it as a suggestion
 which can easily be dismissed. When we are evaluating proposals, we do so with
 an eye towards completability and chances of success. Can you, the student,
-actually complete the work you propose in the time alotted? There's no way we
+actually complete the work you propose in the time allotted? There's no way we
 can predict the future, but we can look for some indicators to help us make
 better predictions.
 
@@ -100,6 +100,7 @@ a student using software we didn't write, writing code in a programming
 language which doesn't run on Parrot (yet), and performs a task that we don't
 need to have done. Please keep this in mind before submitting proposals. You
 should spend some time making certain that your idea is mutually beneficial.
+You should be able to explain *how* it benefits Parrot.
 
 We ask students to discuss their backgrounds on their proposals, but there is
 only so much you can learn from this. Most students don't have huge online
@@ -210,6 +211,10 @@ a test, write the code. Write a test, write the code. Continue.
 Some people do it the other way. Write code, then write a test to prove it
 works. Write the code, write a test. Repeat.
 
+Get your bugs involved too. If you find and fix a bug, write a test to prove
+that it is fixed and that it never comes back. This can be part of the fixing
+process, a passing test is proof that the bug is fixed.
+
 Some people get documentation into the mix as well. Each week, write draft
 documentation for the features you are going to work on that week. This makes
 sure you have an idea in mind and have planned how it is going to work. Then,
@@ -295,6 +300,19 @@ the most benefit for the same amount of time. Don't offer us the moon if you
 can't deliver it, but don't think that we are going to be impressed by small,
 safe projects either.
 
+By the same token, the project you pick is a reflection on you. If you pick a
+small, easy project but have a background to suggest you have more than enough
+skill and experience for a larger one, it suggests to us that you might not be
+a hard-working or competent coder. Or maybe you are competent but lazy and
+looking for an easy paycheck. There are a million possible combinations here,
+and none of them reflect well on you as a candidate. We do list easy projects
+in our page of project ideas, and we do mention them because they are things
+that we want done. Some younger students need easier projects to help them
+get involved, and to make up for all the experience and theoretical knowledge
+which they are lacking. Also, most easy projects can be expanded to become
+harder and more ambitious. My point is that we can sniff out people who are
+trying to coast through the program, and we don't like the smell of it.
+
 Most importantly, once you have an idea in mind, *talk to us about it*.
 There's no escaping it, at some point we are going to need to chat. Talk to
 us about your idea to get feedback about it. We can help you focus on the
@@ -322,9 +340,10 @@ probably won't accept more than one proposal on the same project. In the first
 case of the student with multiple proposals, this is a good idea. It helps to
 hedge your bets, if you have enough time and energy to maintain and iterate
 on multiple proposals at once. In the second case of the single project with
-multiple students, this is a very big problem. Students who come talk to us
-ahead of time can be warned about conflicts. Students who do not could be
-blindly walking into certain failure.
+multiple students, this is a very big problem. Regardless of the quality of
+the proposals, multiples will probably not be accepted. Students who come talk
+to us ahead of time can be warned about conflicts. Students who do not could
+be blindly walking into certain failure.
 
 Can I say it one more time? Come talk to us. The earlier the better. If you
 put in a proposal with no feedback from us and it turns out to not be
@@ -336,10 +355,19 @@ slots to Google. Remember that GSoC requires an investment of time and energy
 from our developers, and we won't waste our resources on bad proposals. We
 would rather have fewer good proposals than to have many bad ones.
 
+We currently have 15 proposals for consideration. I am very confident that
+at least 6 of them, in their current condition, will not be accepted no matter
+how many slots we receive. We have over a week before a final decision must be
+made, so it's very possible that some of these weaker proposals could be
+turned around in time. We have about 4 or 5 proposals which are absolutely
+spectacular. It is unlikely that these get knocked out of the ranking over
+the course of the next week, although anything is possible.
+
 ## Next Year
 
-So there's a short treatise about making successful GSoC proposals. I hope it
-can help some students next year.
+This has been a short, opinionated treatise about making successful GSoC
+proposals, with an especial focus on the Parrot Foundation. I hope it can help
+some students next year.
 
 Even though the application deadline is passed, we're not without hope quite
 yet. Now we're in a period of feedback and interaction where we have to pick
