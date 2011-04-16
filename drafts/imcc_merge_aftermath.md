@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, IMCC, GC]
+title: IMCC Branch Merge Aftermath
+---
+
 As I mentioned a few days ago, the `imcc_compreg_pmc` branch had gotten merged
 into trunk. For a while, all seemed well and we were in good shape for the
 3.3 release of Parrot on Tuesday. This turned out to all be an illusion.
