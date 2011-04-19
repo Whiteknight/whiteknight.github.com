@@ -6,7 +6,11 @@ title: All Posts
 <table id="posts-table">
 {% for post in site.posts %}
     <tr>
-        <td class="post-date">{{ post.date | date_to_string }} </td>
+        <td>
+            <span class="post-date">
+                {{ post.date | date_to_string }}
+            </span>
+        </td>
         <td class="post-info">
             <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
         </td>
