@@ -53,6 +53,8 @@ div#content {
     padding: 5px;
     background-color: #1F2429;
     color: #B8C8D6;
+    margin-left: 0px;
+    margin-right: 16em;
 }
 
 div#content h2#content-title {
@@ -126,8 +128,7 @@ blockquote {
     background-color: #1F2429;
     color: #B8C8D6;
     padding: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 10px;
 }
 
 span.small-note {
