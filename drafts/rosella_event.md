@@ -1,15 +1,15 @@
-I'm starting to plan for the 3.3 release of Parrot, and the first official
-release of Rosella which will happen shortly thereafter. I've been working
-hard on increasing test coverage, improving documentation, cleaning up code,
-and getting the infrastructure ready for the release. The Rosella release
-tarball will include all the generated `.pir` and `.pbc` files, so people will
-be able to use it without needing to install Winxed or any other dependencies.
+---
+layout: post
+categories: [Parrot, Rosella]
+title: Rosella Event Library
+---
 
-In previous posts I mentioned that the first release would contain 8
-individual libraries: Core, Action, Container, Proxy, Test, Harness,
-MockObject and Winxed. Today I've made the decision to add in a ninth: Event.
-This post is going to be a short introduction to the Event library, talk about
-what it does, why it is useful, and maybe show some short examples of its use.
+In previous posts I mentioned that the first release of Rosella would contain
+8 individual libraries: Core, Action, Container, Proxy, Test, Harness,
+MockObject and Winxed. A few days ago I made the decision to add in a ninth
+library as well: Event. This post is going to be a short introduction to the
+Rosella Event library, talk about what it does, why it is useful, and maybe
+show some short examples of its use.
 
 The Rosella Event library is basically an implementation of the
 [publish/subscribe][] pattern. Publish/subscribe (or "pub/sub") is a pattern
@@ -19,15 +19,23 @@ components to allow things to develop independently. Decoupling is typically
 considered to have a beneficial effect in terms of improving long-term
 software maintainability.
 
+[publish/subscribe]:
+
 Event works by exposing a `Rosella.Event` object. This Event object maintains
 a list of subscribers which can be notified when the Event is raised. The big
 benefit here is anonymity: The component raising the Event does not know
 about who will be receiving it. The components receiving the Event do not know
 where it was sent from. The code raising the Event doesn't need to know any of
-the details about who is recieving the event, and doesn't even need to know
+the details about who is receiving the event, and doesn't even need to know
 if anybody is listening at all!
 
-Let's look at an example of an IRC client with pluggins. We have a Listener
+Keeping track of all events in the `Rosella.EventManager` object. EventManager
+keeps a list of events by name, and helps to manage all the necessary details.
+Where Event implements much of the publish/subscribe logic, EventManager
+provides the friendly and usable interface. You can use Event directly if you
+want to, but EventManager is more likely the way to go.
+
+Let's look at an example of an IRC client with plug-ins. We have a Listener
 object reading in data from the server, and passing those commands to various
 other components and widgets. Here's a partial implementation of an
 IRCListener class which takes in command lines (probably from a socket reader
@@ -97,8 +105,8 @@ recipients are being assigned. All we need to do is register recipients with
 the event manager objects, then publish events to it whenever we want.
 
 On the other end of the equation, we have subscribers. In the general sense,
-a subscriber is a tuple of an object and a method object. Here's an example
-of a chat display which outputs data to the console:
+a subscriber is a tuple of an object and a method. Here's an example of a chat
+display which outputs data to the console:
 
     class IRCTextDisplay {
         function BUILD(var event_manager) {
