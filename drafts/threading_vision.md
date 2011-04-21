@@ -114,15 +114,15 @@ objects may want to live a little bit more dangerously.
 In the case of an unlocked proxy, I don't care whether data update messages
 are passed synchronously or asynchronously. Either we can pick a default and
 allow the user to override in an HLL mapped subclass, or we can provide a flag
-as a second argument to `unlock`.
+or a callback as a second argument to `unlock`.
 
-Every Task is a tuple of a Context object a Continuation, and maybe an array
-of startup invariants, similar to how the main program args are currently
-stored inside the interpreter object. Every Thread object contains an array
-of Tasks, a pointer to the current Task, and scheduler logic to control when
-and how the next Task is launched. Some threads could easily use a cooperative
-approach where Tasks must be manually scheduled using `thread.yeild()` or
-`thread.execute(task)` calls. New tasks can be added using
+Every Task is a tuple of a Context object, a Continuation, a Mailbox and maybe
+an array of startup invariants, similar to how the main program args are
+currently stored inside the interpreter object. Every Thread object contains
+an array of Tasks, a pointer to the current Task, and scheduler logic to
+control when and how the next Task is launched. Some threads could easily use
+a cooperative approach where Tasks must be manually scheduled using
+`thread.yeild()` or `thread.execute(task)` calls. New tasks can be added using
 `thread.schedule(task, priority, args, ...)`. These names are just speculative
 of course, I'm just trying to show that tasks are managed either through or
 with particular threads. Somewhere along the line I suspect we are going to
@@ -212,3 +212,34 @@ Here's a short recap of some of my ideas:
    via message passing (possibly synchronous or asynchronous).
 6. If the user wants, she can get direct access to data across threads, at her
    own risk.
+
+And here are some of the things that I particularly like about this system:
+1. We can easily collapse down to 1:1 posix-alike threads. An external library
+   or HLL could easily subclass the ThreadScheduler or set up some other kind
+   of wrapper interface to provide posix-like threading, and provide a library
+   of familiar routines for managing them.
+2. The system works without locks, because we don't allow cross-thread data
+   contention by default. Of course, the user is free to disregard our
+   protection mechanisms and provide a library of lock primitives of their
+   own.
+3. Using read-only proxies as our data sharing mechanism saves us from having
+   to go overkill with a system like STM, which isn't needed for the common
+   case. Tasks on a single thread have no data sharing overhead, and updating
+   data across threads exposes a message-passing interface which can be
+   provided to the user for custom applications.
+4. Parrot provides all the necessary underlying tools, and gives the user
+   plenty of rope to trip over if necessary. We don't need to pessimize the
+   common case by using all sorts of locks internally or using STM. The user
+   has the ability to subclass, HLL Map, and use other techniques to implement
+   most higher-level or alternate behaviors. Parrot provides good defaults,
+   but lets the user customize those as much as necessary.
+5. No matter what the user does at the HLL level, libraries and frameworks can
+   always fall back to the old behavior: cross-thread data is read-only by
+   default, messages can be passed to automatically update values without
+   needing locks, etc.
+
+These are the basics of my vision for concurrency on Parrot. Obviously this
+plan is incomplete and not many of the details are filled in, especially not
+at the fine-grained level. It's my sincere hope that we can start some serious
+talks about this topic in the coming weeks and months, and we can be prepared
+to start work on this system sometime within the next year.

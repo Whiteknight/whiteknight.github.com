@@ -3,7 +3,8 @@ Every few days it seems like we mention it a little bit, if only just in
 passing. Everybody's favorite bacek has even been writing some pretty
 impressive-looking code to access the JIT portions of LLVM using NQP and NCI,
 which is more interesting perhaps as an exercise than as an actual
-"production" JIT solution.
+"production" JIT solution. Something is always better than nothing, and I
+think everybody is waiting on pins and needles to see what he comes up with.
 
 Lorito is supposed to be this big enabler, an important and necessary stepping
 stone to get us into position to finally implement a JIT. We don't have Lorito
@@ -33,20 +34,36 @@ might be better than a terrible plan, but a decent (if not great) plan
 certainly must be better than both. In other words, if we can have *any* JIT
 which both improves general Parrot performance and doesn't significantly
 decrease maintainability or create other problems, that has to be better than
-having no JIT at all.
+having no JIT at all. If we could have a system which was flexible and
+pluggable enough to replace LLVM with something else in the future without
+having to rip Parrot to shreds, all the better. I won't get my hopes up too
+high about this last part, however.
 
 If we don't use LLVM for our JIT, and I can't say I am inseparably married to
 the idea after all, what are our alternatives?
 
-GNU Lightning appears to be extremely sluggish, if it's even maintained at
-all. I've heard more than one rumor that it was essentially frozen or even
-abandoned, although I can't seem to verify those rumors myself. I can tell
-that the webpages I've looked at today for GNU Lightning are not substantially
-different from how they were about a year ago when I last looked. The
-Wikipedia article for it doesn't appear to have been substantially edited
-since I last looked, although that's not necessarily a definitive resource on
-the subject. GNU Lightning also doesn't seem to have a lot of features we
-would probably want in a JIT, like register allocation and optimizations.
+GNU Lightning appears to be extremely sluggish in terms of development, if
+it's even maintained at all. I've heard more than one rumor that it was
+essentially frozen or even abandoned, although I can't seem to verify those
+rumors myself. I can tell that the webpages I've looked at today for GNU
+Lightning are not substantially different from how they were about a year ago
+when I last looked. The Wikipedia article for it doesn't appear to have been
+substantially edited since I last looked, although that's not necessarily a
+definitive resource on the subject. GNU Lightning also doesn't seem to have a
+lot of features we would probably want in a JIT, like register allocation and
+optimizations.
+
+JIT can be a win in several ways: By using type specialization information
+gathered at runtime to replace expensive dynamic dispatch with more direct
+variants, by inlining op code bodies and maybe more code as well to reduce
+dispatch and call overhead, by optimizing code which is run frequently, in the
+hopes that the overhead of optimization is outweighed by the runtime savings
+of "hot" code snippets, etc. If GNU lightning doesn't provide optimizations
+or automatic inlining (which is typically an optimizatin), what good does it
+do us? There's only so far we are able to go with type-specialization alone.
+We could manually do inlining on the Parrot end, but that would probably
+require some evil dark magic or brain-dead code duplication, something that we
+want to avoid.
 
 Similarly, I am having a lot of trouble verifying the livelihood of libJIT,
 another JIT library which we have looked at in the past. I would love to find
