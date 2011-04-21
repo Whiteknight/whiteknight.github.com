@@ -1,7 +1,9 @@
-Yesterday I put out Parrot 3.3 "Fire in the Sky". Besides the fact that it
-happened much later in the day than we have become accustomed to in recent
-months, it was a pretty uneventful release. Almost all releases are pretty
-uneventful, one of the hallmarks of the regular monthly release system.
+On Tuesday I put out [Parrot 3.3 "Fire in the Sky"][parrot_3_3]. Besides the
+fact that it happened much later in the day than we have become accustomed to
+in recent months, it was a pretty uneventful release. Almost all releases are
+pretty uneventful, one of the hallmarks of the regular monthly release system.
+
+[parrot_3_3]: /2011/04/19/parrot_3_3.html
 
 One thing I noticed again, which I notice every time I do a release, is that
 the process is convoluted and needlessly complicated. Normally I don't put a
@@ -160,4 +162,18 @@ More get sent out to various news-y websites or other interested recipients.
 We also need to do some unrelated things, like updating the channel topic on
 IRC to include the current version number, updating the Wikipedia entry for
 Parrot to include the current release number and a link to the most recent
-release announcement, and a few other things.
+release announcement, and a few other things. These things can't be reasonably
+automated, but also aren't so hard. If anything it's kind of fun to update
+Wikipedia and other places, and it certainly doesn't take a whole lot of time.
+
+## Coming Months
+
+So that's a quick overview of the release process and some of the parts of it
+that I think could be shortened, omitted or automated. I don't think we will
+see any huge changes happen here, but I like it if we were making small
+incremental changes each month. If every release manager took their
+experiences and made a few small improvements to the process, eventually we
+would end up with quite a streamlined release process indeed. Already one of
+our prospective GSoC students, soh_cah_toa, is talking about putting together
+a script in Perl5 to automate parts of it, a contribution which is most
+welcome and timely.
