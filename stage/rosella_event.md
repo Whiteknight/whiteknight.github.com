@@ -19,7 +19,7 @@ components to allow things to develop independently. Decoupling is typically
 considered to have a beneficial effect in terms of improving long-term
 software maintainability.
 
-[publish/subscribe]:
+[publish/subscribe]: http://en.wikipedia.org/wiki/Publish/subscribe
 
 Event works by exposing a `Rosella.Event` object. This Event object maintains
 a list of subscribers which can be notified when the Event is raised. The big
