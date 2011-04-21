@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [TextEditors]
+title: Text Editors, Edition 2
+---
+
 Every couple of months I get unhappy with my text editor situation again, and
 go out searching for a new one. Currently I use [medit][], although I have a
 number of complaints about that software. I don't use medit because I think
@@ -5,8 +11,8 @@ it's a great editor that meets all my needs. I use medit because it appears to
 be marginally better than [gedit][] and doesn't have some of the glaring flaws
 that other editors I've tried use.
 
-[medit]:
-[gedit]:
+[medit]: http://mooedit.sourceforge.net/
+[gedit]: http://projects.gnome.org/gedit/
 
 A long time ago I put together a list of requirements I have for a text editor.
 I've been able to narrow that list down quite considerably. Here's a list of
@@ -36,6 +42,8 @@ things which I require, and I won't use an editor without:
    keybindings. I don't want to waste 30 minutes of my life researching some
    custom script language, then writing and debugging code to convince my
    editor that ctrl+S is, and always should be, a command to save the document.
+
+[solarized]: https://github.com/altercation/solarized
 
 I don't feel like this is too huge a list of requirements, and most editors
 either do, or can through basic configuration, provide all these things.
@@ -74,9 +82,9 @@ Every few months I give [vim][] a try. I install it on my system, open it, use
 it until my blood pressure rises to medical emergency levels, then uninstall it
 again. I don't use vim because of the key bindings, period. I can't do what I
 want to do in vim, and I am not going to spend hours trying to hack things which
-I consider "normal" and "standard" into my `.vimrc` file. 
+I consider "normal" and "standard" into my `.vimrc` file.
 
-[vim]:
+[vim]: http://www.vim.org/
 
 Recently I've found [cream][], which is a configuration system for vim which
 adds in all the standard features that one would expect from an editor. Cream
@@ -91,7 +99,7 @@ working on it seamlessly, and maybe figure out a few things, I might consider
 moving to cream full time. It does work on Windows, and that portability is very
 attractive to me.
 
-[cream]:
+[cream]: http://cream.sourceforge.net/
 
 I'm not a praying man, but if I were I would pray to never have to use emacs
 again. I've heard tell that emacs is like an entire operating system, though one
@@ -109,7 +117,7 @@ are a few bugs I found during my tests. If it can add a few more necessary
 features, squelch a few bugs, and mature a little bit, I would be very happy to
 use this on a more regular basis.
 
-[scribes]:
+[scribes]: http://scribes.sourceforge.net/
 
 Here are a few other text editors I've played with recently:
 
@@ -144,7 +152,7 @@ Here are a few other text editors I've played with recently:
   options are invisible, unless I go into the options screen and set the UI
   theme to something less ignorant. This editor does seem to have a lot of
   configuration options, but doesn't appear to have any real system for plugins
-  nor any easy way to save and import themes. It does seem to have a few 
+  nor any easy way to save and import themes. It does seem to have a few
   interesting features and ideas, but none of them really matter to me.
 * **PyRoom** I like the idea of this editor. It's minimalist and
   straight-forward. It's just as minimalist if not more so than scribes, but
