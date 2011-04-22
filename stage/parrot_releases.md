@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Release]
+title: On Parrot Releases
+---
+
 On Tuesday I put out [Parrot 3.3 "Fire in the Sky"][parrot_3_3]. Besides the
 fact that it happened much later in the day than we have become accustomed to
 in recent months, it was a pretty uneventful release. Almost all releases are
@@ -81,7 +87,7 @@ easy to automate. In fact, here's the general script to do it:
     perl Configure.pl --test ...
     make world html
     make fulltest
-    make release
+    make release VERSION=3.3.0
     make release_check
 
 It would be trivial to write a short program to update VERSION, which is
@@ -91,7 +97,33 @@ prompt for a release name. A decent perl hacker could put it together in less
 than an hour. Where there are errors or test failures the release manager can
 drop out of the script and do things manually, but when things go well (and
 they usually do for the release) this level of automation would be an extreme
-boon.
+boon. In fact, here's a short example script with variables filled in for
+things that need to be changed:
+
+    perl Configure.pl $CONFIGARGS
+    make
+    tools/release/update_for_release.pl --version=$VER --release_name="$NAME"
+    ./ops2c --core
+    make realclean
+    perl Configure.pl --test $CONFIGARGS
+    make world html
+    make fulltest
+    make release VERSION=$VER
+    make release_check
+
+The `tools/release/update_for_release.pl` script is a hypothetical new script
+which would do all the updates required in the previous section (VERSION,
+parrothist.pod, release_manager_guide.pod, MANIFEST.generated, and
+tools/release/release.json, etc).
+
+All told, there isn't a huge amount of work to make this available for the
+simple common case with no failures or problems. Adding in some kind of check
+mechanism to detect errors or inconsistencies and return manual control
+back to the user would be a nice extension. The ability to step through the
+release bit by bit and continue from a named step would be awesome too, if
+something in the middle needed manual fiddling. For a computer none of this
+stuff is difficult at all. For the user, it's not difficult but it can be
+time-consuming.
 
 ## Uploading the Tarball and Docs
 
