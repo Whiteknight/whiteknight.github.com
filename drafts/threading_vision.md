@@ -1,7 +1,13 @@
+---
+layout: post
+categories: [Parrot, Threading]
+title: My Vision for Parrot Concurrency
+---
+
 Threading is one of those things that is almost always on my mind, but it
 seems like we never get anywhere with it. We have tons of questions about how
-to implement threading, and what particular mechanisms we want to use, and how
-we want to share data and all sorts of other things, but from those questions
+to implement threading, what particular mechanisms we want to use, and how
+we want to share data and all sorts of other things. From those questions
 we haven't taken the time to sit down, meld minds, and actually hammer out
 answers. Without answers, we don't derive any particular vision of what the
 systems will look like, and without knowing what the system will look like we
@@ -10,7 +16,7 @@ can't break that down into a roadmap so development work can begin in earnest.
 Today, I want to start changing that situation. Today I'm going to start
 laying out a vision that I have in my head for how concurrency could work in
 Parrot. I'm putting some of these ideas out there not because I want this to
-be accepted as *the* only idea, or be the first idea and gain "mindshare" or
+be accepted as *the* idea, or be the first idea and gain "mindshare" or
 anything like that. I want to start the dialog, seed it with some of the
 diffuse ideas we've been kicking around, and see if we can start coming
 together around certain bits of it. Today I'm going to be giving a high-level
@@ -19,19 +25,29 @@ the many omitted details on demand, either in subsequent posts or in person.
 I will also try to give a high-level overview on the steps necessary to
 implement this new system starting from where we are now in Parrot 3.3.
 
+Threading is not a super-huge priority for us, but I think we would be remiss
+if we did not at least have concrete plans in place by the 4.0 release in
+January. If we could have some real code written by then, all the better.
+Maybe in a near-future post I'll talk about what some of our big priorities as
+an organization are.
+
 Concurrency is a multi-faceted problem, and one that is solved differently by
 different technologies. Because Parrot aims to support multiple different and
 divergent languages and runtimes, the discussion tends to settle around two
 possible polarized alternatives: Either Parrot provides very little in the way
 of concurrency besides a bare handful of the most basic primitives, or Parrot
-provides a system so flexible and grandiose that it can be made to emulate any
-system which currently exists. I suspect that we don't need to go to such
-extremes, but instead we can try to find a middle ground. We want a system
-which, by default, is useful and flexible. We also want to leave some of the
-particular details up to the HLL or runtime developers. I don't think that
-Parrot needs to necessarily provide any kind of guarantee of memory
+provides a system so flexible and grandiose that it is a complete superset of
+any system which ever has or ever will exist. I suspect that we don't need to
+go to such extremes, but instead we can try to find a middle ground. We want a
+system which, by default, is useful and flexible. We also want to leave some
+of the particular details up to the HLL or runtime developers. I don't think
+that Parrot needs to necessarily provide any kind of guarantee of memory
 consistency in all cases, for instance, and we also don't need to provide
-huge libraries of things like locks, mutexes, semaphores, etc.
+huge libraries of things like locks, mutexes, semaphores, etc. What we should
+do is provide a system which is usable and performant by default, but leave
+open opportunities for HLL and library developers to build their own tools
+on top of it. We can accomplish this through delegation, use of subclasses,
+and HLL mapping, among other mechanisms.
 
 Last year for GSoC, student Chandon proposed and begin implementing an very
 ambitious plan for a hybridized threading approach. At the time I viewed the
@@ -41,7 +57,7 @@ introduced and discussed on this blog several of the important concepts
 involved in this idea, and I won't repeat myself in this post. Going forward,
 I'm going to assume the reader knows all about threads, the difference between
 "heavy" OS threads and green threads, the ideas behind concurrency primitives,
-the problems with deadlock, resource contention, and data inconsistency, and
+the problems with deadlock, resource contention, data inconsistency, and
 anything else I feel like talking about.
 
 First things first, my idea involves a hybridized threading approach similar
@@ -61,60 +77,86 @@ underlying OS thread on which Parrot executes (the "N" in the calculus above),
 and "task" to refer to the individual Parrot execution context ("M", above).
 
 The system I envision is "locked" in the sense that an individual task lives
-on a particular thread and cannot be moved to a different thread without some
-serious amount of handwaving and lost performance. While such a movement
-mechanism could be possible, I see no great benefit in having to do it and if
-anything the repurcussions of such a mechanism would be detrimental to the
-common case for only small benefits in the rare case. Every thread contains a
-stable of tasks which it owns and has exclusive rights to. Tasks in a single
-thread can freely share data between each other without fear of internal
-corruption. In terms of memory corruption or inconsistency I'm going to
-differentiate between "internal" problems which manifest internally to the
-VM itself and would cause system instability, and "external" problems which
-happen at the PBC level or above and only cause algorithmic instability. For
-instance, data corruption internally in the `PMC*` structure is far worse in
-many ways than inconsistency between attributes in a PIR-defined object. In
-essence, I'm differentiating between problems that could cause segfaults from
-the problems that could cause exceptions. The former should be prevented by
-Parrot as well as possible, the later should be prevented by the user.
+on a particular thread and cannot be moved to a different thread. While such a
+movement mechanism could be possible if we were willing to put in the extra
+work, I see no great benefit in having to do it and if anything the
+repurcussions of such a mechanism would be detrimental to the common case for
+only small benefits in the rare case. Every thread contains a stable of tasks
+which it owns and has exclusive rights to. Tasks in a single thread can freely
+share data between each other without fear of internal corruption. In terms of
+memory corruption or inconsistency I'm going to differentiate between
+"internal" problems which manifest internally to the VM itself and would cause
+system instability, and "external" problems which happen at the PBC level or
+above and only cause algorithmic instability. For instance, data corruption
+internally in the `PMC*` structure is far worse in many ways than
+inconsistency between attributes in a PIR-defined object. In essence, I'm
+differentiating between problems that could cause segfaults from the problems
+that could cause exceptions. The former should be prevented by Parrot as well
+as possible, the later should be prevented by the user. If the user wants to
+ensure that several operations occur together in a Task as an atomic block,
+she can tell the parent Thread to disallow Task switching during the "critical
+section", perform all updates, then re-enable preemtive Task switching. Or,
+she can implement a library of locks to prevent multiple tasks from running
+similar operations at the same time, or...
 
 The issue of data sharing between separate threads has been a problem which
 has been dogging Parrot for as long as I can remember. In fact, this is one
 question which was avoided completely not only by Chandon in his GSoC project,
 but also by myself and by then-architect Allison and the rest of the community
-as well. We all decided to punt the ball instead of answering that question,
-which goes to show just how difficult of a problem it is. My vision for
-concurrency in Parrot does provide a basic answer to this question, one which
-gives plenty of opportunity for the user to get herself into trouble, but
-also provides the flexibility and pluggability necessary to build more complex
-systems on top of it.
+as well. We all decided to punt the ball instead of trying to figure out how
+Parrot should implement data sharing between threads, which goes to show just
+how difficult of a problem it is. My vision for concurrency in Parrot does
+provide a basic answer to this question, one which gives plenty of opportunity
+for the user to get herself into trouble, but also provides the flexibility
+and pluggability necessary to build more complex systems on top of it. My
+answer, in short, is this: By default, Parrot shares no data between Threads.
 
-The basic idea of data sharing between threads is this: By default, we do not
-share data. Instead, we share read-only proxies. Every proxy object contains a
-pointer back to the "original" copy, and intercepts any attempt to modify
-data. If the proxy is locked, attempts to modify data throw an angry
-exception. If the proxy is unlocked, which will be a
-simple--if unrecommended--operation, write requests pass directly through to
-the target object. Rosella already provides these kinds of proxy objects, and
-it wouldn't be too much of a hassle to implement them inside Parrot. We could
-add four new ops to help manage data. `lock` and `unlock` ops could be used to
-change the behavior of mutator actions in the concurrency proxy object. A
-`lock`ed object disallows modifications to the target object. An `unlock`ed
-one can update the target, either directly or by sending an update message to
-the mailbox of the Thread owner of the target object. Either behavior is
-acceptable to me as the default, and the other should be easy to override in
-an HLL map if necessary. The second set of new ops would be `share` and
+Instead of sharing data directly between threads, we have a handful of
+possible mechanisms. At the most basic level, we use a series of read-only
+concurrency proxy objects which provide read-only access to data across
+threads. As I'll describe below we will also provide a message-passing system
+for "safe" data updates, and we will also provide direct, unprotected, access
+to data if the user specifically requests it.
+
+Every concurrency proxy object contains a pointer back to the "original" copy,
+and intercepts any attempt to modify data. If the proxy is locked, attempts to
+modify data throw an angry exception. If the proxy is unlocked, write requests
+will be turned into messages and sent to the mailbox of the owner thread. Of
+course, the user can subclass or HLL map the concurrency proxy object to
+provide custom behavior instead, if needed. This idea of read-only
+intercepting proxies is nothing new or difficult, Rosella already provides
+these kinds of proxy objects, and implements them in only a few dozen lines
+of Winxed code. It wouldn't be too much of a hassle to implement something
+similar inside Parrot too. We could add four new ops to help manage data.
+`lock` and `unlock` ops could be used to change the behavior of mutator
+actions in the concurrency proxy object. A `lock`ed object disallows
+modifications to the target object and throws exceptions where they are
+attempted. An `unlock`ed one can update the target, either directly or by
+sending an update message to the mailbox of the Thread owner of the target
+object. Either behavior is acceptable to me as the default, and the other
+should be easy to override in an HLL map if necessary. In this way, we could
+even forego the two ops, and instead provide one as the default and allow the
+other to be provided by an HLL. The second set of new ops would be `share` and
 `unshare`. The first would take a PMC and return a concurrency proxy for it
 (in the "locked" state by default), and the later would take a concurrency
 proxy and return a direct reference to the target object from it. People who
 want the built-in safety can use the proxies directly. People who don't want
 built-in safety but do provide their own library of mutex and critical section
-objects may want to live a little bit more dangerously.
+objects may want to live a little bit more dangerously and play with
+cross-thread references directly. It's not our job to keep people from getting
+themselves in trouble, so long as we provide decent defaults to fall back to.
 
 In the case of an unlocked proxy, I don't care whether data update messages
 are passed synchronously or asynchronously. Either we can pick a default and
 allow the user to override in an HLL mapped subclass, or we can provide a flag
-or a callback as a second argument to `unlock`.
+or a callback as a second argument to `unlock`. Synchronous update operations
+are probably the most familiar, but asynchronous ones are more flexible and
+would have better throughput. Plus, we can define the synchronous ones in
+terms of asynchronous operations, especially if our system of scheduling and
+managing Tasks is flexible enough. In the asynchronous case we send off the
+message and terminate the current Task. Then we schedule a callback Task to
+pick up when the operation succeeds. I won't get into too many details here,
+but we do have plenty of options.
 
 Every Task is a tuple of a Context object, a Continuation, a Mailbox and maybe
 an array of startup invariants, similar to how the main program args are
