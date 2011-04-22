@@ -58,7 +58,7 @@ having to either provide too much, or too little.
 
 From this point forward I will use the term "thread" to refer to the
 underlying OS thread on which Parrot executes (the "N" in the calculus above),
-and "task" to refer to the individual Parrot execution context.
+and "task" to refer to the individual Parrot execution context ("M", above).
 
 The system I envision is "locked" in the sense that an individual task lives
 on a particular thread and cannot be moved to a different thread without some

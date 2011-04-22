@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella]
+title: Rosella Website
+---
+
 I've thrown together a little website for the [Rosella][] project using the
 cool Github Pages feature. The website is located at
 [http://whiteknight.github.com/Rosella/](http://whiteknight.github.com/Rosella/).
@@ -17,11 +23,11 @@ place to help with new users of the project. Specifically, I think some
 GSoC students might be able to make use of some of these tools, and I want
 to give them plenty of documentation to pour over if they do.
 
-The first Rosella release will contain eight different libraries: Core,
-Action, Container, Proxy, Test, Harness, MockObject, and Winxed (the library,
-not the language compiler). All eight of these are described and documented on
-the website, including high-level overviews, explanations of the various
-functionality, and a growing handfull of code examples.
+The first Rosella release will contain nine different libraries: Core,
+Action, Container, Proxy, Test, Harness, MockObject, Event, and Winxed (the
+library, not the language compiler). All eight of these are described and
+documented on the website, including high-level overviews, explanations of the
+various functionality, and a growing handfull of code examples.
 
 Future releases of Rosella will likely include fun new libraries. I have about
 a half dozen more libraries in various stages of development, and at least
