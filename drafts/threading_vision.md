@@ -25,11 +25,12 @@ the many omitted details on demand, either in subsequent posts or in person.
 I will also try to give a high-level overview on the steps necessary to
 implement this new system starting from where we are now in Parrot 3.3.
 
-Threading is not a super-huge priority for us, but I think we would be remiss
-if we did not at least have concrete plans in place by the 4.0 release in
-January. If we could have some real code written by then, all the better.
-Maybe in a near-future post I'll talk about what some of our big priorities as
-an organization are.
+Threading is not a super-huge priority for us, at least not compared to some
+of the other things we would like to deliver between now and 4.0. I do think
+we would be remiss, however, if we did not at least have concrete plans in
+place by then. If we could have some real code written by then, all the
+better. Maybe in a near-future post I'll talk about what some of our big
+priorities as an organization are in the coming months.
 
 Concurrency is a multi-faceted problem, and one that is solved differently by
 different technologies. Because Parrot aims to support multiple different and
@@ -49,7 +50,9 @@ open opportunities for HLL and library developers to build their own tools
 on top of it. We can accomplish this through delegation, use of subclasses,
 and HLL mapping, among other mechanisms.
 
-Last year for GSoC, student Chandon proposed and begin implementing an very
+## Hybrid Threads
+
+Last year for GSoC, student Chandon proposed and began implementing a very
 ambitious plan for a hybridized threading approach. At the time I viewed the
 whole idea as an interesting curiosity, but the longer time goes on the more
 I feel like the best answer for us does lay somewhere down that path. I've
@@ -76,10 +79,12 @@ From this point forward I will use the term "thread" to refer to the
 underlying OS thread on which Parrot executes (the "N" in the calculus above),
 and "task" to refer to the individual Parrot execution context ("M", above).
 
+## Locks and Data Sharing
+
 The system I envision is "locked" in the sense that an individual task lives
 on a particular thread and cannot be moved to a different thread. While such a
 movement mechanism could be possible if we were willing to put in the extra
-work, I see no great benefit in having to do it and if anything the
+work, I see no great overall benefit to providing it. If anything the
 repurcussions of such a mechanism would be detrimental to the common case for
 only small benefits in the rare case. Every thread contains a stable of tasks
 which it owns and has exclusive rights to. Tasks in a single thread can freely
@@ -110,13 +115,23 @@ provide a basic answer to this question, one which gives plenty of opportunity
 for the user to get herself into trouble, but also provides the flexibility
 and pluggability necessary to build more complex systems on top of it. My
 answer, in short, is this: By default, Parrot shares no data between Threads.
+We can share data between Tasks freely like I mention above, but we do not
+share data between Threads.
 
 Instead of sharing data directly between threads, we have a handful of
 possible mechanisms. At the most basic level, we use a series of read-only
 concurrency proxy objects which provide read-only access to data across
 threads. As I'll describe below we will also provide a message-passing system
 for "safe" data updates, and we will also provide direct, unprotected, access
-to data if the user specifically requests it.
+to data if the user specifically requests it. We do run into the possibility
+that a read access may occur when the PMC is in an inconsistent state with
+respect to it's attributes. This is fine, and Parrot isn't going to bend over
+backwards to prevent this. If the user wants to implement some kind of
+mechanism to prevent inconsistent data reads, she can provide it herself. A
+custom subclass of the concurrency proxy could provide a local cache of data,
+or could detect inconsistent states in the target object and delay the read.
+
+## Concurrency Proxies
 
 Every concurrency proxy object contains a pointer back to the "original" copy,
 and intercepts any attempt to modify data. If the proxy is locked, attempts to
@@ -158,21 +173,28 @@ message and terminate the current Task. Then we schedule a callback Task to
 pick up when the operation succeeds. I won't get into too many details here,
 but we do have plenty of options.
 
+## Tasks, Threads and Interpreters
+
 Every Task is a tuple of a Context object, a Continuation, a Mailbox and maybe
 an array of startup invariants, similar to how the main program args are
-currently stored inside the interpreter object. Every Thread object contains
-an array of Tasks, a pointer to the current Task, and scheduler logic to
-control when and how the next Task is launched. Some threads could easily use
-a cooperative approach where Tasks must be manually scheduled using
-`thread.yeild()` or `thread.execute(task)` calls. New tasks can be added using
-`thread.schedule(task, priority, args, ...)`. These names are just speculative
-of course, I'm just trying to show that tasks are managed either through or
-with particular threads. Somewhere along the line I suspect we are going to
-have a ThreadScheduler which keeps track of all running threads in the
-interpreter, can create or remove threads, can get the current thread, and do
-a handful of other tasks as well. Threads belong to the ThreadScheduler, Tasks
-belong to their respective Threads. The system in this regard is open but
-rigid.
+currently stored inside the interpreter object. Actually, we may have a
+Mailbox at the level of the Thread instead of at the level of the Task. That
+might be better. Every Thread object contains an array of Tasks, a pointer to
+the current Task, and scheduler logic to control when and how the next Task is
+launched. A handful of simple operations would control when and how Tasks were
+switched. In the simple `N == M` posix-ish case, the thread disallows Task
+switching. In a case with cooperative multithreading, we disallow automatic
+Task switching but do allow the user to manually specify a Task switch. A
+cooperative approach where Tasks must be manually scheduled using
+`thread.yeild()` or `thread.execute(task)` calls is trivial to do. New tasks
+can be added using `thread.schedule(task, priority, args, ...)`. These names
+are just speculative of course, I'm just trying to show that tasks are managed
+either through or with particular threads. Somewhere along the line I suspect
+we are going to have a ThreadScheduler which keeps track of all running
+threads in the interpreter, can create or remove threads, can get the current
+thread, and do a handful of other tasks as well. Threads belong to the
+ThreadScheduler, Tasks belong to their respective Threads. The system in this
+regard is open but rigid.
 
 That brings me to the idea of the interpreter. There will still be one, though
 its capacity is going to be diminished. Much of what currently exists in the
@@ -213,6 +235,8 @@ global, such as a Class for instance, we ask the current Thread object, who
 either has the "live" version of the data (in the case of the "master" Thread)
 or it asks the local proxy which retrieves it from the live version directly.
 
+## Messages
+
 Through a proxy you cannot update data on a different thread directly, locked
 or unlocked. Instead, we would have to pass messages. At the moment I conceive
 of messages as being small, internal-only commands to update particular values
@@ -235,7 +259,38 @@ with locks and crap if they want to do it that way.
 
 At regular intervals, either preemptive or cooperative, a thread can check
 its messages and invoke them if there are any in the mailbox. This is how
-simple data updates happen across threads in the common case, how
+simple data updates happen across threads in the common case.
+
+A Message can really be any number of things. In the most simple and flexible
+case a Message would be a combination of an invokable and data. In the case of
+a simple attribute update, the invokable part of the data would look like this
+(in Winxed):
+
+    function update_property(var target, string attribute, var value)
+    {
+        ${ setattribute target, attribute, value };
+    }
+
+A scant handful of similar stock message types, along with the ability to
+define custom ones provides all the flexibility we would need. The user would
+pass a message by calling a method on the Thread object:
+
+    thread.send_message(func, ...);
+
+On the receiver side, the Thread would check its messages between Task
+switches. We check the messages, and if there are any in the mailbox we
+execute them first before we activate the next task. If we have no pending
+tasks, we check the mailbox in a short loop or on a delay timer or something.
+I'm not certain that Messages and Tasks need to be different. In fact, I'm
+certain that they can be the same kind of object. The only difference, from
+the point of view of the Thread, is where the Task is stored. In the case of
+a Message, it is stored in the Mailbox. Once the Message begins executing, it
+is treated as a normal task and can be preempted to run other Tasks. In fact,
+this is the mechanism by which Threads can be populated with Tasks in the
+first place, and provides a very natural way to farm tasks out to worker
+threads.
+
+## Review
 
 Here's a short recap of some of my ideas:
 
