@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella, Release]
+title: Rosella Release 1
+---
+
 Yesterday [I committed and tagged][release_commit] the first release of
 [Rosella][]. Rosella is a collection of libraries to help enable the use of
 common patterns and best practices in Parrot.
