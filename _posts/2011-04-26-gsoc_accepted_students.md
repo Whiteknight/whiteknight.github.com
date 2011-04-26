@@ -15,8 +15,8 @@ students for GSoC 2011. The seven projects are:
   Mentored by dukeleto
 * **Tyler Curtis** (tcurtis) "[A Look-Ahead(1) Left-to-Right Parser Generator
   for Parrot][lalr_parrot]". Mentored by darbelo
-* **Lucian Mihaila** (lucian) "[Python3 on Parrot][python3]". Mentored by
-  Allison
+* **Lucian Branescu Mihaila** (lucian) "[Python3 on Parrot][python3]".
+  Mentored by Allison
 * **Kevin Polulak** (soh_cah_toa) "[New Parrot Debugger][debugger]". Mentored
   by cotto
 * **Brian Gernhardt** (benabik) "[Migrating PAST to NQP and newPOST][new_post]".
