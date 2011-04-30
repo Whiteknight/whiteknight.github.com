@@ -1,15 +1,15 @@
-I've written two posts about my idea for concurrency in threading. Since this
-is only my suggestion and not the accepted, "official" solution by any means
-that certainly seems like plenty. There's no sense constantly talking about an
-idea like this until I get a green light from the rest of the community to
-start pursuing this path in earnest. I do have one more thing to talk about
-with this idea before I lay it to rest completely. I want to talk today about
-how we actually move from where we are now to where I suggest we should be
-going. The first two posts talked about the idea itself and some of its
-merits, while this post will lay out a basic, though incomplete, method to
-pursue it. Once we decide as a community exactly what kind of concurrency
-solution we would actually like to see in Parrot, we can start filling in the
-details that have been omitted here.
+I've written [two][threading_vision_1] [posts][threading_vision_2] about my
+idea for concurrency and threading. Since this is only my suggestion and not
+the accepted "official" solution, that certainly seems like plenty. There's no
+sense constantly talking about an idea like this until I get a green light
+from the rest of the community to start pursuing this path in earnest. I do
+have one more thing to talk about with this idea before I lay it to rest
+completely. I want to talk today about how we actually move from where we are
+now to where I suggest we should be going. The first two posts talked about
+the idea itself and some of its merits, while this post will lay out a basic,
+though incomplete, method to pursue it. Once we decide as a community exactly
+what kind of concurrency solution we would actually like to see in Parrot, we
+can start filling in the details that have been omitted here.
 
 The first step in moving towards the new threading system is to start
 refactoring some of the current datastructures and concepts that form the
@@ -117,6 +117,12 @@ internal-only change, and will likely sit unused or under-used until we put
 on the final touches in the next step. What we can do is implement the
 necessary opcodes, PMCs, and API functions and begin writing tests for them.
 
+It's not until this point that we need to answer some of the serious internal
+questions: How do we manage GC? How do we handle library callbacks? How do we
+handle access to non-thread-safe NCI libraries? Up until this point, we are
+still running on a single thread, just using multiple tasks. Once we make the
+move to multiple threads, we have some tough details to sort out.
+
 The final big piece in the puzzle is to extend the system to the true hybrid
 approach: We need to add in the infrastructure to create and manage multiple
 Threads. This is going to require additions to the embedding and extending
@@ -127,4 +133,17 @@ inequities and infelicities of threading implementations across OSes, and
 writing up the necessary abstractions to allow Parrot's Threads to run on all
 our supported platforms.
 
-   
+So that's the basic timeline for how we go about implementing this system.
+Considering that according to this timeline we need to cross at least two
+deprecation boundaries, I suspect we can have a working system of green
+threads within four to six months. From there, the jump to the full hybrid
+system will be more difficult, but shouldn't be more than another 6 months
+from there. If we start before the 4.0 release, we should have threading like
+this in place and available for use by 5.0, without breaking a sweat.
+
+Considering that we have several other high-priority tasks to work on first,
+we probably can't start any earlier, but it's reasonable to think that we can
+get started before the end of the year. In future posts I'll talk about some
+of our more immediate priorities. I won't be talking any more about threading
+until we have something concrete to talk about.
+have working green threads in place
