@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Threading]
+title: How To Implement My Threading Idea
+---
+
 I've written [two][threading_vision_1] [posts][threading_vision_2] about my
 idea for concurrency and threading. Since this is only my suggestion and not
 the accepted "official" solution, that certainly seems like plenty. There's no
@@ -10,6 +16,9 @@ the idea itself and some of its merits, while this post will lay out a basic,
 though incomplete, method to pursue it. Once we decide as a community exactly
 what kind of concurrency solution we would actually like to see in Parrot, we
 can start filling in the details that have been omitted here.
+
+[threading_vision_1]: /2011/04/23/vision_parrot_concurrency.html
+[threading_vision_2]: /2011/04/29/vision_parrot_concurrency_2.html
 
 The first step in moving towards the new threading system is to start
 refactoring some of the current datastructures and concepts that form the
@@ -146,4 +155,4 @@ we probably can't start any earlier, but it's reasonable to think that we can
 get started before the end of the year. In future posts I'll talk about some
 of our more immediate priorities. I won't be talking any more about threading
 until we have something concrete to talk about.
-have working green threads in place
+
