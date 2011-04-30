@@ -1,5 +1,14 @@
-I want to revisit my post about my ideas for concurrency in Parrot and try to
+---
+layout: post
+categories: [Parrot, Threading]
+title: My Vision for Parrot Concurrency
+---
+
+I want to revisit my
+[post about my ideas for concurrency in Parrot][concurrency_post] and try to
 add a bit more clarification about a few points.
+
+[concurrency_post]: /2011/04/23/vision_parrot_concurrency.html
 
 My whole vision for that system is based on a few basic precepts:
 
@@ -48,15 +57,38 @@ rather than provide only the tools for building a system and expect everybody
 to build their own from the ground up.
 
 Big, well-staffed projects should have the ability to throw the defaults out
-and roll their own to meet their own particular needs. Smaller projects should
-be able to use what we provide to get moving immediately, even if what we
-provide isn't 100% perfect in the long run.
+and roll their own to meet their own particular needs. Rakudo does this with
+everything from the object model to the subroutine dispatcher. It's not
+anything special for us to make the system pluggable. If anything, it's
+expected. Smaller projects who don't have enough manpower to throw the baby
+out with the bathwater and roll their own concurrency system should be able to
+use what we provide to get moving immediately, even if what we provide isn't
+100% perfect in the long run. I suspect it will be good enough, with some
+tweaking and configurability, for most uses.
 
 The second point is a continuation on the first idea. We want a system which
 can appear to be heavy-weight like posix, or more light weight like what
-Erlang provides with its Actors model. By providing a flexible hybrid system,
-we can allow users to approximate both these systems and everything in
-between. They can tweak the parameters to configure it as necessary.
+Erlang provides with its [Actors][] model. By providing a flexible hybrid
+system, we can allow users to approximate both these systems and everything in
+between. They can tweak the parameters to configure it as necessary. We could
+revamp the current threading system and only employ heavy-weight threads, and
+allow users to cobble together a million implementations of tasks on top of
+that, but we lose a lot of flexibility at the VM layer and we force a lot of
+people to implement for themselves something that we could easily provide by
+default. And I think we do want to provide this, because I think people
+definitely want it. Have you ever heard of Python's [stackless][] threads, or
+[greenlets][]? PHP doesn't have many [threading][php] options, but don't you
+think that a PHP compiler that offered lightweight task multiplexing on an
+externally-limited thread pool might make great sense? My point is that there
+are both existing users of light-weight tasks, and many potential users
+of them in the future. We could go the easy route and only provide heavy
+threads, but I feel like that isn't an acceptable default for what we want
+to accomplish in the future.
+
+[Actors]: http://en.wikipedia.org/wiki/Actor_model
+[stackless]: http://www.stackless.com/
+[greenlets]: http://packages.python.org/greenlet/
+[php]: http://blog.motane.lu/2009/01/02/multithreading-in-php/
 
 The third point follows in a similar vein. We want the system to be
 configurable by the user. The best way to allow that in current Parrot is to
@@ -102,12 +134,15 @@ Parrot doesn't do that, it's a design flaw and Parrot is inherently inferior."
 My reply is that if we wanted to do the same things as the JVM or .NET, just
 as well as they do them, we would be writing software for the JVM or .NET
 instead. They are already very good at what they do and how they do it, and
-trying to emulate their behavior is not a design goal for Parrot. This
-threading system that I am proposing for Parrot will be different from
-offerings on other virtual machines. In some ways it will be better. In
-others, worse. To get the most out of it, you are going to have to use
-different techniques and algorithms than you would use on a different
-platform.
+trying to emulate their behavior is not a design goal for Parrot. Nor is it a
+winning strategy for us. This threading system that I am proposing for Parrot
+will be different from offerings on other virtual machines. In some ways it
+will be better. In others, worse. To get the most out of it, you are going to
+have to use different techniques and algorithms than you would use on a
+different platform. You're going to have to think about things differenty. If
+you want to solve a problem in the standard Java or C# way, maybe you need to
+use Java or C# instead. They're fine languages, if you want to do what they
+do in the way that they do them.
 
 Data consistency is a similar problem. We can't guarantee that when you read
 data from across threads that it will be consistent. The data could be in the
@@ -127,11 +162,16 @@ maybe we only say that internal-only update messages are not preemptable, but
 user messages are. That works out much better, but we would need to add an
 API to define a series of inter-related updates to be processed as a single
 transaction bundle, and it requires us to have two message types instead of
-just one. It's not unthinkable, but it is a little bit more "stuff" than I
+just one. `transaction.begin()` and `transaction.commit()` and similar
+routines. It's not unthinkable, but it is a little bit more "stuff" than I
 would like to have as part of the base system. Keep in mind that I'm not going
 for minimalism, but I'm not going to maximalism either.
 
-Reading data across threads is problematic because reads could be
+Things like this really strike me as being rich fodder for future GSoC
+projects. If we're far enough along next summer I'll definitely raise some
+of these ideas again.
+
+Reading data across threads is also problematic because reads could be
 inconsistent. This is nothing that you can't work around, especially if you
 are patient. Writing data between threads can be down-right dangerous because
 you start to talk about data corruption. Because of this problem, and because
