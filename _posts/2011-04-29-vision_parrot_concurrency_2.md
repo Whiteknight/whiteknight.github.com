@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Parrot, Threading]
-title: My Vision for Parrot Concurrency
+title: My Vision for Parrot Concurrency Redux
 ---
 
 I want to revisit my
