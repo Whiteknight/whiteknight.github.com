@@ -11,7 +11,6 @@ My whole vision for that system is based on a few basic precepts:
 3. Various bits of the system should be encapsulated in objects, which the
    user should be able to customize, modify, adapt, or completely replace if
    possible.
-
 4. We only go so far as to guarantee that the system will be *stable* in the
    sense that we avoid internal data corruption, crashes, and segfaults. We
    do not guarantee any sort of timely consistency at the level of objects.
@@ -25,15 +24,14 @@ My whole vision for that system is based on a few basic precepts:
    There will be an option to enable you to really hurt yourself, if you want.
 7. Data access and modifications between threads are never immediate, and we
    won't pretend differently.
-
 8. Have a system able to scale well to multi-core processors and parallel
    hardware, but also be able to degrade gracefully in non-parallel
    environments.
 9. Avoid the need to use locks internally. Absolutely, positively avoid the
    need for a global interpreter lock.
 
-Together, these things start to inform a concurrency system design which is
-flexible, powerful, but also light-weight by default. Let me go over some of
+Together these things start to inform a concurrency system design which is
+flexible and powerful but also light-weight by default. Let me go over some of
 these items in more detail.
 
 For the first point, we want to avoid extremes. Some papers and systems
@@ -41,12 +39,18 @@ advocate that we create a minimalist system and only provide a scant handful
 of "concurrency primitives" upon which everything else can be built. This is
 a fine approach, and easy enough to implement, but doesn't do anything to
 provide a default solution to projects just trying to get started without
-needing to implement threading themselves. The big point of Parrot is to
-provide this common platform for compiler and project developers to use to
+needing to implement threading themselves. It also doesn't help us decide what
+default we should build on top of those primitives. The big point of Parrot is
+to provide this common platform for compiler and project developers to use to
 get a jump start. We implement things so you don't have to. We would rather
 provide a basic system which users can customize to fit specific semantics
 rather than provide only the tools for building a system and expect everybody
 to build their own from the ground up.
+
+Big, well-staffed projects should have the ability to throw the defaults out
+and roll their own to meet their own particular needs. Smaller projects should
+be able to use what we provide to get moving immediately, even if what we
+provide isn't 100% perfect in the long run.
 
 The second point is a continuation on the first idea. We want a system which
 can appear to be heavy-weight like posix, or more light weight like what
@@ -62,7 +66,6 @@ mechanisms, or pick and choose which works best on a case-by-case basis. I
 don't have any strong opinions on the matter, and I suspect most of the
 details will become apparent as we get further into the design and
 implementation of this system (if this is indeed the path we want to travel).
-
 Some things, such as a global ThreadScheduler type wouldn't be amenable to
 HLL mapping, but certain aspects of its algorithm could be open to
 modification by setting parameters or delegating behaviors to subtypes which
@@ -70,9 +73,9 @@ the user has control over.
 
 The next couple points all deal with the elephant in the room: data
 consistency. I am expressly denying the need for immediate global consistency
-between data visible on all threads. That is not the way the world works, and
+between data visible on all threads. That is not the way the world works and
 other VMs have gotten into huge trouble trying to pretend otherwise. We have
-two options when trying to write a single bit of data from between two
+two options when trying to write a single chunk of data from between two
 threads: Either we can demand that the updates be globally visible as
 immediately as possible, or we demand that the data be consistent and safe at
 all times. This second option is the one that I favor. If we provide a basis
@@ -92,6 +95,19 @@ can enter a polling loop, or you can use a system of locks (locks which you
 will probably be writing yourself), or you can use a system of callbacks, or
 whatever. If you want immediate data propagation you are out of luck and
 there is nothing I can do to help you with that.
+
+A complaint that I can foresee receiving goes something like this: "The
+JVM/.NET/whatever VM allows me to write data between threads immediately, if
+Parrot doesn't do that, it's a design flaw and Parrot is inherently inferior."
+My reply is that if we wanted to do the same things as the JVM or .NET, just
+as well as they do them, we would be writing software for the JVM or .NET
+instead. They are already very good at what they do and how they do it, and
+trying to emulate their behavior is not a design goal for Parrot. This
+threading system that I am proposing for Parrot will be different from
+offerings on other virtual machines. In some ways it will be better. In
+others, worse. To get the most out of it, you are going to have to use
+different techniques and algorithms than you would use on a different
+platform.
 
 Data consistency is a similar problem. We can't guarantee that when you read
 data from across threads that it will be consistent. The data could be in the
@@ -138,6 +154,11 @@ errors, program crashes, and other problems. I've spent more hours of my life
 debugging these kinds of things, and if I could have that time back I would
 take it in a heartbeat.
 
+What I'm suggesting here is that we trade data immediacy for data consistency.
+It's a system I think we can use to great effect, especially since we've seen
+the Erlang people and the functional programming people use these kinds of
+ideas for a long time to great effect.
+
 Parrot, on the other hand, will allow you to send update messages and avoid
 locks at the expense of possibly having a longer delay between the time you
 send the update message and the time the data is actually updated. The chance
@@ -147,54 +168,34 @@ yourself into trouble, but we severely limit your ability to corrupt data
 through cross-thread writes. Everything is a tradeoff, and I feel like this is
 a good decision for a number of reasons.
 
-Precept #5, for
-instance, means that we do not need to provide any particular mechanism for
-guaranteeing data consistency between threads, such as STM. Users can build
-STM on top of Parrot, or we can provide STM and have it available as an
-option, but we don't need to have it and use it by default. We also don't need
-to provide a selection of locks, mutexes, semaphores, critical sections,
-spinlocks, or other primitives which other threading systems may provide.
-Again, these things can be built on top of Parrot or offered as an option, but
-they don't need to be part of the base system.
+Point #8 is an important one. We need Parrot to be able to scale, because we
+don't know what kinds of programs people are going to want to use it for, or
+what kinds of hardware they will be running on, or even what programming
+languages and threading semantics they will be using. We need Parrot to be
+pretty flexible to cover most, if not all, use cases. The basic idea that I
+am thinking about is this: Create tasks for the things you need to have done.
+Then, farm those tasks out to execute on a variety of worker threads. You can
+create as many or as few worker threads as you want and farm as many tasks
+out to each as you want. Here's a quick code example to show what I mean:
 
-By making accesses to cross-thread data read-only by default, we can have
-huge complexity and overhead savings. Consider the case of the global
-NameSpace heirarchy. NameSpace objects form a tree, the root of which is
-located in the interpreter. This tree contains not only the NameSpace objects
-themselves, but also the global data items stored directly in the NameSpaces
-such as non-method Subs. In the current threading system when we create a new
-thread we must clone the interpreter, which means we must deep-clone this
-entire tree. That's a huge waste of both performance and memory. Plus, it
-creates a huge synchronization problem. If we have two copies of the NameSpace
-tree and each thread starts making modifications to it, we can end up with
-programs which are extremely strange to say the least. The contents of a
-NameSpace change depending on which thread you are executing in. This is all
-not to mention that other global items like Class definitions would be unique
-to the thread where they are located. Creating a new `$P0 = new 'Foo'`
-could give you two completely different types of objects if Foo were defined
-differently on two or more threads. We could use STM or some other system to
-allow data sharing, but how do we know if we need to share in the first place?
+    for (var data in all_data) {
+        var task = TaskFactory.CreateProcessingTask(data);
+        var thread = ThreadManager.GetBestAvailableThread();
+        thread.schedule(task);
+    }
 
-Do we use the nuclear approach and insert STM into every single memory
-transaction in the system? If we do, we certainly gain some level of ensured
-consistency but at the added cost of a transaction occuring for every single
-memory access, not just the cross-thread ones. We could try to narrow that
-down by including a series of flags and pointers. Each PMC would have to
-contain a flag to say whether it was being actively shared. If shared, we
-can selectively employ STM, otherwise we can avoid it. But having a shared
-PMC like that creates huge implications in terms of GC at least. Also we
-would need to determine what to share and when. If we have a shared array,
-all the children of that array must also be marked as shared. However, if we
-remove an item from that array, we can't necessarily unshare it and reclaim
-the performance hit of transactions for that object.
+Tasks are cheap to create because they are basically just an array and a
+continuation. Once we create them, we schedule them on a thread to execute.
+If we are on a huge high-performance cluster with thousands of processors,
+maybe each task gets its own thread to run on. If we are on a small, single
+processor system, maybe all tasks run on the same thread. In either case, the
+loop above can stay exactly the same. What changes is the logic in
+`ThreadManager` to choose what thread from the pool constitutes the "best"
+one.
 
-In any case, this isn't the problem of Parrot core. It's not our job to impose
-STM on all programs and all HLLs, especially if they all don't want or need
-it. This is especially true if we can't make guarantees about the performance
-implications of it.
-
-STM is only one example of a system we could use to share data safely, but it
-does make my point pretty well.  Any other mechanism would suffer the same
-drawbacks.
-
+Think about a webserver, where we are getting hundreds of hits per second.
+Instead of needing to spawn a thread for each request, we have a fixed number
+of threads and instead spawn a light-weight task for each request. It's a
+pattern that is both not new, and also not known to have peformance problems
+or limitations.
 
