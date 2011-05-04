@@ -48,5 +48,29 @@ Parrot startup, vtable bloat, various inefficiencies with attribute storage
 (especially in Object), improvement of Class and Role types, including a real
 ability to use roles for built-in types, and a handful of other things.
 
+Interestingly enough, chromatic posted a very related post about [this very
+topic on his blog][chromatic_post].
+
+[chromatic_post]: http://www.modernperlbooks.com/mt/2011/05/when-you-lack-cheap-and-easy-polymorphism.html
+
+I'm not convinced that chromatic is talking to a Parrot-centric audience in
+that post. In fact, I'm very convinced that he is holding Parrot up as an
+example of what not to do to a Perl5-centric audience. No matter. We can all
+learn from the bad example Parrot is setting. Let's face facts: The current
+Parrot object model can be summed up with two simple adjectives: stagnant and
+disappointing.
+
+Fixing the object model and improving it so it can be better in the future are
+both extremely important tasks for the viability of Parrot. We need object
+model improvements in a very bad way. 6model is a kind of low-level tool that
+we would like to insert as the basis for a new system and the kinds of radical
+improvements that I think we want and need. In subsequent posts, as I get more
+concrete ideas in my head about what we need to do and what order we should
+try to do them in, I'm going to be filling in some of the details. The hard
+part in all of this, as I mentioned above, is trying to keep track of the work
+and the planning that is going into GC, concurrency, and Lorito. We are all
+going to have to try extremely hard to make sure all these fancy new systems
+work well together, and aren't designed separately without accomodation.
+
 
 
