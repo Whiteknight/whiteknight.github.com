@@ -1,9 +1,19 @@
+---
+layout: post
+categories: [Parrot, 6model]
+title: 6model and Parrot
+---
+
 I had been planning to get to work on some of the things that Rakudo had
 requested involving Packfiles next, but after talking to plobsing we've
-decided to hold off on those things for now and push them off until towards
-the end of summer. He instead is interested in starting to do some concurrency
-work now, and I'm going to set my sights on the meta-object model instead,
-along with offering a little bit of help for the concurrency project.
+decided to hold off on those things for now and push them off until the end of
+summer. He's given me the abbreviated version of the requests, and they sound
+doable, but I have a lot of research left to do before I feel competent
+talking about those things here on my blog, much less roll my sleeves up and
+start fiddling with the code. He instead is interested in starting to do some
+concurrency work now, and I'm going to set my sights on the meta-object model
+instead. I've also volunteered to offer some support for the concurrency
+project.
 
 The general priorities for the 4.0 release, roughly sorted in order of both
 what we want and what I think people are actually going to be working towards,
@@ -23,31 +33,41 @@ of posts on the topic, and is likely to be the least complete and most
 ignorant from among them.
 
 The basic plan for our object model going forward is to adopt 6model as the
-basis of a new flexible system. It and the things we will build on top of it
-are mostly complete in terms of the necessary high-level functionality that
-our HLLs need. Because it was designed to run on top of Parrot and to cater to
+basis of a new MOP system for Parrot. It and the things we will build on top
+of it should provide the functionality that Parrot currently provides, and
+should enable even more new features and optimization opportunities in the
+future. Because it was designed to run on top of Parrot and to cater to
 the needs of Perl 6 it doesn't quite have everything that we need out of the
-box. However, it does give us a great opportunity to throw out the baby with
-the bathwater and clean up some of the biggest problems in our current system.
-We also need to be cognizant of the fact that the object model refactors are
-going to take a long time and be very involved, and that they will be occuring
-before, during, and after several other big changes to other important
-subsystems. The system is not being refactored and rewritten in a vacuum, we
-need to be aware of work in the following subsystems: GC, JIT, Concurrency,
-Lorito and Packfiles, among others.
+box and might not integrate cleanly. However, it does give us a great
+opportunity to throw out the baby with the bathwater and clean up some of the
+biggest problems in our current object model. We also need to be cognizant of
+the fact that the object model refactors are going to take a long time and be
+very involved. They will be occuring before, during, and after several other
+big changes to other important subsystems. The object model is not being
+refactored and rewritten in a vacuum, we need to be aware of work in other
+subsystems like GC, JIT, Concurrency, Lorito and Packfiles, among others.
 
 The basic high-level plan to bring 6model into Parrot goes like this: We bring
 6model into Parrot, in parallel with our current object system. Then we start
 migrating our current system to run on top of 6 model. Then we start tearing
 down the walls and exposing 6model more directly to the user. Along the way we
 want to fix a huge number of problems and inefficiencies throughout Parrot.
-The way I figure it, if we're going to do this project we should do it right.
+The way I figure it, if we're going to do this project we should do it right,
+and that means getting rid of some of the rubbish we've been dealing with (and
+dealing *around*) for some time.
 
 Some of the problems I really would like to address are: inheritance between
 built-in types and PIR-defined types, multi-pass PMC type initialization at
 Parrot startup, vtable bloat, various inefficiencies with attribute storage
-(especially in Object), improvement of Class and Role types, including a real
-ability to use roles for built-in types, and a handful of other things.
+(especially in Object), improvement of Class and Role types, ability to allow
+roles and mixins for built-in types, making it easier and cheaper to compose
+roles and build multiple-inheritance heirarchies, exposing the multiple
+inheritance linearization logic to the HLL, making subclasses of built-in
+types much less expensive, and a handful of other things.
+
+Not all of these things are going to be perfectly fixed any time soon,
+especially not before Lorito lands, but I would like to take the time to
+consider all of them.
 
 Interestingly enough, chromatic posted a very related post about [this very
 topic on his blog][chromatic_post].
@@ -73,5 +93,13 @@ and the planning that is going into GC, concurrency, and Lorito. We are all
 going to have to try extremely hard to make sure all these fancy new systems
 work well together, and aren't designed separately without accomodation.
 
-
+In subsequent posts I'm going to talk about some of the problems with our
+current object model (and some proposals for solutions), and 6model. I'll be
+talking about what 6model is, what it provides and how we are going to get it
+into Parrot. I'll also be blogging about progress once we start the actual
+work. Jonathan Worthington is starting the work to port Rakudo over to 6model,
+and we both expect 6model will need to be changed a little bit during that
+process. Once he has made some progress and things calm down a little bit, we
+will start porting it into Parrot and building a new object model on top of
+it.
 
