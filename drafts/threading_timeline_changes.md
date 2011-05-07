@@ -21,18 +21,26 @@ Since I hadn't planned on doing any threading work until the end of GSoC
 anyway, it really doesn't matter whether I would be willing to do the work
 or not. plobsing on the other hand is interested in starting work on threading
 topics sooner than I am, so whatever he chooses to spend his efforts on is
-fine by me.
+fine by me. He certainly has the skills to go about the project either way, so
+whatever he is more comfortable doing should be just fine.
 
 Second, he suggested that the timeline I discussed needed to be rearranged.
-He certainly doesn't want to wait until the end of GSoC like I suggest, at
-least not for all of it. He also wants to push forward OS threads first, and
-do tasks and other refactors later. Specifically, what he wants to do right
-now is to make Parrot thread safe now, so that libparrot can be used in a
-threaded environment such as an Apache webserver. Once the Parrot core is
-thread safe, we can then start implementing OS threads internally, and only
-expose concurrency functionality to users much later when we have our internal
-house in order. I like this approach as well as anything, and am firmly in
-support of it.
+He certainly doesn't want to wait until the end of GSoC to get started, as I
+was planning to do. He also wants to push forward OS threads and related
+issues first. Other refactors, such as the interp/thread refactors, the
+various deprecations, and the green threads can happen later. Specifically,
+what he wants to do right now is to make Parrot thread safe, so that libparrot
+can be used in a threaded environment such as an Apache webserver. Once the
+Parrot core is thread safe, we can then start implementing OS threads
+internally, and only expose concurrency functionality to users much later when
+we have our internal house in order. My idea was to start exposing a new
+interface to the users first, then using that interface to add new
+functionality later. Peter's idea is to start getting the internal
+functionality working first and expose that to the user later when we have
+enough parts available to expose properly. Either idea works fine, and his
+idea has plenty of merit. If we expose an interface to the user too early,
+and there are problems with it, it will take extra time and effort to reverse
+course and change things.
 
 I do have some worries, that if we get threading working internally to Parrot
 before we do the necessary refactors on the interp structure, that we may
@@ -45,9 +53,12 @@ going to avoid changing the plan just because I worry we might all be lazy
 and unmotivated by correctness, I'm just putting this forward as an area of
 concern. Separating out the interp into "global" and "thread-local" portions
 is a necessary step we need to take, even if we can (and maybe should) avoid
-it for now.
+it for now. It's critical for a variety of stability and performance reasons
+in the future, although in the short term it really could be one of those
+details that becomes easy to overlook. I really don't want to overlook it.
 
 The basic timeline for concurrency in Parrot now is this:
+
 1. Make the core of Parrot safe for use in threaded environments.
 2. Implement OS threading, at least for internal and testing use only.
 3. Make Parrot safe to use with it's own threads, including building an
@@ -69,13 +80,10 @@ We don't have many global variables in Parrot, but we need to eliminate them
 completely. This should not be too hard a task, all things considered.
 
 In the final system, the interp will exist on one thread and will not be
-directly modifiable on other threads, so we can consider it to be more or less
-"safe". In the short term, we're probably going to stick with the idea of
-one interp per OS thread. After the interp refactors this will be changed to
-be one thread object per OS thread, and that single global interp. So long as
-we say that interps on different threads don't communicate with each other
-directly, or that they use a temporary system of locking until we have
-read-only proxies and message passing ready, that should be safe enough.
+directly modifiable on other threads. In the current system we have one
+complete interp per thread, and one thread does not (and should not) be
+talking directly to the interp of a different thread. We can consider the
+interpreter to be more or less "safe" for the purposes of this exercise.
 
 The GC is the big pain point in this discussion. There are two good solutions
 that we can pursue in the long-term: Either we can implement a concurrent
