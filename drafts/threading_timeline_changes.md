@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Threading]
+title: Threading Timeline Changes
+---
+
 Yesterday I had a short talk about concurrent with plobsing. I was hoping that
 my blog posts about the topic would start a larger conversation. It seems
 that they have been successful in this regard. I said that I wasn't going to
@@ -154,4 +160,3 @@ concurrency besides the existing mechanisms for dealing with objects (methods,
 attributes, etc) and FFI. If we have those things, and that all-important
 prohibition on direct data sharing, I think we should be good to go as far as
 Lorito is concerned.
-
