@@ -4,16 +4,29 @@ categories: [Parrot, 6model]
 title: Timings for Vtable Overrides
 ---
 
-Following my [6model post yesterday][6model_post], I wanted to show a little
-bit more about some of the problems with the current Parrot object model. I
-wanted to show the performance disparity between built-in vtables and
+Following my [6model post from a few days ago][6model_post], I wanted to show
+a little bit more about some of the problems with the current Parrot object
+model. I wanted to show the performance disparity between built-in vtables and
 user-defined vtable overrides. The built-in versions are cheap to call, and I
 knew that overrides would be more expensive. I wasn't aware how much more
 expensive, so I put together a benchmark to compare some things.
 
 [6model_post]: 2011/05/07/6model_on_parrot.html
 
-Here's an example winxed program I wrote to benchmark some of these dispatch
+On a side note, several Rakudo developers are showing that there have been
+some significant performance regressions since the 3.0 release. We've spent a
+few days looking into causes for that, at least some of which may be related
+to GC tunings. This morning bacek ran valgrind on the Rakudo build, and showed
+surprisingly that GC only accounts for about 12% of total execution time,
+which is actually not a bad result. What is surprising is that PCC, especially
+the `fill_params` function which I will talk about below, eats up just as
+much time. What stinks is that the two synergize: PCC creates PMCs, which
+causes additional churn in GC. If we make PCC more efficient, we cut down on
+GC pressure along the way. Today I'm going to talk about one special case
+where PCC really fails hard. I'm preparing subsequent posts to talk about
+possible solutions, and I will post them later this week.
+
+Here's an example winxed program I wrote to benchmark some common dispatch
 mechanisms:
 
     class MyTestClass {
@@ -81,13 +94,14 @@ machine:
 The baseline test is entirely composed from integer operations. The for loop
 uses all integer compares, and the internal op of the loop is a single add
 instruction between integers. This loop probably does not invoke GC even once,
-and executes entirely in a single context. Run took just under two tenths of
+and executes entirely in a single context. It took just under two tenths of
 a second to run, which is probably dominated by opcode dispatch costs and
 register lookup costs (neither of which are huge). There isn't much in this
 benchmark that we can optimize directly, unless we ran optimizers on it to
 convert the 3-argument add with a constant to a single 2-argument in-place
 add or even a 1-argument increment instruction. I'm not convinced that either
-of those would actually be any faster.
+of those would actually be any faster, since the op dispatch costs and the
+register lookup costs are still big pieces at this scale.
 
 The second test, using vtables on a built-in type takes about 135% more time
 than the baseline. This isn't a huge jump, but now instead of just adding
@@ -110,8 +124,11 @@ right now. Each method call involves a find_method vtable call to fetch the
 method object, then an invocation of that object through PCC. If we had a
 system of polymorphic inline caching at the call site we could cache the
 results of find_method and maybe save some time there. Also a JIT could do
-some similar caching through type specialization. Since we aren't passing
-any arguments to this method the brunt of the PCC costs in argument processing
+some similar caching through type specialization. As we saw above, the
+built-in vtable dispatch costs to call find_method aren't too severe anyway,
+so things like JIT and PIC probably aren't the silver bullet we need to cut
+out the bulk of the timing problems here. Since we aren't passing any
+arguments to this method the brunt of the PCC costs in argument processing
 can be avoided entirely.
 
 Now here's where the results get surprising. What happens when we call a
@@ -142,12 +159,14 @@ vtable overrides are not nearly as amenable to things like PIC or JIT type
 specialization optimizations in the future, because the vtable override is
 found and executed internally. There is no vtable object to find and cache
 anywhere prior to the lookup. These things might become possible after Lorito
-and after 6model and a huge round of vtable refactors.
+and after 6model and a huge round of vtable refactors, but again that's not
+even a portion of the problem. The biggest problems are the PCC dispatch
+mechanism itself, and the argument processing mechanism.
 
 Notice also that vtable overrides are not really special. Other types of
 dispatch have the same performance characteristics as they do. For instance,
 any time we call a PIR-defined method from C code (as happens in embedding
-situations, for example, we also must recurse into a new runloop and will
+situations, for example), we also must recurse into a new runloop and will
 have some of the same performance problems. Some add-on and other ecosystem
 projects make heavy use of PCC invokes from C code, which would all be just
 as bad as what I show here.
