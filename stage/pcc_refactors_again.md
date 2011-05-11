@@ -5,24 +5,32 @@ title: Ideas for PCC Refactors and Improvements
 ---
 
 I've been kicking around an idea for how to improve the Parrot Calling
-Conventions (PCC). Two years ago we went through the system and did a major
-refactor on that system, unifying all the various code paths to use a single
-central dispatch and argument processing mechanism. The new system uses the
+Conventions (PCC). Two years ago we went through and did a major refactor on
+that system, unifying all the various code paths to use a single central
+dispatch and argument processing mechanism. The new system uses the
 CallContext PMC type to aggregate all parameters for a call. The caller always
 puts arguments into the CallContext, and the callee always retrieves
 parameters from it. Since Parrot uses CPS, the same mechanism is used for
 returns as well. This unification was a great step for Parrot, it was an
 important way for us to start getting some of our implementation realities in
 line with some of the theoretical underpinnings on which Parrot has been
-designed, such as unified CPS.
+designed, such as unified CPS. The most important part of these refactors was
+the conversion to use CallContext objects throughout the code base as the way
+to package up and perform invocations. Other changes we made to the system
+were all tangential or ancillary, and nothing else is quite so important or
+so sacrosanct that we should not be willing to go back and have some second
+thoughts.
 
-This is a great system, and I don't want to fundamentally change the way it
-works. Back when we did the refactors the hope was that we would be able to
-find new opportunities for optimization and improvement, and we really haven't
-delivered on this the way we should have. Part of the reason is that the
-first refactor was such a huge undertaking and brough some real pain to our
-hackers and users alike. So long as it works, we haven't been too keen to jump
-in and fiddle with it.
+PCC is a pretty good system, and the use of CallContexts is a huge step
+forward from where we were before the refactors started. I don't want to
+fundamentally change that aspect of PCC. Back when we did the refactors the
+hope was that by unifying call code paths around the CallContext PMC, that we
+would be able to identify more hotpaths and perform new types of optimizations
+throughout. Unfortunately, we really haven't delivered on this the way we
+should have. Part of the reason is that the first refactor was such a huge
+undertaking and brought some real pain to our hackers and users alike. So long
+as PCC continues to work, we haven't been too keen to jump in and fiddle with
+it again.
 
 I think there are plenty of things we can do to improve performance in the PCC
 system by simplifying some of the hot codepaths, and making better use of
@@ -110,18 +118,33 @@ because that opens up whole new ranges of optimization possibilities to the
 user. Making these changes won't necessarily improve performance by
 themselves, however.
 
-The next thing to see is that the argument-related ops, `set_args`,
-`get_params`, `set_returns` and `get_results` are all variadic. In fact, they
-are the only variadic ops in the entire system and there is more than a little
-bit of logic throughout Parrot core that could be simplified if we got rid of
-them complete. What we do is this: The signature tells the number and
-the types of the various arguments. Each argument is a pointer stored directly
-in the bytecode stream. When we loop over the signature, we dereference
-subsequent locations in the bytecode stream to fetch the values, and push
-them into the CallContext from there. Life will get a little bit easier for
-people working on compilers and related tools (disassemblers, code analyzers,
-etc) if we don't have these kinds of ops. It isn't a concern for most users,
-but then again having better tools can help those people too.
+As an aside, A call basically consists of three things as far as Parrot is
+concerned: An invocable object (like a Sub PMC), the arguments (in the form of
+a CallContext PMC), and an optional return continution to jump back to when
+the invocation is complete. We should be exposing all these objects directly
+to the user, and making calls using two invoke ops:
+
+    invoke sub, callcontext, retcontinuation
+    invoke sub, callcontext
+
+Since the invocant to a method call is passed as the first argument in the
+CallContext, we don't need other forms of these opcodes to pass in a separate
+invocant, like Parrot provides now. However, I wont get too far off track with
+this discussion, I can talk about some of the ops we have (and how they need
+to change) in later posts if necessary.
+
+The next thing to see in the example above is that the argument-related ops
+`set_args`, `get_params`, `set_returns` and `get_results` are all variadic.
+In fact, they are the only variadic ops in the entire system and there is more
+than a little bit of logic throughout Parrot core that could be simplified if
+we got rid of them complete. What we do is this: The signature tells the
+number and the types of the various arguments. Each argument is a pointer
+stored directly in the bytecode stream. When we loop over the signature, we
+dereference subsequent locations in the bytecode stream to fetch the values,
+and push them into the CallContext from there. Life will get a little bit
+easier for people working on compilers and related tools (disassemblers, code
+analyzers, etc) if we don't have these kinds of ops. It isn't a concern for
+most users, but then again having better tools can help those people too.
 
 The set opcodes, `set_args` and `set_returns` loop over the signature and
 push values from the caller context into the CallContext PMC for the call.
@@ -190,51 +213,73 @@ and requires no loops. We know exactly what arguments we want to pass, and we
 just pass them. We know exactly what results we want to fetch, so we just
 fetch them.
 
-Notice also that we create the CallContext and pass it around in user code.
-We don't manage it and store it internally, which means the compiler can have
-opportunities to recycle and reuse them between similar calls in a loop, for
-instance. In the current system, there really is no opportunity to share
-CallContext PMCs between subsequent calls, so we need to create them fresh
-for each one. That's a lot of churn and a lot of GC pressure for no benefit.
+Notice also in the example above that we create the CallContext and pass it
+around in user code. We don't manage it and store it internally, which means
+the compiler can have opportunities to recycle and reuse them between similar
+calls in a loop, for instance. In the current system, there really is no
+opportunity to share CallContext PMCs between subsequent calls, so we need to
+create them fresh for each one. That's a lot of churn and a lot of GC pressure
+for no benefit.
 
-Here's another quick example, from the callee side:
+Here's an example where a CallContext could easily be reused between calls as
+an optimization:
+
+    for (var data in data_set)
+        obj.my_method(data);
+
+In that loop we could have a single CallContext object, with the first value
+always set to the invocant `obj`, and simply replace the value of `data` on
+each iteration. That could amount to huge savings, including far less GC
+pressure than what we currently do. Of course, it would be up to the HLL
+compiler to detect these situations and fold the code appropriately if wanted,
+but it's not even possible to do now.
+
+Here's another quick example of some of my proposed changes, from the callee
+side:
 
     .sub foo
-        .param pmc bar :optionalwe can get rid of variadic ops,
+        .param pmc bar :optional
         .param int has_bar :opt_flag
         ...
 
 We can convert this into something like:
 
-    $P0 = get_current_context
-    bar = $P0[0]
-    has_bar = exists $P0[0]
-    ...
+    .sub foo
+        $P0 = get_current_context
+        bar = $P0[0]
+        has_bar = exists $P0[0]
+        ...
 
 Again, for this short example we don't need any special new ops or new
 functionality, we just use the existing ops and vtables on the CallContext
 in ways we already support. As we saw in the example above, we no longer need
 any kind of a signature PMC, we don't need any loops. We know exactly what we
-want to get and we go get it.
+want to get and we go get it. This version should not be any slower than what
+we currently have with `fill_params`, and might be a good deal faster if we
+can cut out extra GC churn.
 
 As a consequence of this, a lot of the remaining ugly code in the PCC
 subsystem involved in creating, examining, and looping over signatures can
-disappear. `fill_params` and supporting functions can disappear. Combine this
-with a few other changes to returns and removing some special cases there
-should bring even more benefits.
+disappear. Those are ugly holdovers from the "before time", and there's no
+reason we need to continue cargo culting them around in Parrot. `fill_params`
+and supporting functions can disappear because they are no longer necessary.
+Combine this with a few other changes to returns and removing some special
+cases there should bring even more benefits.
 
 Consider also the case of multiple dispatch. If parameter and argument lists
 are not fixed in constant signature arrays, the user has much more control
 over what arguments to fetch, and in what order. The user could choose not to
 fetch certain arguments at all! Consider a function which takes a string
-command, and depending on the value of the command takes a sequence of
-parameters. Currently, the way to do that might be to use multiple dispatch
-to choose between candidates with different argument lists. MMD comes with
-its own overhead, so this is only going to make performance worse. Instead,
-the user can read the first parameter, then decide what additional parameters
-to read, if any. We don't have to fetch parameters we don't need, and if we
-are really lazy about it we can avoid fetching certain parameters at all, in
-some situations.
+command, and depending on the value of the command takes a variable-length
+sequence of additional parameters. Currently, the way to do that might be to
+use multiple dispatch to choose between candidates with different argument
+lists, and in each one we would check that the value of the command is
+consistant with the received argument list arity. MMD comes with its own
+overhead, so this is only going to make performance worse. Instead, the user
+can read the first parameter, then decide what additional parameters to read,
+if any. We don't have to fetch parameters we don't need, and if we are really
+lazy about it we can avoid fetching certain parameters at all, in some
+situations.
 
 In short, a few points:
 1. Expose the CallContext vtable interface directly to the user, for more
@@ -245,26 +290,37 @@ In short, a few points:
 4. Kill the variadic opcodes for setting and fetching params. They're ugly and
    inefficient.
 
+Basically, I want to give the user more control and improve performance by
+deleting code and creating far fewer PMCs for signature arrays and far fewer
+temporaries during PCC dispatch. It's a win-win as far as I can see.
+
 How do we get there?
 
-The hard part is getting there. Right now we would need to modify IMCC, which
-is no small task. I tried making these changes in a branch as proof-of-concept
-and the results were not pretty. This is partially because I still have a lot
-to learn about the way IMCC works, and also because when I first tried, I
-didn't go all out. To embrace this idea fully, we need to make changes
-throughout IMCC, including some changes which (I hope) will simplify IMCC
-logic quite a bit.
+The hard part is getting there. Right now we would need to modify IMCC to
+output a new sequence of argument passing and parameter fetching ops, in place
+of the old variadic opcodes. This is no small task. I tried making these
+changes in a branch as proof-of-concept and the results were not pretty. This
+is partially because I still have a lot to learn about the way IMCC works, and
+also because when I first tried, I didn't go all out. I tried to preserve too
+much of the existing behavior for backwards compatibility and I ended up
+having to code circles around where I really needed to be. To embrace this
+idea fully, we need to make changes throughout IMCC, including some changes
+which (I hope) will simplify IMCC logic quite a bit.
 
 So long as everybody uses the PIR sugar and does not attempt to use the PASM
 opcodes directly, the switchover should be mostly transparent from the
-perspective of the user. Once the switchover happens, we can start exposing
-the opcode functionality directly to the user, and then start removing the
-superfluous syntactic sugar for `.param` declarations.
+perspective of the user. People and tests still using PASM to make calls are
+going to be in for a rude awakening (can we kill those old PASM tests
+already?) Once the switchover happens, we can start exposing the opcode
+functionality directly to the user, and then start removing the superfluous
+syntactic sugar for `.param` declarations.
 
 This is an idea for refactors that I sincerely believe has merit and could
 bring real performance benefits. I don't think the performance benefits are
-going to be gigantic, there are other bottlenecks in PCC dispatch that we will
-need to tackle as well. However, this is sure to bring at least some
-performance benefits and also a number of other benefits as well.
+going to be gigantic, but then again when you combine decreased PCC overhead
+with decreased GC churn, there very well might be real savings to be had.
+There are other bottlenecks in PCC dispatch that we will need to tackle as
+well which I don't even mention here. However, this is sure to bring at least
+some performance benefits and also a number of other benefits as well.
 
 
