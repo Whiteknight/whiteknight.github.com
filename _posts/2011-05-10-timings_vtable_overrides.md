@@ -11,7 +11,7 @@ user-defined vtable overrides. The built-in versions are cheap to call, and I
 knew that overrides would be more expensive. I wasn't aware how much more
 expensive, so I put together a benchmark to compare some things.
 
-[6model_post]: 2011/05/07/6model_on_parrot.html
+[6model_post]: /2011/05/07/6model_on_parrot.html
 
 On a side note, several Rakudo developers are showing that there have been
 some significant performance regressions since the 3.0 release. We've spent a
