@@ -77,9 +77,11 @@ For the first test on this machine, I'm using a direct `invokecc` call for
 PASM vs a normal sugared call for PIR:
 
 PASM:
+
     invoke P1
 
 PIR:
+
     $P1()
 
 And the timing numbers for just this call:
@@ -97,12 +99,14 @@ arguments: the Sub PMC to invoke and a CallContext which contains the
 function arguments. Now let's compare:
 
 PASM:
+
     new P2, "CallContext"
     set P2[0], 1
     set P2[1], 2
     invokecc P1, P2
 
 PIR:
+
     $P1(1, 2)
 
 Now the timings swing back the other way, with the PASM version being more
@@ -119,12 +123,14 @@ same way that PCC would build it internally. Again, the numbers swing back the
 other way.
 
 PASM:
+
     new_call_context P2
     set P2[0], 1
     set P2[1], 2
     invokecc P1, P2
 
 And the results:
+
     Starting ... Total time: 1.90112495422363s.
     Starting ... Total time: 2.06399393081665s.
 
@@ -143,15 +149,18 @@ grows for non-trivial programs.
 Let's try named parameters now:
 
 PASM:
+
     new_call_context P2
     set P2["Foo"], 1
     set P2["Bar"], 2
     invokecc P1, P2
 
 PIR:
+
     $P1(1 :named("Foo"), 2 :named("Bar"))
 
 Results:
+
     Starting ... Total time: 2.52663016319275s.
     Starting ... Total time: 2.98304104804993s.
 
@@ -164,6 +173,7 @@ CallContext in the callee, I need to add a new `get_call_context` op to read
 it directly without going through `get_params`:
 
 PASM:
+
     .pcc_sub foo:
         get_call_context P0
         set I0, P0[0]
@@ -172,6 +182,7 @@ PASM:
         returncc
 
 PIR:
+
     .sub foo
         .param int a
         .param int b
@@ -179,6 +190,7 @@ PIR:
     .end
 
 Results:
+
     Starting ... Total time: 2.54172682762146s.
     Starting ... Total time: 2.62854504585266s.
 
@@ -186,6 +198,7 @@ No huge change here. The PASM version is still faster, still by a slim margin.
 Let's repeat this with named arguments instead.
 
 PASM:
+
     .pcc_sub foo:
         get_call_context P0
         set I0, P0["Foo"]
@@ -193,6 +206,7 @@ PASM:
         add I2, I0, I1
         returncc
 PIR:
+
     .sub foo
         .param int a :named("Foo")
         .param int b :named("Bar")
@@ -200,6 +214,7 @@ PIR:
     .end
 
 Results:
+
     Starting ... Total time: 3.31844401359558s.
     Starting ... Total time: 4.35232996940613s.
 
@@ -213,6 +228,7 @@ features, and you start to see the problem.
 Let's try with optional/positional args:
 
 PASM:
+
     .sub foo
         .param int a
         .param int b
@@ -222,6 +238,7 @@ PASM:
     .end
 
 PIR:
+
     .sub foo
         .param int a
         .param int b
@@ -231,6 +248,7 @@ PIR:
     .end
 
 Results:
+
     Starting ... Total time: 2.70708703994751s.
     Starting ... Total time: 2.70915794372559s.
 
@@ -239,6 +257,7 @@ than whatever check `fill_params` uses in this case. Now, let's try making
 those optional args named:
 
 PASM:
+
     .pcc_sub foo:
         get_call_context P0
         set I0, P0["Foo"]
@@ -249,6 +268,7 @@ PASM:
         returncc
 
 PIR:
+
     .sub foo
         .param int a :named("Foo")
         .param int b :named("Bar")
@@ -258,6 +278,7 @@ PIR:
     .end
 
 Results:
+
     Starting ... Total time: 3.70791792869568s.
     Starting ... Total time: 4.56210494041443s.
 
