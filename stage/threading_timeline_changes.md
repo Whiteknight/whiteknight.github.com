@@ -4,12 +4,12 @@ categories: [Parrot, Threading]
 title: Threading Timeline Changes
 ---
 
-Yesterday I had a short talk about concurrent with plobsing. I was hoping that
-my blog posts about the topic would start a larger conversation. It seems
-that they have been successful in this regard. I said that I wasn't going to
-publish any more blog posts until I had something to write, and now, only a
-few days later, I have plenty to write about. plobsing seemed to like the
-ideas I described in general, although he had a few points to make. I'll
+A few days ago I had a short talk about concurrency with plobsing. I was
+hoping that my blog posts about the topic would start a larger conversation.
+It seems that they have been successful in this regard. I said that I wasn't
+going to publish any more blog posts until I had something to write, and now,
+only a few days later, I have plenty to write about. plobsing seemed to like
+the ideas I described in general, although he had a few points to make. I'll
 describe some of his points below, and then post some of the revisions to
 my timeline especially which I am making in response.
 
