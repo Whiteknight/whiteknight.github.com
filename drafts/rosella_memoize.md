@@ -1,20 +1,26 @@
-Two days ago I upgraded the Rosella Memoize library to "stable" status. This
-followed a brief but concerted period of work on that library. What does it
-mean to be "stable" in the context of Rosella? What it means in my head, at
-the most basic level, is that the library provides an API which is usable, and
-which I am mostly happy with. The word "usable" implies that it be usable by
-users, which means the code must be documented and it must be well-tested. I
-don't claim that a stable Rosella library is perfect, or that it is free from
-bugs, or that I won't be making random changes to it. What I do claim is that
-it is ready for other people to start looking at and playing with. The future
-course of the library will be based, at least in part, on feedback I receive
-back from users.
+Two days ago I upgraded the [Rosella Memoize library][memoize_page] to
+"stable" status. This followed a brief but concerted period of work on that
+library. What does it mean to be "stable" in the context of Rosella? What it
+means in my head, at the most basic level, is that the library provides an API
+which is usable and which I am mostly happy with. The word "usable" implies
+that it be usable by people besides myself, which means the code must be
+documented and it must be well-tested. I don't claim that a stable Rosella
+library is perfect, or that it is free from bugs, or that I won't be making
+random changes to it over time as new ideas come to me. What I do claim is
+that it is ready for other people to start looking at and playing with. The
+future course of the library will be based, at least in part, on feedback I
+receive from users.
+
+[memoize_page]: http://whiteknight.github.com/Rosella/libraries/memoize.html
 
 The Memoize library provides memoization. [Memoization][memoization], for
 people not familiar with the term, is a form of caching for subroutines. When
 a function is [pure][function_purity], and the cost of repeatedly calculating
 a result is more expensive than a lookup in a cache, memoization could bring
 a nice performance win.
+
+[memoization]: http://en.wikipedia.org/wiki/Memoization
+[function_purity]: http://en.wikipedia.org/wiki/Pure_function
 
 We take a function that we want to memoize and pass it to the Memoize library.
 We get back a new function called a "memoizer" which, when invoked, attempts
@@ -23,8 +29,8 @@ it directly and save on extra computation time. If not, the memoizer calls the
 original function and adds the result to the cache.
 
 The Rosella Memoize library provides a few mechanisms for memoization. There
-are simple memoizers, which are basically closures with cache logic
-surrounding a call to the original function, and there are proxy-based
+are **simple memoizers**, which are basically closures with cache logic
+surrounding a call to the original function, and there are **proxy-based**
 memoizers which use the Rosella Proxy library to intercept VTABLE_invoke and
 perform cache logic there. The difference between these two approaches is that
 simple memoizers have lower overhead and better performance, but offer lower
@@ -58,9 +64,10 @@ This, of course, prints the following output:
 We only call the `my_func` function once. Every subsequent access looks up the
 return value in the cache and avoids the function call. Of course, we also
 lose out on the side-effect of printing a message to the console. The Memoize
-library cannot currently account for output, although it's something I might
-think about adding if users are keen on the idea. I suspect it wouldn't be
-worth the costs and limitations, however.
+library cannot currently account for console output, although it's something I
+might think about adding if users are keen on the idea. I suspect it wouldn't
+be worth the costs and limitations, however, since there is no way I could
+automatically intercept communications to all open filehandles.
 
 Now here's a similar example, but using proxy-based memoizers instead:
 
@@ -94,9 +101,12 @@ known at runtime (and only ever calculate values which are sufficiently
 or whatever. Also, we can get access to the original function if we absolutely
 need access to it and want to bypass the cache. For instance, we can get the
 original function and memoize it again, to have a separate cache with
-different properties. I don't want to say the possibilities are "endless",
-because this is still a pretty focused and limited tool. However, there is
-power here, and it can be extremely useful for cases where it's needed.
+different properties. By accessing the cache directly, we end up with
+something like a lazy lookup table, where we can insert values we know and
+automatically compute and cache values we don't know. I don't want to say the
+possibilities are "endless", because this is still a pretty focused and
+limited tool. However, there is power here, and it can be extremely useful for
+cases where it's needed.
 
 One place where proxies are absolutely required is for in-place method
 memoization. The Memoize library allows you to inject a memoize proxy directly
@@ -125,8 +135,11 @@ a modern computer for several seconds and even minutes. When I went to test
 this myself just now, the version with memoization returns the correct value
 in 0.0002 seconds. I had to kill the unmemoized version after about 2 minutes.
 
+[fibonacci_50]: http://planetmath.org/encyclopedia/ListOfFibonacciNumbers.html
+
 I have not hit the end of the road with this library. The default caching
 mechanism leaves a lot to be desired, and the library does not currently
 support fancy returns like named return values or multiple return values.
-These are things that will likely make it into later revisions of the library
-but just aren't there yet. There are a handful of other nits as well, that
+These are things that will likely make it into later revisions but which just
+aren't there yet. There are a handful of other nits as well, that I am
+planning to work on, later when my schedule clears up.
