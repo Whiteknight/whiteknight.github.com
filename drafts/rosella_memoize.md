@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella, Memoize]
+title: Rosella Memoize Library
+---
+
 Two days ago I upgraded the [Rosella Memoize library][memoize_page] to
 "stable" status. This followed a brief but concerted period of work on that
 library. What does it mean to be "stable" in the context of Rosella? What it
