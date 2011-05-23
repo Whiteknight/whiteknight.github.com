@@ -85,7 +85,7 @@ Now here's a similar example, but using proxy-based memoizers instead:
     pir::say("Result: " ~ &memoize(5));
     pir::say("Result: " ~ &memoize(5));
     my $cache := Rosella::Memoize::proxy_cache(&memoize);
-    $cache.get_item(5).update_value(20);
+    $cache.get_item([5], {}).update_value(20);
     pir::say("Result: " ~ &memoize(5));
     my &orig_func := Rosella::Memoize::proxy_function(&memoize);
     pir::say("Result: " ~ &orig_func(5));
@@ -98,8 +98,8 @@ This gives us more interesting output:
     Result: 10
     Result: 20
     Arg: 5
-    Result: 5
     Result: 10
+    Result: 20
 
 By getting access to the Cache object, we can pre-fill the cache with values
 known at runtime (and only ever calculate values which are sufficiently
