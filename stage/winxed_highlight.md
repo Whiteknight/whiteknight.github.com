@@ -4,6 +4,11 @@ categories: [Parrot, Winxed]
 title: Winxed Syntax Highlighters
 ---
 
+I've been without internet at home for a few days, so I haven't been writing
+up any new posts in a while. This is a short draft from a few weeks ago that
+never got published so I'm putting it up now to pass some time. I *might* be
+able to get back to regular posting and hacking tonight or tomorrow.
+
 For a long time I've been using JavaScript settings and syntax highlighters
 in my editor to work with Winxed code. The overlap between languages is not
 very large and is getting smaller with each new commit, so this solution was
@@ -20,6 +25,7 @@ try.
 [winxed-highlight]: https://github.com/Whiteknight/winxed-highlight
 
 I may start putting together highlighters for PIR and maybe even NQP if I have
-time (which I don't). If anybody else has written up Winxed highlighters for
-other engines, or highlighters for other Parrot-only languages, I would really
-love to start aggregating them.
+time (which I don't). If anybody else has written up source code highlighters
+for other Parrot-specific languages, please let me know about it. These would
+be awesome things to start aggregating together. I know there are a few things
+in the Parrot repo, but it's a very thin selection.
