@@ -87,5 +87,16 @@ revisions, but this is a good start for now.
 If you're used to System.Linq, this should be very familiar and maybe even
 useful to you. I'd be lying if I said that this infrastructure didn't come
 with some additional overhead compared to writing out the loops yourself, but
-the tradeoff in terms of simplicity and readability will be worth it for many
-people.
+the tradeoff in terms of simplicity and readability might be worth the extra
+runtime cost for some people. I don't think it's a huge amount of extra cost,
+but every little bit is something worth considering.
+
+For more information about this library, see the [online documentation for it]
+(http://whiteknight.github.com/Rosella/libraries/query.html).
+
+There are three things that I can see wanting to do for this library in the
+future: Add more providers for complex and custom data types, add new query
+methods to the providers, and add a set of canned predicates for performing
+common operations, probably through a nice interface somewhere. These things
+will all be done eventually, and should be able to be implemented in a way
+which does not break backwards compatibility.
