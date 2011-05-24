@@ -8,7 +8,7 @@ People who have .NET experience should be familar with all the concepts and
 techniques in the Query library.
 
 To start working with the Query libray, we need to take an object we want to
-play with and wrap it up in a Queryable. For .NET fans out there, Queryable
+play with and wrap it up in a `Queryable`. For .NET fans out there, Queryable
 is like a combination of `IEnumerable` with the various Linq extension methods
 on it already.
 
@@ -70,6 +70,13 @@ out with an array `[1, 2, 3, 4]`, and end up with a hash:
 Which is not too bad to do in one statement, albeit a complicated one. With
 this library, it's pretty easy to break up complicated loops and nested loops
 and other operations into a logical sequence of small individual operations.
+
+Map, Filter, and Fold are common operations that most programmers should be
+familiar with under one name or another. The to_array and to_hash convert
+between the two aggregate types. There are a number of other operations in the
+Query library as well: Count, Any, Single, First, First_or_Default, Take and
+Skip. There are a few other operations I might like to add as well, in future
+revisions, but this is a good start for now.
 
 If you're used to System.Linq, this should be very familiar and maybe even
 useful to you. I'd be lying if I said that this infrastructure didn't come
