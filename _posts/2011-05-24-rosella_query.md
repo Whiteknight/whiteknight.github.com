@@ -91,8 +91,10 @@ the tradeoff in terms of simplicity and readability might be worth the extra
 runtime cost for some people. I don't think it's a huge amount of extra cost,
 but every little bit is something worth considering.
 
-For more information about this library, see the [online documentation for it]
-(http://whiteknight.github.com/Rosella/libraries/query.html).
+For more information about this library, see the
+[online documentation for it][query_docs].
+
+[query_docs]: http://whiteknight.github.com/Rosella/libraries/query.html
 
 There are three things that I can see wanting to do for this library in the
 future: Add more providers for complex and custom data types, add new query
