@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella, Query]
+title: Rosella Query Library
+---
+
 I spent a few days without internet access, and so I took all the energy I
 normally spent surfing the internet and instead channeled it into Rosella.
 Because of the effort, I've been able to refactor an older library that I've
