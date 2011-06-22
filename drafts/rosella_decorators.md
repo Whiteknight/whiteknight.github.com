@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella, Decorator, Proxy]
+title: Rosella Decorators
+---
+
 In the world of staticly typed languages, like C#, the Decorator pattern is
 pretty common. Decorators are used to add features to objects of a type
 without needing to subclass. The canonical example is in a GUI widget toolset,
