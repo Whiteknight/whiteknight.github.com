@@ -19,7 +19,8 @@ Vectorized tests are tests where there is a single test function which can be
 executed on each item in an input vector. I wrote up some prototypes, played
 around with some ideas, and finally pushed some new code to do the job.
 
-So, we now have vectorized tests in Rosella. Here's an example of their use:
+So, we now have vectorized tests in Rosella. Here's an example of their use in
+Winxed code:
 
     function main[main]()
     {
@@ -33,7 +34,7 @@ So, we now have vectorized tests in Rosella. Here's an example of their use:
         ]);
     }
 
-In this example, I have one test method which I invoke as three separate
+In this example, I have one test method which is invoked as three separate
 tests, one for each item in the data array. Running that program gives the
 following TAP output:
 
@@ -43,8 +44,8 @@ following TAP output:
     ok 3 - test 3
     # You passed all 3 tests
 
-So that's what we expect, and all is right with the universe. We can use a
-hash instead to give names to all the tests:
+So that's what we expect, and all is right with the universe. Instead of an
+array of data, we can use a hash to give names to all the tests:
 
     function main[main]()
     {
@@ -66,7 +67,7 @@ hash instead to give names to all the tests:
     ok 3 - 7 + 8 = 15
     # You passed all 3 tests
 
-In the older-style tests, with `Rosella.Test.test`, you had many functions and
+In the older-style tests with `Rosella.Test.test`, you had many functions and
 a single shared data item, the `TestContext` object. `test_vector` is exactly
 the opposite: a single shared code item and a series of data points. Both have
 their uses in different types of situations, and now you have the option
@@ -76,4 +77,7 @@ At the moment you cannot combine the two forms. However, I am planning to
 upgrade Rosella in the near-to-medium future to support nested TAP output, so
 we can run multiple test suites in a single file. I'm not sure what the
 interface for such a thing will look like (suggestions welcome!), so I'm not
-planning to start on that work quite yet.
+planning to start on that work quite yet. I'm also looking at functionality
+to create multiple Suite objects, then merge them together into the final test
+run. That may be what the nested TAP interface looks like or it may be
+completely flat. I don't know yet.
