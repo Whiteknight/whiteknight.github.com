@@ -98,7 +98,7 @@ do either).
 
 Where do we go from here? Yesterday I started creating a new PMC type called
 `PackfileView` in the `whiteknight/packfilewrapper` branch. The PackfileView
-PMC acts like a thin wrapper around an existing `PackFile* structure, with
+PMC acts like a thin wrapper around an existing `PackFile*` structure, with
 methods which are thin wrappers around packfile subsystem API functions. It
 doesn't inherit from Sub or anything else (so we avoid encapsulation-breaking
 problems that Eval gets into), and uses the packfile subsystem API instead of
