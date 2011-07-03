@@ -119,13 +119,12 @@ object for resolution. Text templates can be written without regard for the
 actual structure of the data objects that are used to render the template.
 
 For anybody with ASP.NET experience, this should probably also remind you of
-the `<%= %>` syntax, or even `<$# Eval(...) $>` syntax. For anybody who has
-used Liquid and Jekyll for writing up blogs on Github, this is the same as the
-`{{ '{ foo.bar }' | append:'}' | prepend:'{' }}` syntax too. For the few (and dwindling) WPF programmers out
-there, this kind of functionality could work very similarly to XAML bindings
-with the `Path=` attribute. In fact, that's part of the motivation for me
-naming this library "Path". I'm sure there are plenty of other examples of
-functionality like this too, I just can't name them.
+the `<%= %>` syntax, or even `<$# Eval(...) $>` syntax. For the few (and
+dwindling) WPF programmers out there, this kind of functionality could work
+very similarly to XAML bindings with the `Path=` attribute. In fact, that's
+part of the motivation for me naming this library "Path". I'm sure there are
+plenty of other examples of functionality like this too, I just can't name
+them.
 
 [Liquid]: http://www.liquidmarkup.org/
 
