@@ -11,7 +11,7 @@ pulled out the Path code and eventually made the Query library stable.
 Recently I've gotten back to Path because it's an essential building block of
 a bigger project I've been working on.
 
-The Query library performs higher-order operatons on aggregates like arrays
+The Query library performs higher-order operations on aggregates like arrays
 and hashes. The Path library, instead, provides functionality to search
 through nested aggregates using search strings. It's similar in concept to
 the way XPath can be used to search through XML documents, although not nearly
@@ -20,8 +20,9 @@ as powerful as XPath is. At least, not yet.
 As of today, the Path library is a stable part of Rosella. As always, "stable"
 does not mean it is magically perfect and guaranteed to be bug-free. That
 label only means that the interface has been reviewed and I'm probably not
-itching to change it. It also means that I consider the library to be usable
-by many people in their projects.
+itching to change it without good reason. It also means that I consider the
+library to be usable by many people in their projects. Bug reports, feedback,
+feature requests and other stuff like that are always appreciated.
 
 The Path library is able to traverse hash keys and object attributes by name
 using search strings. Here's a lengthy example of hash key traversal in NQP:
@@ -43,6 +44,7 @@ using search strings. Here's a lengthy example of hash key traversal in NQP:
 
 And here's a similar example in Winxed:
 
+    load_bytecode("rosella/path.pbc");
     var q = new Rosella.Path();
     var a = {
         "d" : {
@@ -134,6 +136,11 @@ well. I have a few upgrades in mind for the future, but this functionality
 doesn't seem to lend itself well to too many feature additions. I don't
 currently support anything like regular expressions or wildcard matches or
 anything, and may not try to add anything like that for a long time.
+
+The library can be extended by subclassing the Path object or by adding new
+Searcher objects to perform searches differently. At the moment the library
+only has two searchers: Hash and Attribute. Others can be added pretty easily,
+and I have plans to extend the default set in the future.
 
 The Path library is both something I've been playing with for a long time but
 also an essential building block for some things I want to do in the future.
