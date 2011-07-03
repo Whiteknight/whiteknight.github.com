@@ -33,3 +33,7 @@ crap with it for the past few weeks. And, I can set aside some real time to
 stare at Parrot Foundation legal issues, which have been neglected. Since I
 have all this free time, I am fresh out of excuses not to.
 
+I am looking forward to spending some quality time with my family, spending
+some time by the side of the pool, and spending some time away from work.
+Hopefully, the week can be a little productive too.
+
