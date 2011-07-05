@@ -40,11 +40,22 @@ these kinds of things will be added.
 So, what are we able to do with the string library? First, there are the
 standard-looking utility functions:
 
-These are pretty standard and, like I said, some of them are very thing
-wrappers around opcodes in Parrot. Next, we have tokenizers. Tokenizers break
-an input string up into individual tokens according to various rules.
-Tokenizers, unlike something like the `split` opcode, are lazy and return
-Token objects with type names and metadata.
+    s = trim_start("  test");   # "test"
+    s = trim_end("test  ");     # "test"
+    s = trim("  test  ");       # "test"
+    s = pad_start("test", 7);   # "   test"
+    s = pad_end("test", 7);     # "test   "
+    s = remove_start("test", 2);# "st"
+    s = remove_end("test", 2);  # "te"
+    i = indexof("test", "es");
+
+...etc. There are several functions and the list grows everytime I have a
+whim, a dream, or a really bad idea. These are pretty standard and, like I
+said, some of them are very thin wrappers around opcodes in Parrot.
+
+Next, we have tokenizers. Tokenizers break an input string up into individual
+tokens according to various rules. Tokenizers, unlike something like the
+`split` opcode, are lazy and return Token objects with type names and metadata.
 
 Here's an example of the CClass Tokenizer, which breaks a string into chunks
 with common character classes:
