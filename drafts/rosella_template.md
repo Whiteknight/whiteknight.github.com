@@ -9,15 +9,18 @@ once in a post about [Rosella String][string]. Today I'm going to give the
 first look at a new library I've been developing as part of the Rosella
 project: Template.
 
+[string]: http://whiteknight.github.com/2011/07/04/rosella_string.html
+[path]: http://whiteknight.github.com/2011/07/02/rosella_path.html
+
 Template is a text templating library drawing significant inspiration from
 software like Liquid, ASP.NET, and other sources. It is one of a new class of
-"high level" libraries, which build on several of the lower-level foundational
-Rosella libraries. Originally the stated goal of the Rosella project was to
-have a lot of small independent libraries, but with Template that goal is
-starting to change. Now I plan to have libraries of multiple levels, including
-low-level libraries which tend to be fundamental and independent, and higher
-level languages which build on the base functionality to do bigger and better
-things.
+Rosella "high level" libraries, which build on several of the lower-level
+foundational Rosella libraries. Originally the stated goal of the Rosella
+project was to have a lot of small independent libraries, but with Template
+that goal is starting to change. Now I plan to have libraries of multiple
+levels, including low-level libraries which tend to be fundamental and
+independent, and higher level libraries which build on the base functionality
+to do bigger and better things.
 
 Enough of the philosophy, let's look at some code. Using the templating
 library is very simple. Currently, the code looks like this:
@@ -68,7 +71,7 @@ And the output will look like this:
     Item #4
 
 Eval templates can be dangerous if you're using them in an untrusted
-environement, like the web. They can be disabled if you don't want them to be
+environment, like the web. They can be disabled if you don't want them to be
 available.
 
 The last type of tag are logic tags. Logic tags come in a variety of different
@@ -86,14 +89,14 @@ types, and do all sorts of things. Here is a complex example:
 
 This example is just a silly example, and the output depends on a lot of
 factors. I'll give a few notes, however. First, the `for` loop looks up the
-path `bar.baz` in the context object, and stores subsequent values in a
-temporary variable named `foo`. The contents of the loop are repeated, each
-time with a new value. The `if`/`else` block can compare variables with other
-variables, variables with constants, constants with constants, etc. It has
-a then and optional `else` block. There is also an `unless` block too, which
-I didn't show, but operates opposite to `if` as you would expect. The
-`include` block includes the text of a separate file, recursively parsing it
-as a template using the same context object.
+path `bar.baz` in the context object, iterates it, and stores subsequent
+values in a temporary variable named `foo`. The contents of the loop are
+repeated, each time with a new value. The `if`/`else` block can compare
+variables with other variables, variables with constants, constants with
+constants, etc. It has a then and optional `else` block. There is also an
+`unless` block too, which I didn't show, but operates opposite to `if` as you
+would expect. The `include` block includes the text of a separate file,
+recursively parsing it as a template using the same context object.
 
 Loops have a few magic variables that are defined inside them:
 
@@ -125,10 +128,11 @@ current hash key (`foo` will contain the value). If I use the for loop with a
 scalar value (not an array or a hash), it will iterate just once, and both
 `__FIRST__` and `__LAST__` will be true.
 
-Those are the basics of the library. I'm already starting to put together
-a small library of templates and even a utility program for generating them.
-One program I'm putting together right now is used to create stub test files
-from a test template. From the Rosella directory, I can do this:
+Those are the basics of the Template library. I'm already starting to put
+together a small collection of templates and even a utility program for
+generating them. One program I'm putting together right now is used to create
+stub test files from a test template. From the Rosella directory, I can do
+this:
 
     ./test_template test --lang=winxed --lib=rosella/string.pbc --class=Rosella.String.Tokenizer
 
