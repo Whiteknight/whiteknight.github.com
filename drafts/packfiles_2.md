@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Packfiles],
+title: Packfiles Work, Continued
+---
+
 I merged in my big packfile branch yesterday, after approval from kid51 and
 cotto. There were a few build failures manifesting on certain platforms, but
 as of this morning those are fixed. The branch I merged adds in a new PMC type
