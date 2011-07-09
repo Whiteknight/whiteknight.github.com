@@ -68,12 +68,12 @@ my little fingers can type.
 In `whiteknight/pbc_pbc` I have two main targets: The first are the packfile
 "pragmas", flags like `:init` and `:load` which are currently handled in a
 very ugly, very brittle, and very complicated way. I asked a question on
-#parrot yesterday about the purpose of one particular flag (The flag was
-'PBC_PBC', hence the name of the branch), and some of our brightest and most
-experienced developers couldn't give me an answer. It turns out that the flag
-seems to do nothing except loop over all constants in the packfile and perform
-no action on them. Ripping them out is a performance boost, albeit a small
-one.
+the parrot chatroom yesterday about the purpose of one particular flag (The
+flag was 'PBC_PBC', hence the name of the branch), and some of our brightest
+and most experienced developers couldn't give me an answer. It turns out that
+the flag seems to do nothing except loop over all constants in the packfile
+and perform no action on them. Ripping them out is a performance boost, albeit
+a small one.
 
 Parrot has a really complicated way for dealing with various PIR behaviors
 like `:init` and `:load`. IMCC, when it compiles Sub PMCs from PIR code, sets
