@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot, Packfiles],
+categories: [Parrot, Packfiles]
 title: Packfiles Work, Continued
 ---
 
