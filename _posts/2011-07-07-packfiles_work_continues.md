@@ -131,7 +131,7 @@ Here's the train of thought:
    that doing something trivial like compiling a PIR file and trying to write
    it out to .pbc might not contain all the semantics you intend, or we might
    require other ugly hacks to preserve them.
-3. ???
+3. ??? (something we don't understand)
 4. Profit!
 
 Sound crazy yet? Luckily, I'm planning to change all that. Instead of having
@@ -151,16 +151,16 @@ flag options. In this kind of system, Users can name their flags whatever they
 want. This is complimented by a new feature of the PackfileView PMC to get a
 list of all subs from the packfile with a given tag:
 
-    $P0 = new ['PackfileView']
-    $P0.'read_from_file'('foo.pbc')
-    $P1 = $P0.'subs_by_flag'('init')
-    $P2 = iter $P1
-  init_top:
-    unless $P0 goto init_end
-    $P3 = shift $P2
-    $P3()
-    goto init_top
-  init_end:
+      $P0 = new ['PackfileView']
+      $P0.'read_from_file'('foo.pbc')
+      $P1 = $P0.'subs_by_flag'('init')
+      $P2 = iter $P1
+    init_top:
+      unless $P0 goto init_end
+      $P3 = shift $P2
+      $P3()
+      goto init_top
+    init_end:
 
 The new `:tag()` flag has not yet been added to IMCC, but it could be added
 relatively soon if I can muster up the courage to modify IMCC internals like
