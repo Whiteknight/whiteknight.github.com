@@ -63,11 +63,11 @@ into the STRING constants table. Any PMC therefore can be mapped to any
 string in the table, and automatic deduplication of string constants means the
 lookup for all Subs with a given tag is very fast: a tight loop over an array
 of integers. For most cases, I suspect it's faster than the old-style flag
-lookups, although I haven't done any lookups yet. Avoiding a loop over all
+lookups, although I haven't done any benchmarks yet. Avoiding a loop over all
 pmc constants and calling `VTABLE_isa` on each to see if it's a `"sub"` or not
-and then checking the Sub flags is a big savings. Of couse, `load_bytecode`
-operations are relatively uncommon so it won't add up to anything too
-substantial for most programs in terms of saved wall-clock time.
+and then checking the Sub flags should produce big savings. Of couse,
+`load_bytecode` operations are relatively uncommon so it won't add up to
+anything too substantial for most programs in terms of saved wall-clock time.
 
 I've got a lot of work to do in this branch still. I need to update the
 various packfile PMCs to be able to read and write these new tags, and I need
@@ -75,10 +75,13 @@ to test the crap out of it. I don't know when I'll be ready to merge, but I'm
 hoping to have it in before 3.7 so I can get in the deprecation notice for
 `:load` and `:init` as early as possible.
 
+Eventually, I would like to be able to replace most of the built-in Sub
+pragma flags with custom strings. This will lead to a huge cleanup of ugly
+bit-twiddling code, some speedups (again, they will be modest), and lots of
+cool new flexibility.
+
 In personal news, we're finally buying a new house, and are making settlement
 this thursday. This week will probably be taken up by packing, moving,
 paperwork, and other pleasantries of the process. Real hard-core hacking
 probably won't happen much for the next two weeks at least.
-
-
 
