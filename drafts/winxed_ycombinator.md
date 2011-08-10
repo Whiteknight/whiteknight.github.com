@@ -36,3 +36,12 @@ function main()
 	say("Recursive factorial gives: ", factorial_recursive(6));
 	say("Y-Combinator factorial gives: ", Y(factorial_y)(6));
 }
+
+function Y(var outer) {
+    return (->(func) func(func))(->(func) outer(->(arg) func(func)(arg)));
+}
+
+function main[main]()
+{
+    Y(->(func) ->(int n) n == 0 ? 1 : n * func(n - 1));
+}
