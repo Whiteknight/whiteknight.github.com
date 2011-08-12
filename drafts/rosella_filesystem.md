@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella, FileSystem]
+title: Rosella FileSystem
+---
+
 This post is extremely late, but it's still worth mentioning. A few weeks ago
 I did all the necessary work to get the Rosella FileSystem library listed as
 stable. "Stable", as always, doesn't mean the library is perfect. Instead, it
