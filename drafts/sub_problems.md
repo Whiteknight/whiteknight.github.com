@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot]
+title: Problems with Sub
+---
+
 As a Winxed user, I haven't made a heck of a lot of use of Parrot's MMD
 features. I've used it in NQP, but the details are sufficiently abstracted in
 that language that you don't really get the feel for what is occuring at the
@@ -26,6 +32,12 @@ etc), and I think we have a major problem on our hands. In this post, which
 could potentially turn into a long series of posts, I'm going to talk about
 some of the problems with Subs and the way I plan to fix them. MultiSub is
 one of the pieces that is going to come along for the ride.
+
+I'm planning to make several fixes to the systems I talk about below, although
+exactly what I am going to fix and how I am going to do it are still up in the
+air. Feedback and suggestions, as always, are appreciated. I know that what we
+have is bad enough to need fixing, even if I don't currently know all the best
+ways to proceed.
 
 Want me to prove to you that we have a major problem? Here is the complete,
 unadulterated list of attributes for the Sub PMC:
@@ -103,7 +115,12 @@ it kept track of the signatures associated with each Sub instead of asking the
 Sub to keep track of it's own signature, we gain all that flexibility. Also,
 I suspect, there are performance wins to be had if we break a signature
 key up into a search tree or search graph and traverse it instead of doing an
-in-place manhattan sort on sig lists every time we call the MultiSub.
+in-place manhattan sort on sig lists every time we call the MultiSub. It's
+absolutely absurd that when you store a Sub in a MultiSub, the *Sub tells the
+MultiSub how to store itself*. How untenable and unmanagable is it, in the
+long run, to have a system where values tell the containers they are stored in
+how they need to be stored and organized? Very, that's how much.
+
 Basically, I'm saying we should change this:
 
     push multi_sub, my_sub
@@ -120,7 +137,7 @@ loads in a packfile, it reads each Sub entry, uses the namespace information
 therein to recreate the NameSpace tree, and inserts Subs into the proper
 namespaces. Then, when we create a class, the Class PMC searches for the
 NameSpace with the same stringified name, and pulls all the methods out of it
- Keep in mind that
+Keep in mind that
 [namespaces aren't supposed to hold methods at all][namespace_cleanups], so
 the list of methods in the namespace has to be kept separate and hidden until
 the class (and only the Class) asks for it. At that point, since the NameSpace
@@ -129,12 +146,19 @@ as soon as it is read. We insert things into the NameSpace that don't belong
 there, and we ask the NameSpace to carefully ignore some things, and store
 other things but to do so in a secret, hidden way. Awesome!
 
+[namespace_cleanups]: /2011/06/22/namespace_cleanups.html
+
 Similarly, when Parrot loads in a packfile and inserts Subs into the
-NameSpace, it's the job of the NameSpace to automatically and invisibly insert
+NameSpace it's the job of the NameSpace to automatically and invisibly insert
 Subs with similar names and the `:multi` flag set into new MultiSub
-containers. If you set a Sub with the same name but without the flag set, the
-NameSpace overwrites the old one. But if the flag is set, the two are merged
-together into a single MultiSub. So here's yet another question for you:
+containers. The Sub tells the NameSpace how the NameSpace must store the Sub,
+under which names, and in which locations. Then if there's a `:multi` involved
+the Sub tells the MultiSub how to do it's job too. The Sub sure is bossy, and
+even if you're a fan of centralized control in a generalized philosophical
+way you have to admit that the results here are...less than spectacular. If
+you set a Sub with the same name but without the flag set, the NameSpace
+overwrites the old one. But if the flag is set, the two are merged together
+into a single MultiSub. So here's yet another question for you:
 
     # What happens here?
     my_namespace["foo"] = $P0
@@ -220,12 +244,14 @@ direction I want to start working towards. The ultimate goals are as follows:
    bytecode. It should contain a little bit of information necessary to be
    invoked and to execute bytecode only. It shouldn't hold much other
    information. It probably does need to include a pointer to a LexInfo PMC
-   for lexicals, but that's it.
+   for lexicals, but that's it. Maybe a subclass or a mixin can hold the
+   pointer to LexInfo, but I don't want to push it.
 2. Other behaviors of Sub, like Closures and Methods can be broken out into
    separate subclasses or mixins, if such is warranted. For Closures I think
    we definitely want it. For Methods, it might be unnecessary. I'm not really
    convinced that Methods want to be treated any differently from ordinary
-   Subs, but maybe HLLs think differently.
+   Subs, but maybe HLLs think differently. Of course, maybe HLLs can provide
+   subclasses for Methods themselves.
 3. Class, NameSpace, and MultiSub should all be given improved interfaces for
    populating their contents at runtime. NameSpace in particular needs to be
    dramatically cut, sliced, and refactored to remove all the magic and
@@ -242,5 +268,11 @@ direction I want to start working towards. The ultimate goals are as follows:
    signature. The MultiSub should handle mapping a signature to a Sub, but
    should be flexible enough to support an N:1 mapping.
 
+What I want to impress upon you, the reader, with this post is that the Sub
+PMC is extremely poorly designed. Since it's the lynchpin of Parrot, the thing
+that makes control flow work, that's a pretty bad thing to get so horribly
+wrong. I don't want to say that I have all the designs and solutions to fix it
+just yet, but this issue is squarely in my crosshairs right now and you can
+expect some movement on this issue in the near future.
 
 
