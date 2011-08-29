@@ -23,6 +23,9 @@ producing Winxed instead of producing JavaScript. Now all we need is an object
 model and a runtime, and we have a basic stage 0 compiler for JavaScript on
 Parrot.
 
+[Cafe]: https://github.com/zaach/cafe
+[Jison]: https://github.com/zaach/jison
+
 Over the weekend, when we were trapped in doors because of the hurricane, I
 put some of these ideas to the test. By the end of the weekend I had a new
 project called JSOP (JavaScript-On-Parrot. It's a lousy name. I need a better
