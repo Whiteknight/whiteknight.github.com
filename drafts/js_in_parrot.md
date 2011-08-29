@@ -28,12 +28,14 @@ Parrot.
 
 Over the weekend, when we were trapped in doors because of the hurricane, I
 put some of these ideas to the test. By the end of the weekend I had a new
-project called JSOP (JavaScript-On-Parrot. It's a lousy name. I need a better
-one). Today, the stage 0 JSOP compiler is parsing a decent amount of basic
-JavaScript and has a small test suite. JavaScript doesn't have classes like
-other languages do, so I had to add in some support to Rosella.Test to handle
-javascript tests. Now that I've done that, we can use Rosella.Test to write
-tests for JavaScript. Here's an example test file that I just committed:
+[project called JSOP][jsop] (JavaScript-On-Parrot. It's a lousy name. I need a
+better one). Today, the stage 0 JSOP compiler is parsing a decent amount of
+basic JavaScript and has a small test suite. JavaScript doesn't have classes
+like other languages do, so I had to add in some support to Rosella.Test to
+handle javascript tests. Now that I've done that, we can use Rosella.Test to
+write tests for JavaScript. Here's an example test file that I just committed:
+
+[jsop]: https://github.com/Whiteknight/jsop
 
     load_bytecode("rosella/test.pbc");
     Rosella.Test.test_list({
