@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, JavaScript]
+title: JSOP, JavaScript On Parrot
+---
+
 I was looking at the CorellaScript project the other day, and wanted to try to
 tackle the same problem in a different way. This isn't an insult against
 CorellaScript, but I know a little bit more today than I did at the beginning
@@ -5,94 +11,105 @@ of the summer and some of our tools have progressed along further than they
 had at the point when CorellaScript was designed and started. I wanted to see
 if we could convert to Winxed as an intermediary language, since Winxed is
 syntactically similar to JavaScript already in some ways, and since Winxed
-already handles most of the complicated PIR generation.
+already handles most of the complicated parts PIR generation.
 
 My idea, in a nutshell, is this: We create a JavaScript to Winxed compiler in
-JavaScript, using Jison and Cafe. Jison is an LALR parser generator written in
-JavaScript, and Cafe is an old project to use Jison to compile JavaScript into
-JavaScript. At first, compiling JavaScript to itself doesn't sound like such a
-great thing to do, but if we make a few tweaks to the generated code suddenly
-it's producing Winxed instead of producing JavaScript.
+JavaScript, using [Jison][] and [Cafe][]. Jison is an LALR parser generator
+written in JavaScript, and Cafe is an old project to use Jison to compile
+JavaScript into JavaScript. At first, compiling JavaScript to itself doesn't
+sound like such a great thing to do, but if we do some basic tree
+transformations and make a few tweaks to the generated code suddenly it's
+producing Winxed instead of producing JavaScript. Now all we need is an object
+model and a runtime, and we have a basic stage 0 compiler for JavaScript on
+Parrot.
 
-The basic idea is this: We get together a subset of JavaScript which we can
-compile more or less faithfully into Winxed code. Then, we can either modify
-the Winxed code directly to create a stage 1, or we can modify Cafe to
-produce better and better Winxed output until the major differences in the
-languages is overcome.
+Over the weekend, when we were trapped in doors because of the hurricane, I
+put some of these ideas to the test. By the end of the weekend I had a new
+project called JSOP (JavaScript-On-Parrot. It's a lousy name. I need a better
+one). Today, the stage 0 JSOP compiler is parsing a decent amount of basic
+JavaScript and has a small test suite. JavaScript doesn't have classes like
+other languages do, so I had to add in some support to Rosella.Test to handle
+javascript tests. Now that I've done that, we can use Rosella.Test to write
+tests for JavaScript. Here's an example test file that I just committed:
 
-Again, I want to stress that this all sounds straight-forward and the
-high-level description is only a paragraph long, but it's not an easy task by
-any stretch. Even though much of the syntax is similar, by no means are the
-two languages compatible with one another. Also, it's not clear to me at all
-that generating Winxed code is going to be any easier than generating PIR
-code. What I do like about this approach is that Winxed does handle a lot of
-the lower-level details like register allocation and code generation,
-closures, lexicals, and other details that would be a big pain to deal with
-in PIR directly. Of course, this idea does insert another step in the
-already-convoluted bootstrapping chain.
+    load_bytecode("rosella/test.pbc");
+    Rosella.Test.test_list({
+        test_1 : function(t) {
+            t.assert.equal(0, 0);
+        },
+        test_2 : function(t) {
+            t.assert.expect_fail(function() {
+                t.assert.equal(0, 1);
+            });
+        },
+        test_3 : function(t) {
+            t.assert.is_null(null);
+        }
+    })
 
-The biggest problem in JavaScript is that JavaScript allows bare code in the
-top-level scope to be run. In Winxed as in PIR, execution starts at a `main`
-routine somewhere, you can't just have top-level statements, you have
-top-level functions which contain statements. That means all statements at the
-top-level need to be lumped together into a `main` function, and all variables
-defined there need to be promoted to globals and stored in namespaces. The
-Cafe compiler doesn't do anything like that. It compiles JavaScript into
-JavaScript, so the target language has the exact same structure at the source.
+That test file compiles down to the following Winxed code:
 
-If I convert a few things, like "`this`" to "`self`", if I assume the
-existence of Winxed built-in functions, I assume I have some sort of object
-model that supports JavaScript semantics, and I ignore some of the more
-advanced features and statement types of the language, the translation is
-pretty straight-forward. That's a lot of conditions, of course, and I don't
-want to pretend that any of them aren't important.
+    function __init_js__[anon,load,init]()
+    {
+        load_bytecode('./stage0/runtime/jsobject.pbc');
+    }
 
-If I take cafe and modify the code generators to output winxed code, or
-something close enough to it, that's one thing. But, like I mentioned above,
-the next big step is in changing program structure. If I take the parse tree
-from the Jison parser, I can start to rearrange it into a form that is more
-winxed-like. I take the function declarations from the top-level scope and
-move them into a separate array, then I take all the rest of the statements
-in the top-level scope and move them into a new `:main` function. Then, I go
-through all those statements in the `:main` function and add in some details
-to add references to them into the namespace. At that point, I should be
-generating some pretty good code.
+    function __main__[main,anon](var arguments)
+    {
+        try {
+            load_bytecode('rosella/test.pbc');
+            Rosella.Test.test_list(new JavaScript.JSObject(null, null, function (t) {
+                    t.assert.equal(0, 0); }:[named('test_1')], function (t) {
+                    t.assert.expect_fail(function () {
+                    t.assert.equal(0, 1); }); }:[named('test_2')], function (t) {
+                    t.assert.is_null(null); }:[named('test_3')]));
+        } catch (__e__) {
+            say(__e__.message);
+            for (string bt in __e__.backtrace_strings())
+                say(bt);
+        }
+    }
 
-The next step is to get the necessary object model libraries in place so that
-the generated code has the necessary semantics. One big problem I had when I
-was playing with this code yesterday was that the `+` plus operator between
-two objects will do string concatination if one or both of the two operands
-are strings. However in Winxed, if I do the `+` operator between two PMC types
-it typically falls back to converting the values to numbers or integers and
-adding them that way. As an example, here's a bit of code that is
-syntactically valid JavaScript and Winxed:
+Formatting is kind of ugly right now, but it does the job. Executing this
+file produces the TAP output we expect:
 
-    function welcome(msg) { say("Hello " + msg); }
-    function main() { welcome("world!"); }
+    <jsop git:master> ./js0.sh t/stage0/01-rosella_test.t
+    1..3
+    ok 1 - test_1
+    ok 2 - test_2
+    ok 3 - test_3
+    # You passed all 3 tests
 
-I say "syntactically valid", in that the code will compile on both compilers.
-The problems become evident at runtime. In Winxed, I run the code and it
-outputs the numerical answer: `0`. In javascript running on Node, if I change
-the `say` to `sys.puts` and if I get rid of the `function main() { ... }` part
-and just call `welcome` directly, I get the proper result "`Hello world!`".
-Even if I get the code into the correct form for running on Winxed, we still
-need a proper runtime to get it to all execute.
+So that's not a bad start, right?
 
-CorellaScript has some things working in its generated PIR, but it is obvious
-that some of the structural problems have been pretty hard to translate.
-I want to play with this new approach a little bit and see if I can make any
-better progress. Putting together the object model and runtime correctly
-is going to be a big challenge, but I think I can definitely steal some of the
-code and ideas that have been floating around the ecosystem. I had some
-JS-alike prototype object code in Rosella that I've been playing with, and I
-know GSoC student Lucian has done a lot of object model work as part of his
-Python compiler project, so there is plenty of stuff to steal.
+The stage 0 JSOP compiler is very simple, and I hope other people will want
+to hack on it. I've borrowed, with permission, code from the Cafe project to
+implement the parser. Cafe comes with a JavaScript grammar for Jison already
+made, and some AST node logic. I added a new tree format called WAST which
+is used to generate the winxed code. I modified the Cafe AST to produce WAST,
+and deleted all the other code generators and logic from Cafe.
 
-Ultimately, we might end up with a two-part solution. The first part uses Node
-and my custom hack of Cafe to produce Winxed code. The second part will treat
-the Winxed version as a stage 0 to start bootstrapping JavaScript in
-JavaScript, possibly using Jison to create a parse tree, then using PCT (or
-even the new PACT) to transform that parse tree into PIR or PBC. There are a
-lot of options right now, and it's still early in the exploration process. I
-am hopeful that this new direction yeilds some interesting results, although
-I can't say anything for certain until I start really digging into the code.
+It all sounds more confusing than it is. The basic flow is like this:
+
+    JavaScript Source -> Jison AST -> WAST -> Winxed
+
+Winxed converts it to PIR, and execution continues from there.
+
+So what still needs to be done? Well, lots! I've only implemented about 25% of
+a stage 0 compiler, so most of the syntax in JavaScript is not supported yet.
+I've only implemented enough to get a basic test script running (functions,
+closures, "new", string and integer literals, etc). Basic control flow
+constructs and almost all the operators are not implemented yet. I've also
+implemented a basic runtime, but I don't have any of the built-in types like
+Arrays yet, or most of the nuances of the prototype chain, etc.
+
+The ultimate goal is a bootstrapped JavaScript compiler. Once we have stage 0
+being able to parse most of the JavaScript language and execute it, we need
+to create a stage 1 compiler written in JavaScript. It can borrow a lot of
+code from Stage 0 (including the Jison parser). For that, we're going to need
+PCRE bindings, among other runtime improvements. When we can use Stage 0 to
+compile a pure JS stage 1 compiler, we self host and it's mission
+accomplished. We've got a long way to go still, but I think this is a
+promising start and I'm happy with the quick rate of progress so far. I'm
+looking for people who are interested in helping, so please get in touch (or
+just create a fork on github) if you want to help build this compiler.
