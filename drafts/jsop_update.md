@@ -1,69 +1,122 @@
-Yesterday I introduced JSOP, a new attempt at a JavaScript-on-Parrot compiler.
-JSOP is still very early in its development, but it's able to translate enough
-JavaScript code to Winxed to host a test suite using Rosella.Test. The suite
-is still small, but it will be growing as new features are added.
+---
+layout: post
+categories: [Parrot, Jaesop]
+title: Jaesop Stage 0 Progress
+---
 
-There are three general paths of development ahead of us to get a working
-stage 0 compiler capable of bootstrapping a stage 1: Improve the compiler,
-write an object model, and write a sufficient runtime library.
+A few days ago I started the Jaesop project (formerly "JSOP") to explore
+creating a JavaScript compiler on Parrot using bootstrapping. After only a few
+days of real effort I'm getting pretty darn close to having a stage 0 compiler
+ready for use.
 
-The compiler work sounds complicated, but it's very straight-forward. For
-every AST node coming out of the Jison parser, I transform it into a sequence
-of new WAST nodes, and from there I tell each node how to generate proper
-Winxed code. This process is far simplified because I don't need to deal with
-things like type checking, register allocation and other details. My stage 0
-compiler doesn't even need to maintain a symbol table or at least not more
-than a basic one. I let Winxed tell me if the code I generated has everything
-defined that needs to be. That work is straight-forward and easy for other
-people to get involved with.
+The Jaesop stage 0 compiler, called `js2wxst0.js` translates JavaScript code
+to Winxed. It is not a full JavaScript compiler; instead it's a useful subset
+of JavaScript which can be used for bootstrapping. Most of the syntax is
+supported, and the object model has acceptably faithful semantics. What I
+don't have is complete support for all built-in object types and methods, or
+100% complete syntax translation. Some things like the `with` keyword are not
+and will not be supported, for example. The compiler doesn't currently handle
+some common bits of syntax like `try`/`catch`, `switch`/`case`, or a few other
+things. Many of the basics like operators, assignment, variables, functions,
+closures, and basic control flow (for, while, if/else) are working just fine.
 
-The second path is a little bit more complicated, because much of the core
-of the JavaScript language is in the semantics of its object model. Getting
-the interaction between objects and prototypes working correctly, or at least
-approximating it closely enough for bootstrapping purposes, is extremely
-important. I've started work on the object model, although it's slow going and
-I'm going to need a lot of tests. Before I even get that far, I need to learn
-a heck of a lot more about the internals of what a JS object model is supposed
-to do.
+Of course, if it did everything and was perfect, we wouldn't call it "stage 0"
+we would just call it "the JavaScript on Parrot Compiler". The stage 0
+compiler isn't the end goal, it's just a tool we're going to be able to use
+to make a better compiler. I'm not looking to make something perfect here,
+I'm trying to put together a bootrapping stage 0 as quickly as possible.
 
-At the moment in JSOP stage 0, all objects are going to be wrapped up in
-instances of the `JSObject` class. What differentiates each JSObject is the
-constructor used to create it, and the prototype that it draws default
-behavior from. The stage 0 object model is not going to be the pinnacle of
-efficiency or completeness, but it should be enough to get the job done.
-Hopefully, stage 1 runtime and later will be able to be built upon 6model, and
-get all sorts of improvements from that.
+The stage 0 compiler architecture is very simple. The Jison parser outputs
+AST, which I've had to make only a handful of modifications to from the
+original Cafe source. Then, the AST is transformed into WAST, a syntax tree
+for creating Winxed code. Finally, the WAST outputs Winxed. Most of the code
+here is complete and working very well. Late this week I finished the basics
+of the object model, and then I updated the compiler to output correct code
+for the model, and just today I got the test suite working again with all the
+new semantics.
 
-For stage 0 the object model does not need to be perfect or complete. It
-simply needs to support enough features and correct semantics to bootstrap to
-stage 1. The Stage 1 compiler can easily be written in a subset of JavaScript
-which is supported by Stage 0. Finding such a subset which makes
-implementing Stage 1 easy without making Stage 0 too complicated is going to
-be a very interesting search.
+The test suite is up and running again, although it doesn't have nearly enough
+tests in it to cover the work I've done until this point. The suite has tests
+written in Winxed and also tests written directly in JavaScript. The former is
+for testing things like the runtime, the later is for testing parsing and
+proper semantics. I want to increase coverage in both portions, because I've
+been dealing with a lot of aggravating regressions here and there as I code,
+and I want to make sure things get better monotonically from here.
 
-The runtime we are going to need consists of things like global functions,
-global objects, common methods, and storage semantics, etc. One big thing we
-are going to need if we ever hope to bootstrap is PCRE bindings for the Jison
-parser and regular expressions. That's hopefully not too much work, assuming
-the PCRE bindings that ship with Parrot haven't gone completely bitrotten.
-We're going to need storage semantics as well. For instance, JavaScript has
-a notion of global variables that we need to cope with. The naive solution
-would seem to be that we disallow global objects and require all objects to
-have function scope, like what Winxed requires. However, that fails for even
-simple cases:
+Getting the test suite to work with the real JS object model was a little bit
+tricky. To get an example of why, here is a test I had in the suite prior to
+todays hacking:
 
-    var array = new Array();
-    var array_prototype = Array.prototype;
+    load_bytecode("rosella/test.pbc");
+    Rosella.Test.test_list({
+        test_1 : function(t) {
+            t.assert.equal(0, 0);
+        },
+        test_2 : function(t) {
+            t.assert.expect_fail(function() {
+                t.assert.equal(0, 1);
+            });
+        },
+        test_3 : function(t) {
+            t.assert.is_null(null);
+        }
+    })
 
-Here, Array is a global object which is both invokable and has a prototype and
-other features which can be examined. It really needs to be made available as
-a global variable unless we want every reference to Array to be treated as one
-big hack. So that means all top-level functions and variables not defined with
-the `var` keyword are going to need to be stored in some global cache.
+Basically, this was my first sanity test, to prove that I could call Rosella
+Test functions from JS code. Unfortunately, after I re-did the object model,
+this test was broken. It got broken because of a fundamental feature of
+JavaScript: methods are just attributes, except they can be invoked. So a call
+to this:
 
+    Rosella.Test.test_list(...)
 
+After compiling to Winxed, looks like this:
 
+    var(Rosella.*"Test".*"test_list")(...)
 
+The `.*` operator looks up an attribute by name. The `var(...)` cast pulls
+out the value of the attribute into a PMC register, and the parens at the end
+invoke it. Notice that `Rosella.Test` isn't an object, it's a namespace. So
+that code was broken. Also notice that JavaScript has a notion of a global
+scope. We haven't explicitly declared a variable named "Rosella", so Jaesop
+tries to do a global lookup:
 
+    var Rosella = __fetch_global("Rosella");
+    var(Rosella.*"Test".*"test_list")(...);
 
+Also, inside the tests, the assertions are done with `t.assert.equal()`, etc.
+But that's clearly wrong too, for all the same reasons. In short, the code
+was broken.
+
+After some fixing and refactoring, I have the test situation all sorted out.
+Here is the same test today:
+
+    var t = new TestObject();
+    test_list([
+        function() {
+            t.equal(0, 0);
+        },
+        function() {
+            t.expect_fail(function() {
+                t.equal(0, 1);
+            });
+        },
+        function() {
+            t.is_null(null);
+        }
+    ]);
+
+The methods `TestObject` and `test_list` are defined in the test library as
+globals. `TestObject` is basically a JavaScript-ish wrapper around
+`Rosella.Test.Asserter` with all the same methods.
+
+The test suite is working but does need to be expanded. I have a few more
+things to add to the compiler and runtime as well, which will be easier to do
+with better test coverage. I very much intend to have a working and usable
+Jaesop Stage 0 to release soon. Certainly it should be available by the Parrot
+3.9 release, hopefully much earlier. With that available, I want to get
+started on Stage 1. Stage 1 doesn't have to happen at the same blistering
+pace. In fact, I think it would be beneficial for us to wait until Parrot has
+6model support built in, so we can start making the "real" object model using
+those tools instead.
 
