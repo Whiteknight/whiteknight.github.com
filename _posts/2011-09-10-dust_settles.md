@@ -9,9 +9,9 @@ to the parrot-dev mailing list suggesting that things were not going well for
 the Parrot project and we need to make a few changes.  Specifically, we need
 to become faster and more nimble by ditching the deprecation policy, being
 less formal about the roadmap, and being more focused on making Parrot better.
-Later, Jonathan Leto sent out an email talking about how we need to have a
-concise and clear vision to pursue, to prevent us from getting stuck in the
-same kind of swamp that we're trying to pull ourselves out of. He had some
+Later, Jonathan "Duke" Leto sent out an email talking about how we need to
+have a concise and clear vision to pursue, to prevent us from getting stuck in
+the same kind of swamp that we're trying to pull ourselves out of. He had some
 good ideas there that need to be addressed.
 
 [email]: http://lists.parrot.org/pipermail/parrot-dev/2011-September/006179.html
