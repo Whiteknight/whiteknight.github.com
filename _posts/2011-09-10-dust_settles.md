@@ -1,5 +1,5 @@
 ---
-layout: parrot
+layout: post
 categories: [Parrot, Community]
 title: Parrot, the Smoke Clears
 ---
