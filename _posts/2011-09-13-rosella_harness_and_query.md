@@ -136,7 +136,7 @@ Here is what a new one looks like:
         harness.add_test_dirs("Automatic", "t", 1:[named("recurse")])
             .setup_test_run(1:[named("sort")])
         harness.run();
-        harness.default_view().show_results();
+        harness.show_results();
     }
 
 Not too bad for 6 real lines of code! The new `"Automatic"` test type reads
