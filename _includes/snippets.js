@@ -6,6 +6,6 @@ snippets = [
 "There's the right way, the wrong way, and our way. Do it our way.",
 "No need to budget time for testing and debugging. Just write it correctly the first time!",
 "I've got some really great ideas. All I need are some technical people to put the code together",
-"All programming languages are the same: Symbols and gibberish. Just pick one and stick with it."
-
+"All programming languages are the same: Symbols and gibberish. Just pick one and stick with it.",
+"Of course DataContextSessionContextRelationFactory implements IDataContextSessionContextRelationFactory!"
 ];
