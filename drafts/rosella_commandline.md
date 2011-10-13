@@ -124,11 +124,11 @@ program. For instance, if I have this:
     }
 
 The program will exit with an exit code of 1. It's a little C-ism that I've
-always wished Parrot supported. Of course, the return value is completely
-optional, for those of you who want to keep as much distance between
-yourselves and C semantics as possible.
+always wished Parrot supported for convenience. Of course, the return value is
+completely optional, for those of you who want to keep as much distance
+between yourselves and C semantics as possible.
 
-The CommandLine library is still in alpha development, and I have a lot more
+The CommandLine library is still in alpha development and I have a lot more
 features to add. But, I am pretty happy with the way it's progressing right
 now, and have already been able to use it to good effect to help clean up some
 of the utility programs in Rosella. One thing I do want to do soon is add the
