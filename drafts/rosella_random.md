@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, Rosella, Random]
+title: Rosella Random Library and GCI
+---
+
 I've never been too happy with the random number generation capabilities of
 Parrot. Parrot essentially provides a thin wrapper around the system `rand` and
 `srand` capabilities, with an unimaginative interface. This is a fine system for
@@ -12,7 +18,10 @@ Shortly thereafter I wrote up a quick [Box-Muller][] implementation to get
 normally-distributed numbers too. Now, Rosella has a pretty decent start of a
 random number library.
 
-For an example, I wrote up a short histogram program to display the output. Here
+[Mersenne Twister]: http://en.wikipedia.org/wiki/Mersenne_Twister
+[Box-Muller]: http://en.wikipedia.org/wiki/Box-Muller
+
+For an example I wrote up a short histogram program to display the output. Here
 are the histograms for the Mersenne Twister and the Box-Muller generators:
 
     Histogram of 500 uniformly-distributed floats:
@@ -63,9 +72,14 @@ These are the two distributions that I wanted to have most, but they are
 certainly not the only one ones available.
 
 And random number generation is not the only feature that this library will
-have, either. The Rosella Query library currently has an implementation of a
-[Fisher-Yates Shuffle][fischer_yates] algorithm for shuffling an array. I think
-I'm going to move that to the new Random library where it will be more visible
-and re-usable. I have a few more small features in mind that I might like to add
-to this library too, and since it is so straight-forward and algorithmic, I
-suspect it will become stable pretty quickly.
+have, either. The Rosella Query library currently had an implementation of a
+[Fisher-Yates Shuffle][fischer_yates] algorithm for shuffling an array. I moved
+that implementation to the new Random library already and updated it to use the
+Mersenne Twister as the random number source instead of Parrot's built-in `rand`
+opcode.
+
+[Fisher-Yates Shuffle]: http://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+
+I have got a handful of other small features and additions that I would like to
+add to this library, but considering that it is so straight-forward and
+algorithmic I expect I can make it stable pretty soon without much headache.
