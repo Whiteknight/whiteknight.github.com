@@ -1,15 +1,30 @@
+---
+layout: post
+categories: [Parrot, Rosella, Query]
+title: Sorting Algorithms from GCI
+---
+
+Since I haven't been posting often enough recently, and my schedule is so
+screwed up because of holidays and the like, and since I happen to have two
+drafts available I'm posting them both today.
+
 A while back I was playing around with some [sorting algorithms and benchmarks]
 [sorting_benchmarks] for Parrot. I had a quicksort hybrid implementation written
-in winxed that was consistently outperforming the built-in C implementation of
+in winxed that was consistently out-performing the built-in C implementation of
 quicksort by about 20%. I decided that I wanted to play with a few more
 algorithms, especially algorithms which were known to have different performance
 characteristics on different input types.
+
+[sorting_benchmarks]: /2011/05/28/sorting.html
 
 For GCI I created two new tasks asking for alternate sort implementations. The
 first was a [Timsort][] implementation, and the second was for [Smoothsort][].
 GCI students Yuki'N and blaise each delivered a winxed implementation of their
 respective sort, and now I'm able to do some interesting benchmarks showing how
 they work on different inputs. Here are some of those results:
+
+[Timsort]: http://en.wikipedia.org/wiki/Timsort
+[Smoothsort]: http://en.wikipedia.org/wiki/Smoothsort
 
     N = 100000
     SORT_TRANSITION = 6
@@ -68,6 +83,11 @@ they work on different inputs. Here are some of those results:
         12.764498s - %94.296823 (-%5.703177 compared to base)
         Number of items out of order: 0
 
+The `SORT_TRANSITION` parameter above is the size of the array below which the
+hybrid sort switches from quicksort to insertion sort. 6 is an arbitrary value,
+but seems to have reasonably good results. I could spend some time to tune this
+value, but I haven't.
+
 These benchmarks show some things we already knew: the built-in Quicksort
 implementation from Parrot is poor across the board. The Quicksort variant
 that's in Rosella is better, and my hybrid quicksort+insertion sort variant is
@@ -76,7 +96,7 @@ on these workloads.
 
 Timsort is designed to work well with "real-world" data which is already sorted
 or already partially sorted. It identifies runs in the data that are already
-mostly sorted, and merges subsequent runs together. Timsort also has the nice
+mostly sorted and merges subsequent runs together. Timsort also has the nice
 feature of identifying runs which are already reverse-sorted and does a very
 fast reverse to get them ready for merging. We see that the Timsort blows all
 other challengers out of the water when the array is already sorted and already
@@ -86,20 +106,20 @@ that no sorting is ever necessary.
 Smoothsort constructs a special type of heap from the input data, and uses basic
 balancing operations on the heap to find the largest value, extracts it, and
 rebalances the heap. It works very well for the pre-sorted case, but not quite
-as well as Timsort because it does need to construct this heap first, then
+as well as Timsort because it does need to construct this heap first then
 iterate over it. Smoothsort goes so quick because the heap rebalancing
-operations when the array is already sorted are essentially free. So Smoothsort
+operations when the array is already sorted are almost free. So Smoothsort
 is quick on a pre-sorted array, but we also see that it's terrible when the
 input array is reverse sorted. Timsort still does very well in this case.
 
 When the array is completely random, the story is a little bit different. Both
 Timsort and Smoothsort lose to the quicksort implementations for completely
-random data. Timsort actually is *worse* than Parrot's built-in quicksort, which
-is weird. Smoothsort is in the same ballpark as the Rosella quicksort, but
-is a few percent off of the hybrid sort.
+random data. Timsort actually is *worse* than Parrot's built-in quicksort, one
+of the few results we measure to be slower. Smoothsort is in the same ballpark
+as the Rosella quicksort, but is a few percent off of the hybrid sort.
 
 If I had to put together a small report-card for these algorithms under all
-conditions, it would look something like this:
+these conditions, it would look something like this:
 
     algorithm       pre-sorted      reversed        random
     ------------------------------------------------------
@@ -117,7 +137,11 @@ in the coming days, but I don't expect any radical changes.
 
 What I would like to do in the future is provide a default sort implementation
 but also have the sorting interface take some sort of optional "hint" flag that
-can tell the sorter about certain proper
+can tell the sorter about certain properties of the data, and select an
+algorithm specifically tuned for that workload. From the data I have seen so
+far, I suspect I would like to use by quicksort hybrid as the default, but be
+able to switch to Timsort if the user hints the input data might already be
+partially sorted.
 
 ### Addenum about Big-O and Algorithms
 
@@ -172,3 +196,4 @@ reasonably well on random data, and completely falls apart when the data is
 almost exactly reverse-sorted. I suspect we could do some kind of analysis there
 to detect the worst case and build our heaps backwards, but that would further
 cut into the performance cost of the common cases.
+
