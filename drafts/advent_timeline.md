@@ -1,22 +1,23 @@
-Parrot
-Winxed (General)
-Threading
+*Parrot
+*Winxed (General)
+*Threading
+Contributing to Parrot and Friends
+Google (GSOC and GCI)
+Writing Tests
+Rosella Test and Harness
 parrot.github.com
 Rosella Event and Container
 6Model and NQP
 PackfileView PMC
-Parrot Embedding API
-Parrot Frontend
+Embedding API and Embedding
 PACT
-Rosella Path and Query
+Rosella Query and Random
 Jaesop Stage 0
 Parrot-libgit2
 Parrot-Linear-Algebra
-Rosella Test and Harness
-Rosella Random
-Winxed Multi-Dispatch
+Winxed Multi-Dispatch and Inline
 Rosella String and Template
-Winxed Inlines
 Rosella FileSystem
 Guitor
+Writing a Compiler
 Rakudo
