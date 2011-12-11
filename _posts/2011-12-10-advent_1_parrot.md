@@ -11,9 +11,9 @@ this advent calendar of mine isn't going to be nearly as reliable or successful
 as moritz's. To (finally) kick off this [pseudo-advent calendar][advent_main]
 I'm going to jump right in and talk about the main course, the bird, Parrot.
 This post is going to be a short retrospective about the developments in 2011
-and some clues about where we are heading (or, where I hope we are heading) in
-2012. I'll very likely post a more in-depth yearly retrospective around the
-4.0 release in January.
+and some clues about where we are heading (or, where I hope we are heading) next
+year. I'll very likely post a more in-depth yearly retrospective around the 4.0
+release in January.
 
 [advent_main]: /2011/12/08/advent_calendar.html
 
