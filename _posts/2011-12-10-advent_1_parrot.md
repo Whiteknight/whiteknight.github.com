@@ -100,7 +100,7 @@ behavior will do what you need when you need it:
     $P1 = $P0.'subs_by_tag'("SomethingNew")
     ...
     $P0.'mark_initialized'("SomethingNew")
-  already_initialized:
+    already_initialized:
     ...
 
 Yes, it is a little bit more code for the end user (or intrepid HLL developer)
