@@ -1,7 +1,7 @@
 *Parrot
+*Contributing to Parrot and Friends
 *Winxed (General)
 *Threading
-Contributing to Parrot and Friends
 Google (GSOC and GCI)
 Writing Tests
 Rosella Test and Harness
