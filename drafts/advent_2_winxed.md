@@ -4,8 +4,16 @@ categories: [Parrot, Advent2011]
 title: Advent 3 - Winxed
 ---
 
+Already this advent series of posts is an unmitigated disaster. The last two
+days of ommissions can be squarely blamed on my wife and her parents, and last
+night I will blame on Septa (for eating 5 hours of my day because of "mechanical
+problems"). Here, finally, is day 23 of my miserable failure of an advent
+calendar.
+
 For the third post in my almost-advent calendar, I'm going to talk about
-Winxed.
+[Winxed][].
+
+[Winxed]: http://github.com/NotFound/winxed
 
 Winxed, written by long-time Parrot hacker NotFound, is quite an interesting
 project and is definitely worth learning more about. It serves as something
@@ -14,6 +22,12 @@ but the two aren't competing. I think they are very complimentary. Where NQP
 is designed to help building compilers (Rakudo Perl6 especially), Winxed seems
 much more geared towards writing libraries and utilities. It's for this reason
 that I've written my library project, Rosella, in Winxed.
+
+In return for making such an awesome language, I've turned around and started
+writing some comprehensive documentation about Winxed on the
+[Rosella website][].
+
+[Rosella website]: http://whiteknight.github.com/Rosella/winxed/index.html
 
 Winxed is written in itself using a home-brewed recursive descent parser. To
 perform the bootstrapping, the stage 0 winxed compiler is written in C++.
@@ -32,7 +46,9 @@ additions, and I've found it to be a pleasure to work on.
 
 It's not anything goes on the compiler, however. NotFound maintains pretty tight
 editorial control over the software. The consistency of vision and planning
-does produce refreshingly nice results, though.
+does produce refreshingly nice results, though. He's very good about taking
+requests and suggestions, so if you see something that's missing definitely drop
+him a line.
 
 Since bundling with Parrot in th 3.6.0 release, which incidentally is when
 NotFound started keeping track of version numbers, the language has come a
@@ -42,8 +58,8 @@ dispatch and most recently a new "inline" feature which allows you to inline
 certain types of code for performance improvements by avoiding extra PCC
 calls.
 
-Here is a random-ish sample of Winxed code that I've been playing around today
-which is written in Winxed for testing some new ideas I'm thinking of adding to
+Here is a random-ish sample of Winxed code that I've been playing around with
+recently, written in Winxed for testing some new ideas I'm thinking of adding to
 Rosella:
 
     function main[main](var args)
@@ -69,34 +85,41 @@ Rosella:
 This sample is a driver program for a new Genetic Algorithms library that I'm
 playing with. This toy example uses the Genetic Engine type to pick some random
 numbers at each generation for five hundred generations to try and get a random
-number which is closest to `200.0`. I'll write more about that library in the
-future if anything ever comes of it, but that's not the important part of this
-example. The important part is the Winxed syntax. The syntax should be
-immediately familiar to anybody who has used JavaScript or C++ and any of its
-descendents. Here we can clearly see closures created with the `function`
-keyword, creating objects with `new` (Winxed is OO, not prototype-based like
-JavaScript), low-level types like `float` and `int`, Parrot Sub flags like
-`[main]` (AKA `:main` in PIR) and calling PIR opcodes directly (the `${ ... }`
-syntax). Winxed in a nutshell is an an answer to this question: What would it
-look like if I took a language like C++ or JavaScript and bent it to work
-closely with Parrot?
+number which is closest to `200.0`. It's a trivial example to be sure, and I'll
+write more about that library in the future if anything ever comes of it. That's
+not the important part of this example, however. The important part is the
+Winxed syntax. The syntax should be immediately familiar to anybody who has used
+JavaScript or C++ and any of its descendents. Here we can clearly see closures
+created with the `function` keyword, creating objects with `new` (Winxed is OO,
+not prototype-based like JavaScript), low-level types like `float` and `int`,
+Parrot Sub flags like `[main]` (AKA `:main` in PIR) and calling PIR opcodes
+directly (the `${ ... }` syntax). Winxed in a nutshell is an an answer to this
+question: What would it look like if I took a language like C++ or JavaScript
+and bent it to work closely with Parrot?
+
+Winxed creates a nice mix of dynamic behavior with static analysis. There is
+plenty of syntax and semantics in the compiler that can be used to inline code,
+propagate constants, statically link functions by name instead of doing named
+lookups, checking known types at compile time and issuing warnings, and other
+tools that would be more familiar to a user of statically typed languages.
 
 I don't know where NotFound is planning to take Winxed in 2012. His relentless
 pursuit of new features, better internals, more optimizations, better
-diagnostics and other features leaves open many potential avenues for him to
-travel down next year.
+diagnostics and other improvements leaves open many potential avenues for him to
+travel down.
 
 I have a few ideas for features I might like to propose and provide patches,
-many of which will be internal changes to mirror changes that will need to be
+many of which will be intended to mirror changes that will need to be
 made in Parrot. I have been thinking about submitting a patch to add some
 cleaner syntax for parameter and argument flags instead of using PIR flags by
 name directly. I'm also keen to get Winxed updated to use some of my new PCC
 changes as soon as they are available. It will make both a great test case for
 the new functionality and a good demonstration of any performance benefits to be
 had. Eventually I would like to get Winxed updated to generate .pbc packfiles
-directly instead of generating PIR and using IMCC as an intermediary. Again,
-this would make an excellent demonstration of the functionality, when we have
-it ready to test.
+directly instead of generating PIR and using IMCC as an intermediary. That's a
+pretty big project, and might have to wait until we get more work done on PACT.
+Again, this would make an excellent demonstration of the functionality, when we
+have it ready to test.
 
 I personally use Winxed to implement my Rosella project and the first stage of
 my JavaScript compiler "Jaesop". Other people are using it as well. Hacker
@@ -109,4 +132,5 @@ or will be written in Winxed, and I'm sure the number will only increase in
 2012.
 
 If you're doing systems-level library or utility work on Parrot in 2012, Winxed
-is probably the language you are going to be using.
+is probably the language you are going to be using. I'll talk about compilers
+and NQP in later posts.
