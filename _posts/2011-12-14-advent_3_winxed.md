@@ -7,7 +7,7 @@ title: Advent 3 - Winxed
 Already this advent series of posts is an unmitigated disaster. The last two
 days of ommissions can be squarely blamed on my wife and her parents, and last
 night I will blame on Septa (for eating 5 hours of my day because of "mechanical
-problems"). Here, finally, is day 23 of my miserable failure of an advent
+problems"). Here, finally, is day 3 of my miserable failure of an advent
 calendar.
 
 For the third post in my almost-advent calendar, I'm going to talk about
