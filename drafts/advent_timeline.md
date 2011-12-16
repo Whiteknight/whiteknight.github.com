@@ -3,7 +3,7 @@
 *Winxed (General)
 *Threading
 Google (GSOC and GCI)
-Writing Tests
+*Writing Tests
 Rosella Test and Harness
 parrot.github.com
 Rosella Event and Container
