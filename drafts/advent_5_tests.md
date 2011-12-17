@@ -18,6 +18,13 @@ have the infrastructure for it. The easiest way to write tests, in my opinion,
 is with Rosella, but we have a Test::More library as well that can be used for
 great effect and is the primary testing tool used in Parrot's own test suite.
 
+Several months ago we had Tapir, a simple TAP harness project written by
+dukeleto and others in NQP. There was also a project called Kakapo written by
+Austin Hastings which included several unit test and mock object utilities, also
+written in NQP. I absorbed a lot of ideas from both projects (and eventually
+rewrote those ideas in Winxed) for the Rosella Test, Harness and MockObject
+libraries.
+
 Writing tests for Parrot is a great way to get involved in the project if you're
 a new user, a great way to get familiarized with the capabilities of the VM, and
 a very big benefit to the project in any case. First let's talk about Test::More
@@ -76,16 +83,17 @@ Harness library to build your own harness in only a few lines of winxed code:
 The listing for a harness written in NQP is almost as short, and I've
 [shown it several times][nqp_harness] on this blog before.
 
+[nqp_harness]: http://whiteknight.github.com/Rosella/libraries/harness.html
+
 Writing a unit test file with Rosella Test is similarly easy:
 
     $include "rosella/test.winxed";
     class MyTest {
         function test_one() {
             self.assert.equal(1, 1);
+        }
     }
-    function main[main]() {
-        Rosella.Test.test(class MyTest);
-    }
+    function main[main]() { Rosella.Test.test(class MyTest); }
 
 Each method in the MyTest class will be run as a test. Each test method may
 contain zero or more assertions. If all assertions pass, the test passes. If any
@@ -94,5 +102,43 @@ failed. Unlike Test::More above, we don't need to explicitly count the number
 of tests for `plan()`. Instead, the library counts the number of methods for
 us automatically.
 
-Rosella's MockObject
+Rosella's MockObject library can be used together with the Test library to add
+MockObject support to your tests. Mock Objects, as I've said before and I'll say
+a million times again in the future, are tools that can do as much harm as good,
+especially if they are used incorrectly. Here's an example of a test using
+MockObject:
+
+    $include "rosella/test.winxed";
+    $include "rosella/mockobject.winxed";
+    class MyTest {
+        function test_one() {
+            var c = Rosella.MockObject.default_mock_factory()
+                .create_typed(class MyTargetClass);
+            c.expect_method("foo")
+                .once()
+                .with_args(1, 2, "test")
+                .will_return("foobar");
+            var o = c.mock();
+            var result = o.foo(1, 2, "test");
+            self.assert.equal(result, "foobar");
+            c.verify();
+        }
+    }
+    function main[main]() { Rosella.Test.test(class MyTest); }
+
+You have to do more setup for the test with mockobjects, but you get a lot
+more flexibility to do black-box testing and unit testing with proper
+component isolation. I won't try to sell mock object testing here in this post,
+only demonstrating that it is both possible and easy with Rosella.
+
+Parrot has several thousand tests in its suite. Winxed has a small but growing
+test suite. Rosella currently runs "728 tests in 116 files". parrot-libgit2 has
+a growing test suite. Rakudo has a gigantic spectest suite. Jaesop has a growing
+suite of tests. NQP has tests. PACT is going to have extensive tests, once it
+has code worth testing. Plumage has tests (though not nearly enough!). PLA has
+a relatively large suite of tests. Testing is a hugely important part of the
+Parrot ecosystem, and we currently have several tools to help with testing.
+Expect the trend to continue, with more tests being written for more projects
+in 2012.
+
 
