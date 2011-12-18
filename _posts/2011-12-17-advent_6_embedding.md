@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Parrot, Advent2011]
-title: Advent 5 - Embedding
+title: Advent 6 - Embedding
 ---
 
 In late 2010 and early 2011 we spent a good amount of effort building a new
