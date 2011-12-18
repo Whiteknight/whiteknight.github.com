@@ -2,14 +2,14 @@
 *Contributing to Parrot and Friends
 *Winxed (General)
 *Threading
-Google (GSOC and GCI)
 *Writing Tests
-Rosella Test and Harness
+Embedding API and Embedding
+Google (GSOC and GCI)
 parrot.github.com
 Rosella Event and Container
 6Model and NQP
 PackfileView PMC
-Embedding API and Embedding
+
 PACT
 Rosella Query and Random
 Jaesop Stage 0
