@@ -15,8 +15,8 @@ remotely picky about what I post or when.
 
 I'm thinking I might like to try this little experiment again later in the year,
 when I've had more time to prepare and have fewer other things in real life
-demanding my unidivided attention. Maybe we'll shoot for some kind of
-christmas-in-July thing. Until then, I'll happily hand the "best Advent
+demanding my undivided attention. Maybe we'll shoot for some kind of
+christmas-in-July thing. Until then, I'll happily conceed the "best Advent
 Calendar" crown back to moritz and the Perl peoples.
 
 Rosella is a library project I started as a way to let me work on lots of
@@ -72,6 +72,7 @@ object system improve in 2012 and beyond), but it is verbose:
             new Rosella.Container.LifetimeManager.Thread()
         )
         .alias(class Baz, "Baz");
+    var b = container.resolve(class Bar);
 
 The part that is significantly more verbose here than you would expect in Unity
 for example is the part where I have to specify the types of arguments to pass
@@ -167,7 +168,3 @@ planning a new reflection/packfile library, a benchmarking library, a code
 assertions library, and rewrites to several of the existing libraries to add
 new functionality and optimize performance in some key ways. Those are only my
 plans for the first two or three months of 2012!
-
-
-
-
