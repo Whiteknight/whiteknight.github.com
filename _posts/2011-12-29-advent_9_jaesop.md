@@ -34,9 +34,9 @@ using PACT for this purpose when it's ready.
 Stage 0 works very well and passes a small but interesting test suite I've set
 up for it. It does not self-compile, but there are only a few relatively small
 things standing in the way. For instance, regular expression support and pcre
-bindings are not complete yet, and grammar currently requires semicolons at the
-end of statements but the code generated from the grammar by Jison does not
-always contain semicolons. I also haven't built in the `require()` function,
+bindings are not complete yet, and the grammar currently requires semicolons at
+the end of statements but the code generated from Jison does not always contain
+semicolons. I also haven't built in the `require()` function,
 which is used by the stage 0 compiler to load in the various code files. These
 are all small issues and with a small amount of work I expect stage 0 to be able
 to self-host. Whether I want to expend that effort or focus attention on stage 1
@@ -45,4 +45,7 @@ instead is a different question entirely.
 In 2012, once PACT has matured and 6model has been integrated into Parrot I
 expect to get back to work aggressively on Jaesop. I'm looking for helpers too,
 in case anybody reading this wants to get involved in the development of a new
-JavaScript compiler.
+JavaScript compiler. I'll put out more of a call to arms when the prerequisites
+are in place and we're ready to get the wheels turning on stage 1. I estimate
+that by spring or early summer we should be ready to get started on the next
+phase of Jaesop development.

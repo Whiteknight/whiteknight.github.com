@@ -14,7 +14,7 @@ consider yourself "lucky", we have a replacement in the environs: 6model.
 Rakudo project. However, it's core design is simple and general enough that
 languages far different from Perl6 should be able to use it to great effect.
 6model allows us to implement various low-level object representations for
-different purposes, and helps to separate the form from the function of various
+different purposes and helps to separate the form from the function of various
 primitives to enable flexible use and reuse of components.
 
 Parrot wants 6model. I've been saying that for months. We haven't really been

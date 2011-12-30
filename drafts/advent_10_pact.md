@@ -50,6 +50,8 @@ various compilers. I'm specifically interested in getting Jaesop working with
 PACT as quickly as possible.
 
 PACT is also going to want to host a few other tools. Reflection and packfile
-disassembly come to mind as things that we want. Anything that a compiler might
-need to help generate or work with bytecode is open for consideration. Tools
-that analyze bytecode might also be able to benefit from the work.
+disassembly come to mind as things that we want. Some of these things I've been
+prototyping under the auspices of Rosella, but eventually PACT should become the
+one-stop shop for anything that a compiler might need to help generate or work
+with bytecode. Tools that analyze bytecode might also be able to benefit from
+the work.
