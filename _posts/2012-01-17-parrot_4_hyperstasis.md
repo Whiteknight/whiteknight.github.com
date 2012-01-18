@@ -17,12 +17,12 @@ On behalf of the Parrot team, I'm proud to announce Parrot 4.0.0, also known
 as "Hyperstasis".  [Parrot](http://parrot.org/) is a virtual machine aimed
 at running all dynamic languages.
 
-Parrot 4.0.0 is available on [Parrot's FTP site]
-(ftp://ftp.parrot.org/pub/parrot/releases/stable/4.0.0/), or by following the
-download instructions at [http://parrot.org/download](http://parrot.org/download).
-For those who would like to develop on Parrot, or help develop Parrot itself, we
-recommend using Git to retrieve the source code to get the latest and best
-Parrot code.
+Parrot 4.0.0 is available on
+[Parrot's FTP site](ftp://ftp.parrot.org/pub/parrot/releases/stable/4.0.0/), or
+by following the download instructions at
+[http://parrot.org/download](http://parrot.org/download). For those who would
+like to develop on Parrot, or help develop Parrot itself, we recommend using Git
+to retrieve the source code to get the latest and best Parrot code.
 
     Parrot 4.0.0 News:
         - Core
