@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Parrot, Rosella, Test]
-title:
+title: Rosella Test Updates and Upgrades
 ---
 
 The first half of this month was dominated with some epic illnesses between my
