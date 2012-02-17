@@ -41,7 +41,7 @@ compile a `.winxed` file down into `.pbc` without spawning any child processes:
 That's less than 20 lines of Winxed code to get the Winxed compiler object
 loaded, to compile the code and to output the PBC to file. We can make this
 better, of course, by being more flexible in the handling of arguments and
-printing out basic help and error message and all that stuff.
+printing out basic help and error messages and all that stuff.
 
 One particularly interesting tidbit to notice is the very first line: A new
 syntax for handling optional parameters. I put a patch for that feature together
@@ -58,7 +58,7 @@ supports optional arguments. I hope that this feature is included with the
         ...
     }
 
-    // same as this...
+    // ...is the same as this
     function foo(var bar = default_bar_value())
     {
         ...
