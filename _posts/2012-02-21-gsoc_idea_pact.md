@@ -61,22 +61,22 @@ together into a faithful round-trim assembly/disassembly mechanism. In fact,
 there are multiple little potential projects here that can be arranged and
 ordered/prioritized to create a summer-long project or many:
 
-1) Create a tool to disassemble raw bytecode into Opcode PMCs, and create a
+1. Create a tool to disassemble raw bytecode into Opcode PMCs, and create a
    disassembler program to interact with the user and print the disassembly
    listings to file/console.
-2) Create a tool for round-trip disassembly and assembly. Write the
+2. Create a tool for round-trip disassembly and assembly. Write the
    disassembly type, then write a tool that does the reverse operation (take
    a list of Opcodes and write a valid Packfile or bytecode segment).
-3) Create the tool to disassemble raw bytecode, then write a utility layer to
+3. Create the tool to disassemble raw bytecode, then write a utility layer to
    construct a control flow graph from those Opcodes. This layer could be used
    in turn to create things like code complexity analyzers, or even
    simple decompilers (for the very ambitious student).
-4) Write a tool to take a stream of Opcode PMCs and other related data (tables
+4. Write a tool to take a stream of Opcode PMCs and other related data (tables
    of constant values, annotations, debugging symbols, etc) and write them
    into a valid and executable packfile. This would be the base layer of the
    PACT assembly engine, and would be used to help build compilers and other
    tools.
-5) Construct anything else PACT-related (AST and manipulators, CFG/DAG and
+5. Construct anything else PACT-related (AST and manipulators, CFG/DAG and
    friends, PIR->Opcode assembler, etc). There is lots of fertile ground here
    for projects (and we have a lot of ideas and designs already put together
    for these things).
