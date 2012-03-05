@@ -10,7 +10,7 @@ A few months ago I started
 something of an extended hiatus from hardcore parrot hacking, I've decided to
 get started on doing all this work.
 
-load_init_1: /2011/07/07/packfiles_work_continues.html
+[load_init_1]: /2011/07/07/packfiles_work_continues.html
 
 The biggest part of my plan, from a user-interface perspective was changing
 this:
@@ -36,14 +36,14 @@ to this:
     $I0 = $P1.'is_initialized'('load')
     if $I0 goto done_initialization
     $P2 = iter $P1
-  loop_top:
+    loop_top:
     unless $P2 goto loop_bottom
     $P3 = shift $P2
     $P3()
     goto loop_top
-  loop_bottom:
+    loop_bottom:
     $P1.mark_initialized("load")
-  done_initialization:
+    done_initialization:
 
 I've discussed these changes before but I will repeat one important detail that
 is well worth repeating: Despite the fact that the total amount of PIR code
