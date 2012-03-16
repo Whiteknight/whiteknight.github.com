@@ -1,3 +1,9 @@
+---
+layout: post
+categories: [Parrot, IMCC]
+title: IMCC pbc.c Cleanup
+---
+
 Last night benabik told me about a problem that, while serious, hardly caused
 me to raise an eyebrow. Some innocuous-looking code, written while trying to
 follow along with some ill-written documentation, lead IMCC to enter into an
