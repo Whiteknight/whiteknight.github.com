@@ -1,0 +1,115 @@
+---
+layout: post
+categories: [Parrot, GSOC]
+title: More GSOC Ideas
+---
+
+The application for GSOC is next Friday, April 6th. That's not a huge amount of
+time, but it's plenty if you find an idea soon. Luckily, I have a few more ideas
+floating around in this head of mine.
+
+## Rosella Harness Improvements
+
+Rosella provides a Harness library, which is used for implementing a TAP Unit
+Test Harness. The default harness is console-based and single threaded. That
+can be improved, because the Harness library is completely pluggable.
+
+NotFound, the creator of Winxed, has another side project: Guitor. It's a GUI
+library written in Winxed which theoretically should allow people to make cool
+GUIs for programs written in Parrot. It would be really awesome if Rosella's
+Harness library had a with buttons. Click to run the test and the GUI shows
+a big green checkmark for files that pass, a big red X for files that fail.
+Options to hide certain classes of tests, find and flag files with TODO tests
+in them, and other cool features that would be very valuable to developers and
+could be as easy as the click of a button or selecting a menu option.
+
+Also, Rosella's Harness doesn't use threads because at the time it was written
+Parrot didn't really have any threads. Parrot does have threads now, at least
+most of the way on most systems. We should be able to create Tasks for different
+test files and execute them in parallel to speed up test execution.
+
+The ability to capture test resuls, package them up, and send them to a
+continuous integration reporting server (such as Smolder) would be awesome as
+well. The ability to generate pretty reports with graphics (even ascii graphics)
+and ANSI color codes in the console would be appreciated as well.
+
+These few improvements would make Rosella Harness not just better, but would
+make it comparable to some of the best test harness software in the world.
+
+## IRC Bot
+
+We're developers, we use IRC alot, and we would like to have IRC client software
+running on Parrot. Call it narcissm, call it a bad case of wanting to eat our
+own dog food. I don't care what you call it.
+
+Rosella recently added a new library for network-related operations, especially
+TCP connections and HTTP requests. With that basis, plus the recent threading
+improvements in Parrot, we should have everything we need to make an IRC client
+library with Parrot.
+
+Once you have a library implementing the basic protocol and a suitable
+UserAgent, it's a small matter to start making cool applications to use it.
+Maybe you use NotFound's Guitor to add a user interface like a normal IRC client
+such as mIRC or XChat. Maybe we add some automation and create an IRC bot that
+listens to user commands and makes snarky replies. Maybe we have software that
+monitors a webpage like a mail archive and posts a notice when a message is
+received. Maybe we create an IRC listener that takes user commands and can
+execute builds and run tests for Parrot on remote machines.
+
+There are lots of cool things we could do with an IRC bot.
+
+## Other Internet Protocols
+
+There are other internet protocols that might be ripe for implementation on
+Parrot. FTP comes to mind. A SecureSocket PMC which binds to an SSL library
+would allow us to implement HTTPS and secure FTP too. Heck, if we have that we
+could even implement an SSH client (and server!) library. Parrot does seem to
+have some basic NCI bindings for OpenSSL already. Building out a friendly
+interface for that would be the start of a great project.
+
+Simple IMAP/POP/SMTP implementations would allow us to send and receive mail
+from Parrot programs, very useful for semi-autonimous tasks such as build
+bots, resource monitors and the like.
+
+There are lots of different internet protocols and utilities that we could
+implement as libraries on Parrot, all of which would lead to other cool projects
+that people could get started on.
+
+## Web Server
+
+I've already mentioned creating a new ModParrot module for the Apache web
+service. That would be an awesome project. But if we have sockets and threads,
+we could conceivably create our own webserver capable of scaling up to a large
+number of connections. An HTTP Server library which we could use for
+implementing light-weight servers for simple applications would be cool.
+
+## Artificial Intelligence
+
+A few weeks ago I put together a quick prototype of a Genetic Algorithms library
+for Rosella. It doesn't do much and I haven't used it to solve any problems
+yet, but it is a start of something. I would love to see the Genetic algorithms
+library improved and the tools it provides used to solve real problems.
+
+Genetic Algorithms are just one facet of the myriad techniques that fall under
+the umbrella of "artificial intellegence". There are other cool algorithms and
+implementations that we would love to have implementations for.
+
+Neural Networking is another great example. Small, simple "neurons" connect
+together in complicated ways and produce some emergent properties which are
+almost unbelievable. A basic pattern-matching neural network library with
+back-propagation learning would make for an excellent project.
+
+Expert Systems use a system of rules and predicate logic to make complicated
+decisions. The Rete Algorithm is a famous and very fast algorithm for testing
+predicates in expert systems and making decisions. An implementation of Rete
+would be great for a variety of reasons, and could be used for more than just
+expert systems.
+
+The A* path algorithm is a searching algorithm which can be used to find a
+shortest path between two poins. Many video games use it to help guide characters
+around maps and mazes. A* is not so hard to implement on its own. Using it as
+part of a simple 2-D game engine could be a little harder.
+
+## Anything Else
+
+That's all I have for right now, I'm sure I'll have more ideas tomorrow.
