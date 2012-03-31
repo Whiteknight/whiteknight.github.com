@@ -9,6 +9,8 @@ JSON parsing libraries in Rosella and didn't have any real plans to build them
 either. Well, I kind of lied. As of this morning, Rosella has an experimental
 prototype of an XML parsing library and a JSON library.
 
+[rosella_net_post]: /2012/03/25/rosella_net.html
+
 On the XML side, you can do something like this:
 
     var d = new Rosella.Xml.Document();
