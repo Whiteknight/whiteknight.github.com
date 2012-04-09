@@ -13,7 +13,7 @@ summer.
 
 Here's a list of the decent-looking proposals we've received:
 
-* **Jaesop Stage 1 Compiler and Runtime** by **_mayank**. _mayank intends to
+* **Jaesop Stage 1 Compiler and Runtime** by **mayank**. mayank intends to
   fix up the last remaining bits of stage 0, then get started on a
   Javascript-compiler-in-Javascript stage 1. By the end of the summer I think
   it's very plausible that he could have a self-hosting compiler for most of the
