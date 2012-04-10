@@ -71,5 +71,5 @@ whatever else work that I'm planning for myself. This could be a very eventful
 summer indeed.
 
 If you're signed up to be a mentor this summer, or if you would like to be,
-please head over to the [GSOC website](www.google-melange.com), sign up, and
+please head over to the [GSOC website](http://www.google-melange.com), sign up, and
 take a look at the proposals.
