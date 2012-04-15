@@ -4,10 +4,10 @@ categories: [Parrot, ParrotStore]
 title: ParrotStore
 ---
 
-I created a new repo for a new project: ParrotStore. ParrotStore intends to
-provide some storage and persistance (and caching and database) solutions for
-Parrot. At the time of writing this post we have two: Memcached and MySQL. A
-third, MongoDB, is on the way.
+I created a new repo for a new project: [ParrotStore](http://github.com/Whiteknight/ParrotStore).
+ParrotStore intends to provide some storage and persistance (and caching and
+database) solutions for Parrot. At the time of writing this post we have three
+in development: Memcached, MySQL and MongoDB.
 
 ## Memcached
 
@@ -29,6 +29,10 @@ The `autoget` method will try to read from Memcached if the item exists, and
 will invoke the callback to get the value otherwise (and save it to Memcached
 for later use). Of course, for this to be practical the callback to generate
 the content should be more expensive than a return of a constant string.
+
+I havent't tested with multiple memcached servers yet, and I haven't implemented
+several of the methods memcached supports. It's a start, however, and I can
+already think of several potential uses for it.
 
 ## MySQL
 
@@ -64,23 +68,42 @@ as I can.
 
 We're starting to use MongoDB at work, and I figured a great way to become more
 familiar with this piece of software was to write bindings for it for Parrot.
-I have things mostly set up, but am running into errors linking to the dynamic
-libraries for the C client driver. Once I get the binding issues set up, I've
-got a few bits of code ready which *should* work, after maybe a small amount of
-effort:
+Despite several unnecessary problems with linking to the Mongo C Driver
+libraries, I've managed to produce a few results.
 
-1. I've got a MongoDbContext PMC which allows us to save BSON (the document
-storage format used by MongoDB) to the database
-2. I've got a BsonDocument PMC which represents a BSON document and allows you
-to create one for saving to the DB.
-3. I've got a tool, using Rosella's JSON library, to convert JSON to BSON.
+Mongo uses a storage format called BSON (similar to JSON), and stores BSON
+documents as atomic units. ParrotStore implements a BsonDocument and a
+MongoDbContext PMC type. As of this morning, you can create a BSON document and
+insert it into the DB:
 
-I don't yet have a mechanism for reading documents back out of the DB, or
-modifying documents in place.
+    var lib = loadlib("mongodb_group");
+    var bsondoc = new 'BsonDocument';
+    bsondoc.append_start_object("name");
+    bsondoc.append_string("first", "Andrew");
+    bsondoc.append_string("nick", "Whiteknight");
+    bsondoc.append_end_obect();
+    bsondoc.finish();
 
-Once I get my linking problems figured out, I'm going to get back to work on
-these bindings and hopefully give Parrot a full-featured client interface to
-MongoDB.
+    var mongo = new 'MongoDbContext';
+    mongo.connect("127.0.0.1", 27017);
+    mongo.insert("local.foo", bsondoc);
+
+The document is indeed written to the database, although I don't have any
+methods yet to read it back out. The documentation for the C Driver for MongoDB
+is lacking, but I have the source code handy and it is pretty readable. I hope
+to have basic querying implemented by the end of the day.
+
+Here are a few things I plan to add, either today or in the next few days:
+
+1. Support simple querys and commands
+2. Support introspecting and iterating over BSON documents
+3. Implement a JSON->BSON translator (I have most of this written already).
+
+There are several other features that I need to implement, although many of them
+aren't necessary to say I have a minimally functional set: support for
+replicated sets, support for atomic find/replace updates, support for cursors
+and bson iterators, etc. There's a lot of work here, but I'm off to a pretty
+good start already.
 
 ## Build System and Project Setup
 
@@ -91,9 +114,13 @@ projects individually. At the terminal, if you have `make`, you can build them
 like this:
 
     make memcached
+    make install_memcached
     make mysql
+    make install_mysql
     make mongodb
+    make install_mongodb
     make            # attempts to build them all
+    make install    # attempts to build and install them all
 
 This is great for if you don't have the mysql or mongodb development packages
 installed but you want to get the memcached library (or any other combination).
@@ -104,10 +131,12 @@ building the various components, but you shouldn't use `setup.winxed` directly.
 Like Rosella, which is a prerequisite for this project, ParrotStore will be a
 collection of things not one big monolithic system. It will provide a
 Memcached interface in one standalone library, a MySQL interface in one, a
-MongoDB interfae in one, and other interfaces separately too. Some of them
+MongoDB interface in one, and other interfaces separately too. Some of them
 (like Memcached) will be pure parrot. Other things like MongoDB will have
 C-level components too. Where Rosella has always promised to be pure Parrot,
-ParrotStore cannot and should not follow such a rule.
+ParrotStore cannot and should not follow such a rule. Some things may turn out
+to be implementable with NCI, but that's an experiment for later. Maybe, much
+later.
 
 Also, expect a lot of synergy between Rosella and ParrotStore. ParrotStore will
 both use Rosella internally, provide many of the interfaces that other
@@ -126,7 +155,7 @@ project embeds Parrot into the Postgres DB. ParrotStore would provide an
 external interface for querying it instead.
 
 I do not yet have a runnable test suite. I've been doing ad hoc tests because
-this is all so new and experimental. I need to add a test suite
+this is all so new and experimental. I need to add a test suite.
 
 I also want to add a custom caching mechanism for storing frozen PMCs to file
 and fetching them again. Multiple backends to a PMC mechanism would allow us
@@ -141,6 +170,4 @@ I think this project will probably grow organically, adding new storage backends
 and cool interfaces for various purposes, and then adding some tools and
 utilities that use these things. As with all my projects, feedback, requests,
 suggestions, and questions about my basic compentency are always welcome.
-
-
 
