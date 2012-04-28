@@ -6,28 +6,32 @@ title: XML Is Hard
 
 Last week I promoted the Parse and Json libraries in Rosella to stable status.
 For both those libraries I wrapped up a few outstanding TODO issues, wrote up
-some website documentation and added a bunch of unit tests. I figured I would
-do the same thing for the XML library too. After all, I had done the hard part,
-the first 90% of the library was the recursive descent parser which I had most
-of.
+some [website][json_web] [documentation][parse_web] and added a bunch of unit
+tests. I figured I would do the same thing for the XML library too. After all
+I had done the hard part: the first 90% of the library was the recursive descent
+parser which I had most of.
+
+[json_web]: /Rosella/libraries/json.html
+[parse_web]: /Rosella/libraries/parse.html
 
 So today I got to work on that library, trying to put together the last few
 bits so I could make the library stable. Like I said, I had about 90% of it
-done earlier. I spent the time today doing another 90%. I figure I only have
-about 90% left to go before I have a "real" XML library. Somewhere a
-mathematician is reading this post and inventing new curse words.
+done already. I spent the time today doing another 90%. I figure I only have
+about 90% left to go before I have a "real", usable XML library. Somewhere a
+mathematician is reading this post and inventing new curse words, but nobody
+can hear him, because he has no friends.
 
 It turns out that XML is hard.
 
 Anybody can put together a little parser for XML-like tag syntax with
-attributes, text, and nested tags. It's once you start getting into DTD
-declarations and schema validation that things get messy. Honestly, I don't
-think I can seriously call Rosella's XML library "complete" without those
-things. Or, not without most of them. I can probably get away with only the
-first 90% or so.
+attributes, text, and nested tags. That part is dirt simple, and I had that done
+in an hour or two. It's once you start getting into DTD declarations and schema
+validation that things get messy. Honestly, I don't think I can seriously call
+Rosella's XML library "complete" without those things. Or, not without most of
+them. I can probably get away with only the first 90% or so.
 
 So, what can Rosella's Xml library do today? Here is a sample of XML text that
-I can parse without problems:
+I can parse into a document object tree without problems:
 
     <?xml version="1.0"?>
     <!DOCTYPE foo [
@@ -52,8 +56,8 @@ it separately:
 
     <!DOCTYPE foo SYSTEM "foo.dtd">
 
-I haven't integrated Rosella Net yet, to allow loading schemas from a URL. In
-code, I can do a few things:
+Although I haven't integrated Rosella Net yet, to allow loading schemas from a
+URL. In code, I can do a few things:
 
     var dx = new Rosella.Xml.Document();
     dx.read_from_file("foo.xml");
@@ -62,6 +66,7 @@ code, I can do a few things:
         for (string err in dx.errors)
             say(err);
     }
+    dx.write_to_file("newfoo.xml");
 
     var dtd = new Rosella.Xml.DtdDocument();
     dtd.read_from_file("foo.dtd");
@@ -70,12 +75,15 @@ code, I can do a few things:
         for (string err in errors)
             say(err);
     }
+    dtd.write_to_file("newfoo.dtd");
 
 That example shows us loading an XML document from a file and validating it with
 it's built-in rules from the `!DOCTYPE` header. The second part shows us loading
 a separate DTD definition from a standalone file, and using that to validate the
 XML document too. In both cases, the validator runs through the document object
-and returns a whole list of error messages, not just a simple yes/no flag.
+and returns a whole list of error messages, not just a simple yes/no flag. In
+both cases, we can also re-serialize the XML and DTD documents back to string
+and then to file.
 
 So what is left to do? Well, for starters there's a bunch of syntax in the
 `!ELEMENT` tag that I don't quite handle yet, such as quantifiers and
@@ -95,6 +103,13 @@ The validator I've implemented is pretty naive so far, and isn't set up to do
 quantifiers anyway. That's all going to take a while to do. We're doing some
 basic validation now, but nowhere near as much as we would expect from a full
 implementation.
+
+And keep in mind, even when I'm done implementing (mostly) proper XML and DTD
+parsing, I could still go on to parse other schema languages like XSD
+which some applications might expect and even prefer. Maybe I could do something
+like XPath too, which would be very nice. I probably won't try to do XSLT
+though: I'm still young and I would like to keep some of my sanity in reserve
+for my twilight years.
 
 My Json library is about 1300 lines of winxed code long, including whitespace.
 My Xml library is about 2400 lines of code long and still growing. Json is
