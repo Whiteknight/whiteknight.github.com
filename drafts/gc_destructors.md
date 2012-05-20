@@ -1,0 +1,261 @@
+---
+layout: post
+categories: [Parrot, GC]
+title: Destructors are Hard
+---
+
+Destructors are hard. The idea behind a destructor is a simple one: We want to
+have a piece of code that is guaranteed to execute when the associated object
+is freed. Memory allocated on the heap is going to get reclaimed en masse by
+the operating system when the process exits. However, things such as handles,
+connections, tokens, mutexes, and other remote resources might not necessarily
+get freed or handled correctly if the process just exits, or if the object is
+destroyed without some sort of finalization logic performed on it. Here's a
+sort of example that's been bandied about a lot recently:
+
+    function main () {
+        var f = new 'FileHandle';
+        f.open("foo.txt", "w");
+        f.print("hello world");
+        exit(1);
+    }
+
+In this example we would expect that the text `"hello world"` would be written
+to the `foo.txt` file. However, because the text to be written may be buffered
+(both in Parrot and by the OS), there's a very real chance that the data won't
+get written if we do not call the finalizer for the `FileHandle` PMC.
+
+Obviously, the brain-dead solution to this particular problem is to manually
+close or flush the file handle:
+
+    function main () {
+        var f = new 'FileHandle';
+        f.open("foo.txt", "w");
+        f.print("hello world");
+        f.close();
+        exit(1);
+    }
+
+However, the whole point of having things like finalizers ("destructors") and
+GC is to make it so that the programmer does not need to worry about little
+details like these. The program should be smart enough to find dead objects
+in a timely manner and free their resources. Beyond that, many programming
+languages (with special emphasis on Perl6) require the availability of
+reliable and sane destructors.
+
+In the remainder of this post I would like to talk about why destructors are
+hard to implement correctly, why Parrot does not currently (really) have them,
+and some of the ideas we've been kicking around about how to add them.
+
+First, let's cover where we currently stand. Parrot does have destructors, of
+a sort, in the form of the `destroy` vtable. That routine is called by the GC
+when the object is being reclaimed, during the sweep pass. A side-effect of
+this implementation is that if PMC `A` refers to PMC `B` and both are being
+collected, it's very possible that `A`'s destructor tries to access some
+information in `B` *after `B` has already been reclaimed*. Think about a
+database connection object that maintains a socket on one side, and a hash of
+connection information on the other. The socket probably cannot perform a
+simple disconnect, but instead should send some sort of sign-off message first
+to alert the server that it can proceed with its own cleanup. The socket PMC
+would need information from the connection information hash to send this final
+message, but if the hash had already been reclaimed the access would fail with
+undefined results.
+
+This situation has lead to more than a few calls for ordered destruction. In
+one of the most common and severe cases, Parrot's Scheduler PMC was being
+relied upon by various managed PMCs. When a Task PMC was destroyed, at least
+in earlier iterations of the system, it would attempt to send a message to the
+Scheduler that it was no longer available to be scheduled. Ignore for a moment
+the fact that the Task could not possibly have been reclaimed in the first
+place if the Scheduler had a live reference to it, and if the Scheduler was
+still alive itself.
+
+Because of some of these order-of-destruction bugs, GC finalization (a final,
+all-encompassing GC sweep path guaranteed to execute all remaining destructors
+prior to program exit) had been turned off. That and performance reasons.
+Turning off GC finalization leads to the problem above where data written to
+the FileHandle is not not flushed before program exit. You are probably now
+starting to understand the bigger picture here.
+
+Having ordered destruction means essentially that we should be able to have an
+acyclic dependency graph of all objects in the system with destructors.
+However, maintaining this in the general case is impossible and attempting to
+approximate it would be very expensive in terms of performance. In any case,
+this is just a way to work around the problem of our naive sweep algorithm,
+which destroys and frees dead objects in a single pass, and not a real
+solution to the larger problems. A far better idea, recently suggested by
+hacker Moritz, is a 2-pass GC sweep.
+
+In the 2-pass case the GC sweep phase would have two loops: the first to
+identify all PMCs to be swept (from a linear scan of the entire memory pool),
+execute destructors on them and add them all to a list, and the second to
+iterate over that list (after all destructors had been called) and reclaim the
+memory. Because of the linked-list setup of the GC, this second pass could,
+conveivably, be almost free because we could simply append this list of swept
+items to the end of the free list for an `O(1)` operation , and the first pass
+would be no less friendly on the processor data cache than our current sweep
+would be. This, in theory, solves our problem with ordered destruction, and
+should allow us to re-enable GC finalization globally without having to worry
+about these kinds of bugs causing segfaults in the final milliseconds of a
+program.
+
+So that's the basics of our current system and our problem with GC
+finalization, and shows us how we would proceed to make sure destructors were
+always called as a guarantee of the VM. However, this doesn't begin to address
+any of the problems with destructors that will plague their implementation and
+improvement. I'll talk about that second subject now.
+
+Destructors, as I said earlier, are hard. In the case of GC finalization,
+after the user program has executed and exited, it's relatively easy to loop
+over all objects and call destructors. It is those destructors which happen
+during normal program execution that cause problems.
+
+In the C++ language, destructors have certain caveats and limitations. For
+instance, we can't really throw exceptions from destructors, because that may
+crash the program. Not just an "oops, here's an exception for you to handle",
+but instead a full-on crash. In Parrot we can probably be smarter about
+avoiding a crash but not by much. It's a limitation of the entire destructors
+paradigm.  Let me demonstrate what I'm talking about.
+
+Let's say I have this program, which opens up a filehandle to write a message
+and then starts doing something unrelated to the filehandle but expensive with
+GC:
+
+    function foo() {
+        var f = new 'FileHandle';
+        f.open("foo.txt", "w");
+        f.write("hello world!");
+        f = null;       // No more references to f!
+
+        for (int j = 0; j < 1000000; j++) {
+            var x = new MyObject(j);
+            x.DoSomething();
+            x.DoSomethingElse();
+            x.DoOneLastThing();
+        }
+    }
+
+Somewhere along the line, when the GC runs out of space, it's going to attempt
+a sweep and that means that `f` is going to be identified as unreferenced,
+finalized and reclaimed. The question is, where? The thing is that we don't
+know where GC is going to run for a few reasons:
+
+1. We don't know how many free headers GC has left in the free list before it
+   has to sweep to find more.
+2. We don't know how many PMCs are being allocated per loop iteration, because
+   the various methods on `x` could be allocating them internally, and all PCC
+   calls currently generate at least one PMC, and this is a lot of pressure.
+
+So at any point in that loop, any point at all, GC could execute and reclaim
+the FileHandle `f`. That calls the destructor, flushes the output, and frees
+the handle back to the operating system. Good, right? What if there is a
+problem closing that handle, and the destructor for FileHandle tries to throw
+an exception (or, if this example isn't stoking your imagination, imagine that
+`f` is an object of type `MyFileHandleSubclass` with an error-prone
+finalizer).
+
+There are a few options for what to do here. The first option is that we throw
+the exception like normal. This means that the loop code with the `MyObject`
+variables, which is running perfectly fine and has no reason to thrown an
+exception by itself, is interrupted in mid loop. The backtrace, if we provide
+one at all, probably points to `MyObject` but with an exception type and
+exception message indicative of a failed FileHandle closing. This means that a
+snippet of code which is running just fine exits abruptly with an error
+condition which it did not cause, leading to more than a little bit of
+confusion and possibly errors if we  try to call cleanup code to clean up
+things which aren't broken. The solution for this, wrapping every single line
+of code you ever write in exception handlers to catch the various possible
+exceptions thrown from GC finalizers, is untenable.
+
+A second option is that we somehow disallow things like exceptions from being
+thrown from Finalizers, because there's no real way to catch them rationally.
+This seems reasonable, until we start digging into details. How do we disallow
+these, by technical or cultural means? And if we're relying on cultural means
+(a line in a .html document somewhere that says "don't do that, and we won't
+be responsible if you do!"), what happens if a hapless young programmer does
+it anyway without having first read all million pages of our hypothetical
+documentation? Does Parrot just crash? Does it enter into some kind of crazy
+undefined state? Obviously we would need some kind of technical mechanism to
+prevent bad things from happening in a finalizer, though the list of
+potentially bad things is quite large indeed (throwing exceptions, allocating
+new PMCs, installing references to dead about-to-be-swept objects into living
+global PMCs, etc) and filtering these out by technical means would be both
+difficult and taxing on performance. When you consider that even basic error
+reporting operations at an HLL level, depending on syntax and object model
+used, may cause a string to be boxed into a PMC, or a method to be called
+requiring allocation of a PMC for the PCC logic, or whatever, we end up with
+finalizers which are effectively useless.
+
+A third option is that we could just ignore certain requests in finalizers,
+such as throwing exceptions. If an exception is thrown at any point we just
+pack up shop, exit the finalizer and pretend it never happened. This works
+fine for exceptions, but does nothing for the problem of a finalizer
+attempting to store a reference to the dieing object into a living object. I
+don't know why a programmer would ever want to do that, but if it's possible
+you can be damned sure it will happen eventually. Also, when I say "pack up
+shop", we're probably talking about a `setjmp`/`longjump` call sequence, which
+isn't free to do.
+
+And this point I keep bringing up about dead objects installing references to
+themselves in living objects is not trivial. Our whole system is built around
+the premise that objects which are referenced are alive and objects which are
+no longer referenced can be reclaimed by GC. If we turn that assumption around
+and say that dead objects may still be referenced by the system, then we lose
+almost all of the benefits that our mark and sweep GC has to offer. It's not
+just a matter of having to test PMCs to make sure they are alive, the memory
+could be reclaimed and used for some other purpose entirely! Meerly accessing
+a reclaimed PMC could cause problems (segfaults, etc) or, if the PMC has
+already been recycled into something like a transparent proxy for a network
+resource, send network requests to do things that you don't want to have
+happen!
+
+I've also brought up the problem with allocating new objects during a
+finalizer. Why is this a problem? Keep in mind that GC tends to execute when
+we've attempted to allocate an object and have none in the free list. If we
+have no available headers on the free list, are already in the middle of a
+GC sweep and ask to allocate a new header, what do we do? Maybe we say that
+we invoke GC when we have only 10 items left (instead of 0) on the free list,
+guaranteeing that we always have a small number of headers available for
+finalization, though no matter what we set this limit at it's possible we
+could exhaust the supply if we have many objects to finalize with complex
+finalizers. Every time a finalizer calls a method or boxes a string, or
+does any of a million other benign-sounding things PMCs get allocated. If we
+try to allocate a PMC when there are no PMCs on the free list and we're
+already in the middle of GC sweep, the system may trigger another recursive
+GC run
+
+Another option is that we could maintain multiple pools and only sweep one at
+a time. If one pool is being swept we could allocate PMCs from the next pool
+(possibly triggering a GC sweep in that second pool and needing to recurse
+into a second pool, etc). Maybe we allocate headers directly from malloc
+while we're in a finalizer, keep them in a list and free them immediately
+after the finalizer exits. We have some options here, but this is still a very
+real problem that requires very careful consideration.
+
+Let's look at destructors from another angle. Obviously a garbage-collected
+system is supposed to free the programmer up from having to manually manage
+memory (at least) and possibly other resources as well. You make a mess, the
+GC comes along after you and guarantees that your mess gets cleaned up. On one
+hand the argument can be made that if you really care about a resource being
+cleaned in a responsible, timely manner, that you call an explicit finalizer
+yourself and leaving those kinds of tasks to the finalizer is akin to saying
+"I don't care about that object and whatever happens, happens." After all, if
+you can't throw an exception from a destructor and if the destructor is called
+outside normal program flow with no opportunity to report back even the
+simplest of success/failure conditions, it really doesn't matter from the
+standpoint of the programmer whether it succeeded or silently failed. And if
+it can silently fail, does it matter if the destructor was called at all?
+
+Another viewpoint is that destructors don't need to be black-boxes, and we
+don't care if they have problems so long as they've given a best effort to
+free the resources and they have an opportunity to log problems in case
+somebody has a few moments to spare reading through log files. After all, if
+a FileHandle fails to close in an automatically-invoked destructor, it also
+would have failed to close in a manually-invoked one and what are you going
+to do about it? If the thing won't close, it won't close. You can either
+log the failure and keep going with your program (like our destructor would
+have done automatically) or you can raise hell and possibly terminate the
+program (like what *could* happen if an exception is thrown from a
+destructor). In other words, when you're talking about failures related to
+basic resources at the OS level, there aren't many good options when you're
+writing programs at the Parrot level.
