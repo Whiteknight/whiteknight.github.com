@@ -42,7 +42,7 @@ currently unmerged but may be merging soon.
 ### `eval_pmc`
 
 This is one of the most disruptive branches I've got going, which is why I'm
-in no hurry to merge it. Before I can merge it, I need to patch both NQP and
+in no hurry to merge it. Before I can merge it I need to patch both NQP and
 Rakudo. I submitted patches for these but they weren't ready to apply and I
 have to go back and re-do them.
 
@@ -106,8 +106,112 @@ that discusses these and some other issues related to finalization. This
 `whiteknight/gc_finalize` branch solves some of the first few problems but
 there will be more to come after that.
 
-### `whiteknight/gc_two_stage_sweep`
-### `whiteknight/gh_610`
 ### `whiteknight/gh_663`
+
+The `singleton` designator for C-level PMCs has been deprecated for some time
+now, and the `whiteknight/gh_663` branch intends to remove them.
+
+Here's how singletons work in Parrot: The `get_pointer` and `set_pointer`
+vtables are used to manage a single reference to an existing singleton PMC
+if any. To get the PMC, we invoke the `get_pointer` vtable *without an
+invocant PMC* (the only such occurance of a vtable invoked without an existing
+PMC reference in the whole codebase that I am aware of). If it returns NULL,
+a new header is created. If the new header is created, the `set_pointer`
+vtable is called on the new object with itself as an argument.
+
+This all happens inside `Parrot_pmc_new` and is mostly transparent, except
+for the few bits of code throughout the system which violate this (rather
+flimsy) encapsulation boundary.
+
+The `get_pointer` and `set_pointer` vtables operate on `void*` pointers, so
+we even lose typesafety. Plus, we don't expose `get_pointer` or `set_pointer`
+vtables to PIR code, so there's absolutely no way to create a singleton
+class at the user-level using this mechanism. You can do what users of all
+other languages do and create an accessor and restricted constructor and
+implement singletons that way. In fact, I think that's better.
+
+The majority of offending code has been ripped out of this branch, though I'm
+still seeing some segfaults during the build as a result of bad, unchecked
+pointer accesses in places where encapsulation has been violoated. I've got
+to spend a little bit more time tracking down some of these failures. Then,
+assuming NQP and Rakudo aren't relying on this mechanism, the merge should be
+relatively painless.
+
+### `whiteknight/gh_610`
+
+A while ago, moritz suggested that we improve integration of our ByteBuffer
+PMC type, especially with our FileHandle and Socket types. We should be able
+to read a sequence of raw bytes from either of those PMCs into a ByteBuffer
+and we should be able to write raw bytes from a ByteBuffer into either of
+those destinations too.
+
+The `whiteknight/gh_610` aims to make this a reality. Already I've done most
+of the code work to get this in place, though I haven't added all the
+necessary tests and documentation. Plus, a few coding standards tests are
+failing too.
+
+While looking at this code, I am reminded that the IO subsystem is kind of
+messy. I've tried to clean it up in the past, and made a few small
+improvements over time. However, without a larger guiding vision to follow,
+I never really had a great idea of what kind of larger architectural changes
+to make to really bring this subsystem up out of the mud.  After working on
+this branch, I finally had something like a flash of insight, and think I have
+a good idea about how to clean things up. This leads me to...
+
 ### `whiteknight/io_cleanup1`
+
+My idea is a relatively simple one: All our IO operations are controlled by
+the various PMC types (FileHandle, Socket, StringHandle, etc), but all our
+IO API functions are currently implemented as ugly (and brittle) switch
+statements to pick between execution pathways for these different types. A
+far better idea would be to separate out the different logic behind a
+virtual function dispatch table (vtable).
+
+I've written up some proposed changes in the `whiteknight/io_cleanup1` branch,
+and will start work if other people think it's a decent idea.
+
+The key points are as follows:
+
+1. Move all FileHandle-specific logic into src/io/filehandle.c. Do the same
+   for Pipe, Socket and StringHandle types.
+2. Implement a new `io_vtable` type, which will contain a dispatch table for
+   common operations. Each one of the files created in #1 above will implement
+   the routines for one `io_vtable` and supporting logic.
+3. Buffering will be refactored. Instead of the FileHandle PMC containing
+   several attributes for buffering, we'll instead use an `io_buffer` object
+   to hold buffering details. An encapsulated buffering API will take this
+   buffer structure and the relevant vtable and automatically perform
+   buffering if necessary.
+4. I am going to start separating out Pipe logic from FileHandle, though I'm
+   not planning to create a separate type for it quite yet.
+
+Once these things are done, I think the IO system will be much cleaner and
+much more hackable. This is lower priority right now until some of my ideas
+are vetted, but I'm glad I finally have a plan in mind after so many years of
+staring helplessly at this code.
+
 ### `whiteknight/sprintf_cleanup`
+
+The engine for our `sprintf` implementation is sort of old and messy. It's
+some very functional and very stable code, but it needs to be brought up to
+date with our modern coding and organizational standards.
+
+In the `whiteknight/sprintf_cleanup` branch I make several changes, most of
+which are entirely internal and should not affect users at all:
+
+1. I move the files from 'src/misc.c` and `src/spf_*.c` to
+   `src/string/sprintf.c` and `src/string/spf_*.c` respectively.
+2. I've cleaned up some header-file nonsense and created a new
+   `src/string/spf_private.h` header file to hold private data.
+3. I've changed the code to use a StringBuilder instead of the older (and
+   now-incorrect) repeated string concatenations. With immutable strings,
+   each concat operation creates a new STRING instead of appending to the
+   pre-allocated buffer, which is extremely wasteful. I haven't benchmarked
+   this change, but I suspect it has higher performance on longer, more
+   complicated formats.
+4. I've fixed a sub-optimal error message at request of benabik in
+   [ticket #759](https://github.com/parrot/parrot/issues/759).
+
+This branch is almost complete and I'll probably merge it this weekend.
+Besides the text of the exception message, there are no visible user changes
+so it shouldn't be controversial at all.
