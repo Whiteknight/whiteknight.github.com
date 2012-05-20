@@ -4,6 +4,11 @@ categories: [Parrot, GC]
 title: Destructors are Hard
 ---
 
+In my last post I mentioned some of the work I was trying to do with GC
+finalization and destructors. I promised I would publish a longer and more
+in-depth post about destructors, what the current state is, what I am doing,
+and what still needs to be done.
+
 Destructors are hard. The idea behind a destructor is a simple one: We want to
 have a piece of code that is guaranteed to execute when the associated object
 is freed. Memory allocated on the heap is going to get reclaimed en masse by
@@ -156,19 +161,20 @@ finalizer).
 
 There are a few options for what to do here. The first option is that we throw
 the exception like normal. This means that the loop code with the `MyObject`
-variables, which is running perfectly fine and has no reason to thrown an
+variables, which is running perfectly fine and has no reason to throw an
 exception by itself, is interrupted in mid loop. The backtrace, if we provide
 one at all, probably points to `MyObject` but with an exception type and
-exception message indicative of a failed FileHandle closing. This means that a
+exception message indicative of a failed FileHandle closing. Initial review by
+the poor developer doing the debugging will show that there are no filehandles
+trying to close inside this loop and then we get a bug report because a
 snippet of code which is running just fine exits abruptly with an error
-condition which it did not cause, leading to more than a little bit of
-confusion and possibly errors if we  try to call cleanup code to clean up
-things which aren't broken. The solution for this, wrapping every single line
-of code you ever write in exception handlers to catch the various possible
-exceptions thrown from GC finalizers, is untenable.
+condition which it did not cause. The solution for this, wrapping every single
+line of code you ever write in exception handlers to catch the various
+possible exceptions thrown from GC finalizers, is untenable from a developer
+perspective.
 
 A second option is that we somehow disallow things like exceptions from being
-thrown from Finalizers, because there's no real way to catch them rationally.
+thrown from destructors, because there's no real way to catch them rationally.
 This seems reasonable, until we start digging into details. How do we disallow
 these, by technical or cultural means? And if we're relying on cultural means
 (a line in a .html document somewhere that says "don't do that, and we won't
@@ -176,7 +182,7 @@ be responsible if you do!"), what happens if a hapless young programmer does
 it anyway without having first read all million pages of our hypothetical
 documentation? Does Parrot just crash? Does it enter into some kind of crazy
 undefined state? Obviously we would need some kind of technical mechanism to
-prevent bad things from happening in a finalizer, though the list of
+prevent bad things from happening in a destructor, though the list of
 potentially bad things is quite large indeed (throwing exceptions, allocating
 new PMCs, installing references to dead about-to-be-swept objects into living
 global PMCs, etc) and filtering these out by technical means would be both
@@ -195,6 +201,19 @@ don't know why a programmer would ever want to do that, but if it's possible
 you can be damned sure it will happen eventually. Also, when I say "pack up
 shop", we're probably talking about a `setjmp`/`longjump` call sequence, which
 isn't free to do.
+
+The general consensus among developers is that errors caused by programs
+running on top of Parrot should never segfault. If you're running bytecode in
+a managed environment, the worst that you should ever be able to get is an
+exception. Segmentation faults should be impossible to get from a pure-pbc
+example program.
+
+However, as soon as you introduce destructors, suddenly these things become
+possible. And not just from specifically malicious code, even moderately
+naive code will be able to segfault by storing a reference to a dieing PMC
+in a place accessible from live PMCs. Unless, that is, we try to do something
+expensive like filtering or sandboxing, which would absolutely kill
+performance.
 
 And this point I keep bringing up about dead objects installing references to
 themselves in living objects is not trivial. Our whole system is built around
@@ -230,7 +249,18 @@ a time. If one pool is being swept we could allocate PMCs from the next pool
 into a second pool, etc). Maybe we allocate headers directly from malloc
 while we're in a finalizer, keep them in a list and free them immediately
 after the finalizer exits. We have some options here, but this is still a very
-real problem that requires very careful consideration.
+real problem that requires very careful consideration. Something like a
+semi-space GC algorithm might help here, because we could allocate from the
+"dead space" before that space was freed.
+
+Or we could try to immediately free some PMCs during the first sweep pass, and
+use those headers as the free list from which to allocate during destructors.
+This raises some problems because it would be very difficult to identify PMCs
+which could be freed during the first pass without negating any references
+which are going to be accessed during the destructors. Also, we run into the
+(rare) occurance where all the PMCs swept during a particular GC run have
+destructors, and there are no "unused" headers to immediately free and
+recycle for destructors.
 
 Let's look at destructors from another angle. Obviously a garbage-collected
 system is supposed to free the programmer up from having to manually manage
@@ -248,14 +278,27 @@ it can silently fail, does it matter if the destructor was called at all?
 
 Another viewpoint is that destructors don't need to be black-boxes, and we
 don't care if they have problems so long as they've given a best effort to
-free the resources and they have an opportunity to log problems in case
-somebody has a few moments to spare reading through log files. After all, if
-a FileHandle fails to close in an automatically-invoked destructor, it also
-would have failed to close in a manually-invoked one and what are you going
-to do about it? If the thing won't close, it won't close. You can either
-log the failure and keep going with your program (like our destructor would
-have done automatically) or you can raise hell and possibly terminate the
-program (like what *could* happen if an exception is thrown from a
-destructor). In other words, when you're talking about failures related to
-basic resources at the OS level, there aren't many good options when you're
-writing programs at the Parrot level.
+free the resources, those efforts have a decent expected chance of success,
+and they have an opportunity to log problems in case somebody has a few
+moments to spare reading through log files. After all, if a FileHandle fails
+to close in an automatically-invoked destructor, it also would have failed to
+close in a manually-invoked one and what are you going to do about it? If the
+thing won't close, it won't close. You can either log the failure and keep
+going with your program (like our destructor would have done automatically) or
+you can raise hell and possibly terminate the program (like what *could*
+happen if an exception is thrown from a destructor). In other words, when
+you're talking about failures related to basic resources at the OS level,
+there aren't many good options when you're writing programs at the Parrot
+level.
+
+I suspect that what we are going to end up with is a system where we
+allocate a temporary managed pool of PMCs to be available, and allocate all
+PMCs during a destructor from that pool. After GC, we clear the emergency
+pool at once. This solution adds a certain amount of complexity to the GC and
+also does nothing to deal with the zombie references problem I've mentioned
+several times. We'd have to make a stipulation that PMCs allocated during
+a destructor *may not* themselves have automatic destructors.
+
+Things start to get a little bit complicated no matter what path we choose.
+This is the kind of issue where we're going to need lots more input,
+especially from our users.
