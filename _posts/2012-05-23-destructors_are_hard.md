@@ -4,10 +4,21 @@ categories: [Parrot, GC]
 title: Destructors are Hard
 ---
 
+<<<<<<< HEAD:drafts/gc_destructors.md
 In my last post I mentioned some of the work I was trying to do with GC
 finalization and destructors. I promised I would publish a longer and more
 in-depth post about destructors, what the current state is, what I am doing,
 and what still needs to be done.
+=======
+In [my last post](/2012/05/20/pending_branchwork.html) I mentioned some
+work involving the GC, finalization and destructors. Today I'm going to
+expand on some of those ideas, talk about what the current state of
+destruction and finalization are in Parrot, some of the problems we have with
+coming up with better solutions, and some of the things I and others are
+working on to get this all working as our users expect us to. I apologize
+in advance for such a long post, there's a lot of information to share, and
+hopefully a much larger architectural discussion to be started.
+>>>>>>> 3d0a502723cb7124eb717d7e82bac5ecc567ac31:_posts/2012-05-23-destructors_are_hard.md
 
 Destructors are hard. The idea behind a destructor is a simple one: We want to
 have a piece of code that is guaranteed to execute when the associated object
@@ -218,15 +229,33 @@ performance.
 And this point I keep bringing up about dead objects installing references to
 themselves in living objects is not trivial. Our whole system is built around
 the premise that objects which are referenced are alive and objects which are
-no longer referenced can be reclaimed by GC. If we turn that assumption around
-and say that dead objects may still be referenced by the system, then we lose
-almost all of the benefits that our mark and sweep GC has to offer. It's not
+no longer referenced can be reclaimed by GC. Throughout most of the system we
+dereference pointers as if they point to valid memory locations or to live
+PMCs. If we turn that assumption around and say that dead objects may still be
+referenced by the system, then we lose almost all of the benefits that our
+mark and sweep GC has to offer. Specifically we would either have to install
+tests for "liveness" around *every single PMC pointer access*, which would
+bring performance to a standstill. Otherwise, we need to have a policy that
+says the user at the PIR level is able to create segfaults without
+restriction, though officially we declare it to be a bad idea. It's not
 just a matter of having to test PMCs to make sure they are alive, the memory
 could be reclaimed and used for some other purpose entirely! Meerly accessing
 a reclaimed PMC could cause problems (segfaults, etc) or, if the PMC has
 already been recycled into something like a transparent proxy for a network
 resource, send network requests to do things that you don't want to have
-happen!
+happen! The security implications are troubling *at best*.
+
+The only real solution I can come up with to this problem, and it's not a very
+good one, is to add a "purgatory" section to the GC, where we put PMCs during
+GC sweep but we do not actually free them. The next time GC runs, anything
+which is still in purgatory is clearly not referenced and can be freed
+immediately. Anything that is no longer in purgatory has been "resurrected"
+by some shenanigans and has to be treated as still being alive *even though
+its destructor has already been called*. In other words, we take a performance
+hit and enable zombification in order to prevent segfaults. I don't know what
+we want to do here, this is probably the kind of decision best left to the
+architect (or tech-savvy clergy) but I just want to point out that none of our
+options are great.
 
 I've also brought up the problem with allocating new objects during a
 finalizer. Why is this a problem? Keep in mind that GC tends to execute when
@@ -241,7 +270,7 @@ finalizers. Every time a finalizer calls a method or boxes a string, or
 does any of a million other benign-sounding things PMCs get allocated. If we
 try to allocate a PMC when there are no PMCs on the free list and we're
 already in the middle of GC sweep, the system may trigger another recursive
-GC run
+GC run.
 
 Another option is that we could maintain multiple pools and only sweep one at
 a time. If one pool is being swept we could allocate PMCs from the next pool
@@ -249,6 +278,7 @@ a time. If one pool is being swept we could allocate PMCs from the next pool
 into a second pool, etc). Maybe we allocate headers directly from malloc
 while we're in a finalizer, keep them in a list and free them immediately
 after the finalizer exits. We have some options here, but this is still a very
+<<<<<<< HEAD:drafts/gc_destructors.md
 real problem that requires very careful consideration. Something like a
 semi-space GC algorithm might help here, because we could allocate from the
 "dead space" before that space was freed.
@@ -261,23 +291,35 @@ which are going to be accessed during the destructors. Also, we run into the
 (rare) occurance where all the PMCs swept during a particular GC run have
 destructors, and there are no "unused" headers to immediately free and
 recycle for destructors.
+=======
+real problem that requires very careful consideration. Again, I don't have an
+answer here, just a long list of terrible options that need to be sorted
+according to the "lesser of all evils" algorithm.
+>>>>>>> 3d0a502723cb7124eb717d7e82bac5ecc567ac31:_posts/2012-05-23-destructors_are_hard.md
 
 Let's look at destructors from another angle. Obviously a garbage-collected
 system is supposed to free the programmer up from having to manually manage
-memory (at least) and possibly other resources as well. You make a mess, the
-GC comes along after you and guarantees that your mess gets cleaned up. On one
-hand the argument can be made that if you really care about a resource being
+memory (at least) and possibly other resources as well. You make a mess and
+don't want to clean it yourself, the GC comes along after you and takes
+care of the things you don't wnat to do yourself. On one hand the argument
+can be made that if you really care about a resource being
 cleaned in a responsible, timely manner, that you call an explicit finalizer
 yourself and leaving those kinds of tasks to the finalizer is akin to saying
 "I don't care about that object and whatever happens, happens." After all, if
 you can't throw an exception from a destructor and if the destructor is called
 outside normal program flow with no opportunity to report back even the
 simplest of success/failure conditions, it really doesn't matter from the
-standpoint of the programmer whether it succeeded or silently failed. And if
-it can silently fail, does it matter if the destructor was called at all?
+standpoint of the programmer whether it succeeded or silently failed. Further,
+if the resource is sensitive, you don't clean it explicitly and Parrot later
+crashes and segfaults because some uninformed user created a zombie PMC
+reference, your destructor cannot and will not get called no matter what. If
+all sorts of things at multiple levels can go wrong and prevent your
+destructor from running, does it *really* matter if the destructor gets called
+at all?
 
 Another viewpoint is that destructors don't need to be black-boxes, and we
 don't care if they have problems so long as they've given a best effort to
+<<<<<<< HEAD:drafts/gc_destructors.md
 free the resources, those efforts have a decent expected chance of success,
 and they have an opportunity to log problems in case somebody has a few
 moments to spare reading through log files. After all, if a FileHandle fails
@@ -302,3 +344,29 @@ a destructor *may not* themselves have automatic destructors.
 Things start to get a little bit complicated no matter what path we choose.
 This is the kind of issue where we're going to need lots more input,
 especially from our users.
+=======
+free the resources and they have an opportunity to log problems in case
+somebody has a few moments to spare reading through log files. After all, if
+a FileHandle fails to close in an automatically-invoked destructor, it also
+would have failed to close in a manually-invoked one and what are you going
+to do about it? If the thing won't close, it won't close. You can either
+log the failure and keep going with your program (like our destructor would
+have done automatically) or you can raise hell and possibly terminate the
+program (like what *could* happen if an exception is thrown from a
+destructor). In other words, when you're talking about failures related to
+basic resources at the OS level, there aren't many good options when you're
+writing programs at the Parrot level. If you're not so hot at OS
+administration, there might not be anything you can do no matter what.
+
+In Parrot we really want to enable PMC destruction and GC finalization.
+As things stand now you can run `destroy` vtables written in C, usually
+without issue. However when we expose this functionality to the user we are
+talking about executing PBC, in a nested runloop (at least one!), with fresh
+allocations and all the capabilities of PBC at your disposal. As soon as you
+open that can of worms, the many problems and problematic possibilities become
+manifest. The security concerns become real. The performance implications
+become real. I'm not saying that these are problems we can't solve, I'm only
+pointing out that they haven't been solved already because they are hard
+problems with real trade-offs and some tough (and unpopular) decisions to be
+made.
+>>>>>>> 3d0a502723cb7124eb717d7e82bac5ecc567ac31:_posts/2012-05-23-destructors_are_hard.md
