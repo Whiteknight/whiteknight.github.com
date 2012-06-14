@@ -99,21 +99,21 @@ implemented in Parrot master:
    data we've found in the buffer.
 5. Append all the characters we've found to the STRING.
 6. If we've found the delimiter, we're done. Return it to the user.
-7. Otherwise, check if we are at the end of file for the input. If so, go to
-   #8. If not end of file, go to #9.
+7. Otherwise, check if we are at the end of file for the input. If so, go to 8.
+   If not end of file, go to 9.
 8. Check that the last codepoint is complete and has all its bytes. If so,
    return the STRING to the user. If not, throw an exception about a
    malformed string.
 9. Check that the last codepoint is complete and has all its bytes. If so,
-   go to #10. Otherwise, go to #11.
-10. Refill the buffer and go to #3.
+   go to 10. Otherwise, go to 11.
+10. Refill the buffer and go to 3.
 11. Determine how many more bytes we need to read to complete the last
     codepoint.
 12. Refill the buffer, and check that we have at least that many bytes
-    available to read. If so, go to #13. Otherwise, throw an exception about
+    available to read. If so, go to 13. Otherwise, throw an exception about
     a malformed string input.
 13. Read in the necessary number of bytes (1, 2 or 3 at most) from the buffer
-    and go to #3.
+    and go to 3.
 
 If you're reading an ASCII or fixed8 string the logic obviously collapses
 down to something a little bit more manageable. Also, this same logic, almost
