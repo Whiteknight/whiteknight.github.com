@@ -5,9 +5,9 @@ title: Reading a Line of Text
 ---
 
 In terms of usage, there aren't too many IO-related features in Parrot's
-user interface than the `readline` method. It does exactly what you tell it
-to do: read a line of text from the given file and return that line of text
-as a Parrot string. Easy.
+user interface more straight-forward than the `readline` method. It does
+exactly what you tell it to do: read a line of text from the given file and
+return that line of text as a Parrot string. Easy.
 
 Tonight I was looking at some of the old code to get an idea about expected
 semantics for some tests that need fixing. Let's look at some code:
