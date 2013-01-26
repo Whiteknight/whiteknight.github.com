@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [DotNet, EntityFramework]
-title: Entity Framework Code-Only Migrations
+title: Entity Framework Code Only Migrations
 ---
 
 I've been using Entity Framework 4.4 at work a lot recently, and as part of that I've been running
