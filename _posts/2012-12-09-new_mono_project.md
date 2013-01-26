@@ -29,7 +29,7 @@ like it plenty despite it's shortcomings.
 I scratched out a few ideas and designs in my notebook. I decided I wanted to
 use some kind of dependency injection/inversion of control/service locator
 feature. I've used [Unity](http://unity.codeplex.com/) in the past and loved it,
-but I wouldn't be against using Ninject or something else too. I also want
+but I wouldn't be against using [Ninject]() or something else too. I also want
 to use some kind of ORM to make persistance a little easier.
 
 Now, I can already hear some people mumbling to themselves about all the many
