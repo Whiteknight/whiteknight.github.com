@@ -20,8 +20,6 @@ Most tutorials on the topic explain the process through the use of the Package M
 Visual Studio. I have slightly different requirements and so I'm going to try to do the same exact
 process using the C# APIs directly.
 
-Here's a short but helpful blog post where I started my search:
-
 http://romiller.com/2012/02/09/running-scripting-migrations-from-code/
 
 ### Create Your DbContext and POCO Classes
@@ -38,7 +36,6 @@ A Migration Configuration is a class that derives from
 through the Package Manager Console with the `Enable-Migrations` command, or you can just create it
 in code yourself:
 
-``` C#
     namespace MyProgram.Migrations
     {
         using System;
@@ -70,81 +67,34 @@ in code yourself:
             }
         }
     }
-```
     
 ### Create a Migration
 
 Next step is to create a migration. A migration is any class which derives from 
 `System.Data.Entity.Migrations.DbMigration`. You can create one of these manually, but it's much
 easier to create them through the Package Manager Console with the `Add-Migration` command.
-
-    Add-Migration MyMigration
     
-Or, if you need some more options (if your solution has multiple projects, etc):
-
     Add-Migration -Name MyMigration -ProjectName MyProject -ConfigurationTypeName MyProject.Migrations.MyConfiguration
     
-You may also need to specify `-StartupProjectName`, if your migrations live in a library assembly.
+If you're like me, and your migrations are living in a different project from where your DbContext
+class is, you may need to add some additional arguments. `-StartupProjectName` is an interesting one
+to look at as well.
 
 Als, you can specify a separate connection string from what is provided by the default parameterless
 constructor of your DbContext by specifying  `-ConnectionStringName` (for a named connection string
 in your app.config/web.config file) or `-ConnectionString` and `-ConnectionProviderName` to use a
 value which is not in your app.config/web.config file. 
 
-What do all these options mean? Let's consider a solution with two projects:
-
-    MyProgram.sln
-        - MyProgram      (a .exe which references MyProgram.Core.dll)
-        - MyProgram.Core (a .dll Class Library)
-        
-        
-The project `MyProgram.Core.dll` contains our `DbContext` instance and the `MyProgram` assembly
-has the app.config with connection string information. 
-
-If we want our migrations to live in `MyProgram.Core` we can use this command as our base (plus any
-other options we need to add):
-
-    Add-Migration MyMigration -ProjectName MyProgram.Core -StartupProjectName MyProgram ...
-
-If, on the other hand, we want the migrations to live in `MyProgram`, the .exe instead of the .dll,
-we can use this version:
-
-    Add-Migration MyMigration -ProjectName MyProgram -StartupProjectName MyProject ...
-    
-
-If you do not specify `-ProjectName` or `-StartupProjectName`, the `Add-Migration` command will
-attempt to use whichever project you have flagged as the "default startup project" in the solution
-explorer (whichever project runs when you press F5).
-
-What if I want to separate my migrations out into a different assembly entirely, one which isn't
-included in my production deployment? Here's another example solution:
-
-    MyProgram.sln
-        - MyProgram                 (the production deployed .exe)
-        - MyProgram.Core            (where our DbContext and model classes live)
-        - MyProgram.DbMigration     (where our migration code will live, references MyProgram.Core.dll)
-
-
-In this case, we can use a command like this:
-
-    Add-Migration MyMigration -ProjectName MyProgram.DbMigration -StartupProjectName MyProgram ...
-    
-You're going to have to play with some of the options for different configurations. If the 
-`Add-Migrations` command says something's wrong, try tweaking your values and adding more info to
-the commandline.
-
-### Run the Migrations (Some Recipes)
+### Run the Migrations
 
 Now that you've got migrations and a configuration, you can run the migrations manually. Here are
 some snippets from a console program which does exactly this:
 
-``` C#
     private void DoDbUpdate()
     {
         DbMigrator migrator = new DbMigrator(new MyConfiguration());
         migrator.Update();
     }
-```
     
 Let's take a minute to step back and ask how this all works. You build your assembly and run it. The
 `DbMigrator` class uses reflection to read out all classes from your assembly, and find the ones
@@ -156,7 +106,6 @@ When you call `DbMigrator.Update()`, it searches for all migrations, removes the
 have entries in the table, and orders them according to timestamp. This is the list of pending
 migrations. You can get that list like this:
 
-``` C#
     private void DoDbUpdate()
     {
         DbMigrator migrator = new DbMigrator(new MyConfiguration());
@@ -164,11 +113,9 @@ migrations. You can get that list like this:
             Console.WriteLine(migration);
         migrator.Update();
     }
-```
     
 You can also get the raw SQL script which is going to be used:
 
-``` C#
     private void GetDbUpdateScript()
     {
         DbMigrator migrator = new DbMigrator(new MyConfiguration());
@@ -176,13 +123,11 @@ You can also get the raw SQL script which is going to be used:
         string script = scripter.ScriptUpdate(null, null);
         Console.WriteLine(script);
     }
-```
     
 Running the scripting decorator clears out the list of pending migrations from the migrator. If you
 want to generate the script first (for logging) and then run the migration, you need to create two
 migrators:
 
-``` C#
     private void GetDbUpdateScriptAndUpdate()
     {
         MyConfiguration myConfig = new MyConfiguration();
@@ -194,65 +139,25 @@ migrators:
         migrator = new DbMigrator(myConfig);
         migrator.Update();
     }
-```
-    
-Another thing we could try is to create a logging object, and use a logging decorator to log
-progress. This mechanism will also output the raw SQL text, but will do so piecewise intermixed with
-other information (so you'll need to filter out what is and what is not part of the SQL script):
-
-``` C#
-    public class MyLogger : System.Data.Entity.Migrations.Infrastructure.MigrationsLogger
-    {
-        public override void Info(string message)
-        {
-            // Short status messages come here
-        }
-
-        public override void Verbose(string message)
-        {
-            // The SQL text and other info comes here
-        }
-
-        public override void Warning(string message)
-        {
-            // Warnings and other bad messages come here
-        }
-    }
-```
-    
-Once we have a logger, we can use it in our migration:
-
-``` C#
-    private void DoDbUpdateWithLogging()
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        MigratorLoggingDecorator logger = new MigratorLoggingDecorator(migrator, new MyLogger());
-        logger.Update();
-    }
-```
     
 We can update to a specific migration, or we can rollback to a specific migration by name. Remember,
 the "name" used by the migrator is a combination of the timestamp and the name you gave it at the
 console.
 
-``` C#
     private void UpdateOrRollbackTo(string name)
     {
         DbMigrator migrator = new DbMigrator(new MyConfiguration());
         migrator.Update(name);
     }
-```
     
 And what if you want to completely trash the DB, undo all migrations, delete everything, and start
 over?
 
-``` C#
     private void CompletelyTrashDb()
     {
         DbMigrator migrator = new DbMigrator(new MyConfiguration());
         migrator.Update("0");
     }
-```
 
 ## What's My Use Case?
 
