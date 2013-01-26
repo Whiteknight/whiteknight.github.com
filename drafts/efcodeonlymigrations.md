@@ -20,8 +20,6 @@ Most tutorials on the topic explain the process through the use of the Package M
 Visual Studio. I have slightly different requirements and so I'm going to try to do the same exact
 process using the C# APIs directly.
 
-http://romiller.com/2012/02/09/running-scripting-migrations-from-code/
-
 ### Create Your DbContext and POCO Classes
 
 I won't go into detail about that here. There are plenty of cool resources for this purpose 
