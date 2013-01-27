@@ -262,15 +262,15 @@ private void CompletelyTrashDb()
 So what exactly is my use-case here? Why don't I just stick with the Package Manager Console like
 many other tutorials do? I have a few criteria:
 
-1) I need to seed the new DB with a lot of complex data, pulled from another source, which needs to
+1. I need to seed the new DB with a lot of complex data, pulled from another source, which needs to
    be updated regularly.
-2) I may have more than one DB, for multiple instances of my application. Connection strings for all
+2. I may have more than one DB, for multiple instances of my application. Connection strings for all
    of these may be kept in another DB or a file or somewhere else. All of these need to be
    kept in sync, and a script that runs a migration on all targets is better than a command which
    runs on only one and needs to be manually updated.
-3) I'd like the ability to log the SQL scripts which are used for the migration, for various
+3. I'd like the ability to log the SQL scripts which are used for the migration, for various
    purposes.
-4) I'd like to be able to do some scripted unit testing where we create and migrate a test DB from
+4. I'd like to be able to do some scripted unit testing where we create and migrate a test DB from
    scratch, seed it with test data, and use that for testing. I would like these temporary test
    DBs to be identical to the production ones.
 
