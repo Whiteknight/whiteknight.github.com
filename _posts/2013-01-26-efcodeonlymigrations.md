@@ -22,7 +22,7 @@ process using the csharp APIs directly.
 
 Here's a short but helpful blog post where I started my search:
 
-http://romiller.com/2012/02/09/running-scripting-migrations-from-code/
+[http://romiller.com/2012/02/09/running-scripting-migrations-from-code/]
 
 ### Create Your DbContext and POCO Classes
 
@@ -38,7 +38,7 @@ A Migration Configuration is a class that derives from
 through the Package Manager Console with the `Enable-Migrations` command, or you can just create it
 in code yourself:
 
-
+{% highlight csharp %}
   namespace MyProgram.Migrations
   {
       using System;
@@ -70,6 +70,7 @@ in code yourself:
           }
       }
   }
+{% endhighlight %}
 
 
 ### Create a Migration
