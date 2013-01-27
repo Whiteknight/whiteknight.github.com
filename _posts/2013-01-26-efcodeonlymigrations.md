@@ -39,37 +39,37 @@ through the Package Manager Console with the `Enable-Migrations` command, or you
 in code yourself:
 
 {% highlight csharp %}
-  namespace MyProgram.Migrations
-  {
-      using System;
-      using System.Data.Entity;
-      using System.Data.Entity.Migrations;
-      using System.Linq;
-      using System.Reflection;
-      using MyProgram;
+namespace MyProgram.Migrations
+{
+    using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Migrations;
+    using System.Linq;
+    using System.Reflection;
+    using MyProgram;
 
-      internal sealed class MyConfiguration : DbMigrationsConfiguration<MyProgram.MyDbContext>
-      {
-          public Configuration()
-          {
-              AutomaticMigrationsEnabled = false;
+    internal sealed class MyConfiguration : DbMigrationsConfiguration<MyProgram.MyDbContext>
+    {
+        public Configuration()
+        {
+            AutomaticMigrationsEnabled = false;
 
-              // These things are not strictly necessary, but are helpful when the assembly where
-              // the migrations stuff lives is different from the assembly where the DbContext
-              // lives. For instance, you may not want to run migrations from a separate
-              // development-time console program, and not have that code included in production
-              // assemblies.
-              MigrationsAssembly = Assembly.GetExecutingAssembly();
-              MigrationsNamespace = "MyProgram.Migrations";
+            // These things are not strictly necessary, but are helpful when the assembly where
+            // the migrations stuff lives is different from the assembly where the DbContext
+            // lives. For instance, you may not want to run migrations from a separate
+            // development-time console program, and not have that code included in production
+            // assemblies.
+            MigrationsAssembly = Assembly.GetExecutingAssembly();
+            MigrationsNamespace = "MyProgram.Migrations";
 
-          }
+        }
 
-          protected override void Seed(MyProgram.MyDbContext context)
-          {
-              // TODO: Initialize seed data here
-          }
-      }
-  }
+        protected override void Seed(MyProgram.MyDbContext context)
+        {
+            // TODO: Initialize seed data here
+        }
+    }
+}
 {% endhighlight %}
 
 
@@ -183,18 +183,19 @@ Running the scripting decorator clears out the list of pending migrations from t
 want to generate the script first (for logging) and then run the migration, you need to create two
 migrators:
 
+{% highlight csharp %}
+private void GetDbUpdateScriptAndUpdate()
+{
+    MyConfiguration myConfig = new MyConfiguration();
+    DbMigrator migrator = new DbMigrator(myConfig);
+    MigratorScriptingDecorator scripter = new MigratorScriptingDecorator(migrator);
+    string script = scripter.ScriptUpdate(null, null);
+    Console.WriteLine(script);
 
-    private void GetDbUpdateScriptAndUpdate()
-    {
-        MyConfiguration myConfig = new MyConfiguration();
-        DbMigrator migrator = new DbMigrator(myConfig);
-        MigratorScriptingDecorator scripter = new MigratorScriptingDecorator(migrator);
-        string script = scripter.ScriptUpdate(null, null);
-        Console.WriteLine(script);
-
-        migrator = new DbMigrator(myConfig);
-        migrator.Update();
-    }
+    migrator = new DbMigrator(myConfig);
+    migrator.Update();
+}
+{% endhighlight %}
 
 
 Another thing we could try is to create a logging object, and use a logging decorator to log
@@ -202,23 +203,23 @@ progress. This mechanism will also output the raw SQL text, but will do so piece
 other information (so you'll need to filter out what is and what is not part of the SQL script):
 
 {% highlight csharp %}
-    public class MyLogger : System.Data.Entity.Migrations.Infrastructure.MigrationsLogger
+public class MyLogger : System.Data.Entity.Migrations.Infrastructure.MigrationsLogger
+{
+    public override void Info(string message)
     {
-        public override void Info(string message)
-        {
-            // Short status messages come here
-        }
-
-        public override void Verbose(string message)
-        {
-            // The SQL text and other info comes here
-        }
-
-        public override void Warning(string message)
-        {
-            // Warnings and other bad messages come here
-        }
+        // Short status messages come here
     }
+
+    public override void Verbose(string message)
+    {
+        // The SQL text and other info comes here
+    }
+
+    public override void Warning(string message)
+    {
+        // Warnings and other bad messages come here
+    }
+}
 {% endhighlight %}
 
 
