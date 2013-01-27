@@ -38,39 +38,39 @@ A Migration Configuration is a class that derives from
 through the Package Manager Console with the `Enable-Migrations` command, or you can just create it
 in code yourself:
 
-``` csharp
-    namespace MyProgram.Migrations
-    {
-        using System;
-        using System.Data.Entity;
-        using System.Data.Entity.Migrations;
-        using System.Linq;
-        using System.Reflection;
-        using MyProgram;
 
-        internal sealed class MyConfiguration : DbMigrationsConfiguration<MyProgram.MyDbContext>
-        {
-            public Configuration()
-            {
-                AutomaticMigrationsEnabled = false;
+  namespace MyProgram.Migrations
+  {
+      using System;
+      using System.Data.Entity;
+      using System.Data.Entity.Migrations;
+      using System.Linq;
+      using System.Reflection;
+      using MyProgram;
 
-                // These things are not strictly necessary, but are helpful when the assembly where
-                // the migrations stuff lives is different from the assembly where the DbContext
-                // lives. For instance, you may not want to run migrations from a separate
-                // development-time console program, and not have that code included in production
-                // assemblies.
-                MigrationsAssembly = Assembly.GetExecutingAssembly();
-                MigrationsNamespace = "MyProgram.Migrations";
+      internal sealed class MyConfiguration : DbMigrationsConfiguration<MyProgram.MyDbContext>
+      {
+          public Configuration()
+          {
+              AutomaticMigrationsEnabled = false;
 
-            }
+              // These things are not strictly necessary, but are helpful when the assembly where
+              // the migrations stuff lives is different from the assembly where the DbContext
+              // lives. For instance, you may not want to run migrations from a separate
+              // development-time console program, and not have that code included in production
+              // assemblies.
+              MigrationsAssembly = Assembly.GetExecutingAssembly();
+              MigrationsNamespace = "MyProgram.Migrations";
 
-            protected override void Seed(MyProgram.MyDbContext context)
-            {
-                // TODO: Initialize seed data here
-            }
-        }
-    }
-```
+          }
+
+          protected override void Seed(MyProgram.MyDbContext context)
+          {
+              // TODO: Initialize seed data here
+          }
+      }
+  }
+
 
 ### Create a Migration
 
@@ -138,13 +138,13 @@ the commandline.
 Now that you've got migrations and a configuration, you can run the migrations manually. Here are
 some snippets from a console program which does exactly this:
 
-``` csharp
-    private void DoDbUpdate()
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        migrator.Update();
-    }
-```
+{% highlight csharp %}
+private void DoDbUpdate()
+{
+    DbMigrator migrator = new DbMigrator(new MyConfiguration());
+    migrator.Update();
+}
+{% endhighlight %}
 
 Let's take a minute to step back and ask how this all works. You build your assembly and run it. The
 `DbMigrator` class uses reflection to read out all classes from your assembly, and find the ones
@@ -156,33 +156,33 @@ When you call `DbMigrator.Update()`, it searches for all migrations, removes the
 have entries in the table, and orders them according to timestamp. This is the list of pending
 migrations. You can get that list like this:
 
-``` csharp
-    private void DoDbUpdate()
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        foreach (string migration in migrator.GetPendingMigrations()
-            Console.WriteLine(migration);
-        migrator.Update();
-    }
-```
+{% highlight csharp %}
+private void DoDbUpdate()
+{
+    DbMigrator migrator = new DbMigrator(new MyConfiguration());
+    foreach (string migration in migrator.GetPendingMigrations()
+        Console.WriteLine(migration);
+    migrator.Update();
+}
+{% endhighlight %}
 
 You can also get the raw SQL script which is going to be used:
 
-``` csharp
-    private void GetDbUpdateScript()
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        MigratorScriptingDecorator scripter = new MigratorScriptingDecorator(migrator);
-        string script = scripter.ScriptUpdate(null, null);
-        Console.WriteLine(script);
-    }
-```
+{% highlight csharp %}
+private void GetDbUpdateScript()
+{
+    DbMigrator migrator = new DbMigrator(new MyConfiguration());
+    MigratorScriptingDecorator scripter = new MigratorScriptingDecorator(migrator);
+    string script = scripter.ScriptUpdate(null, null);
+    Console.WriteLine(script);
+}
+{% endhighlight %}
 
 Running the scripting decorator clears out the list of pending migrations from the migrator. If you
 want to generate the script first (for logging) and then run the migration, you need to create two
 migrators:
 
-``` csharp
+
     private void GetDbUpdateScriptAndUpdate()
     {
         MyConfiguration myConfig = new MyConfiguration();
@@ -194,13 +194,13 @@ migrators:
         migrator = new DbMigrator(myConfig);
         migrator.Update();
     }
-```
+
 
 Another thing we could try is to create a logging object, and use a logging decorator to log
 progress. This mechanism will also output the raw SQL text, but will do so piecewise intermixed with
 other information (so you'll need to filter out what is and what is not part of the SQL script):
 
-``` csharp
+{% highlight csharp %}
     public class MyLogger : System.Data.Entity.Migrations.Infrastructure.MigrationsLogger
     {
         public override void Info(string message)
@@ -218,41 +218,42 @@ other information (so you'll need to filter out what is and what is not part of 
             // Warnings and other bad messages come here
         }
     }
-```
+{% endhighlight %}
+
 
 Once we have a logger, we can use it in our migration:
 
-``` csharp
-    private void DoDbUpdateWithLogging()
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        MigratorLoggingDecorator logger = new MigratorLoggingDecorator(migrator, new MyLogger());
-        logger.Update();
-    }
-```
+{% highlight csharp %}
+private void DoDbUpdateWithLogging()
+{
+    DbMigrator migrator = new DbMigrator(new MyConfiguration());
+    MigratorLoggingDecorator logger = new MigratorLoggingDecorator(migrator, new MyLogger());
+    logger.Update();
+}
+{% endhighlight %}
 
 We can update to a specific migration, or we can rollback to a specific migration by name. Remember,
 the "name" used by the migrator is a combination of the timestamp and the name you gave it at the
 console.
 
-``` csharp
-    private void UpdateOrRollbackTo(string name)
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        migrator.Update(name);
-    }
-```
+{% highlight csharp %}
+private void UpdateOrRollbackTo(string name)
+{
+    DbMigrator migrator = new DbMigrator(new MyConfiguration());
+    migrator.Update(name);
+}
+{% endhighlight %}
 
 And what if you want to completely trash the DB, undo all migrations, delete everything, and start
 over?
 
-``` csharp
-    private void CompletelyTrashDb()
-    {
-        DbMigrator migrator = new DbMigrator(new MyConfiguration());
-        migrator.Update("0");
-    }
-```
+{% highlight csharp %}
+private void CompletelyTrashDb()
+{
+    DbMigrator migrator = new DbMigrator(new MyConfiguration());
+    migrator.Update("0");
+}
+{% endhighlight %}
 
 ## What's My Use Case?
 
