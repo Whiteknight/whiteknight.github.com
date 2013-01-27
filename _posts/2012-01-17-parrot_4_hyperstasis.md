@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Parrot, Release, 4.0]
+categories: [Parrot, Release, "4.0"]
 title: Parrot 4.0.0 "Hyperstasis" Released!
 ---
 
