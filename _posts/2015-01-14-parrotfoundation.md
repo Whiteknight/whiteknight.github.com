@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Parrot, Foundation]
-title: Foundation Parrot
+title: The Parrot Foundation
 ---
 
 This post is quite late. Late by years. The problem is that there hasn't been 
