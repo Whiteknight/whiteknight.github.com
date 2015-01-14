@@ -10,5 +10,7 @@ snippets = [
 "Of course DataContextSessionContextRelationFactory implements IDataContextSessionContextRelationFactory!",
 "Optimize? We can just add another box to the cluster",
 "If we aren't going to meet the deadline, we can just bring in some of the guys from the other team to help",
-"I can just validate the URL with a regular expression! It will be easy."
+"I can just validate the URL with a regular expression! It will be easy.",
+"I like to write everything myself, I don't trust third party libraries or anything open source.",
+"If we need more disk space, just delete the log files"
 ];
