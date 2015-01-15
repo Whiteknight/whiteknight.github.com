@@ -364,6 +364,13 @@ have been the best contenders) but then we would have gone from one active
 downstream project to none, and that would have been instant death for the
 project. Out of the fry pan, into the fire.
 
+I've been saving this link for a long time, because when I read it, I
+immediately recognized the sentiment as my own, only better stated. If you want
+a better discussion of my thoughts on Perl and especially Perl6, this is worth
+the read:
+
+[http://outspeaking.com/words-of-technology/why-perl-didnt-win.html](http://outspeaking.com/words-of-technology/why-perl-didnt-win.html)
+
 I think there's hope for Perl6, and I sincerely wish that language well. 
 They aren't going to see any kind of adoption until they are willing to put a 
 "complete and ready for production" sticker on the front of the box. If they are
