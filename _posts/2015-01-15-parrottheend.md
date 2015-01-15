@@ -13,7 +13,11 @@ Also, everything that I say here concerns Parrot of 2-3 years ago when I was
 still working on it. I know other people have continued to develop it so some
 of the problems I mention might already be resolved. This post is **absolutely
 not** intended to demoralize the people currently working on Parrot or future
-contributors who might be interested in joining. 
+contributors who might be interested in joining. All I can talk about is what I
+was thinking and feeling about the project, all of which is subjective and
+possibly incomplete or mistaken. In all this I want to make clear that I stopped
+working on Parrot because of my own personal goals and needs, which are almost
+certainly not the same for other people.
 
 ## The Dream of Parrot
 
