@@ -301,11 +301,11 @@ I've talked about P6 quite a lot because P6 was really the central player in all
 this. Without it, Parrot would have been nothing and would have had no purpose
 for existing at all. Parrot made many mistakes with respect to Perl6: 
 
-1) Not treating it like the Most Valuable Project
-2) Kicking it out of the Parrot repo and forcing it to become a separate, 
+1. Not treating it like the Most Valuable Project
+2. Kicking it out of the Parrot repo and forcing it to become a separate, 
    stand-alone project.
-3) Not catering to the needs of Perl6 more closely
-4) Acting like the needs of any other language were important at all, much
+3. Not catering to the needs of Perl6 more closely
+4. Acting like the needs of any other language were important at all, much
    less as important as the needs of Perl6.
 
 And again, I understand why people did it. They wanted Parrot to be language
