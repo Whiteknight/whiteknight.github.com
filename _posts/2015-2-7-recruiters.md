@@ -1,6 +1,6 @@
 ---
 title: Recruiters
-categories: [JobHunt],
+categories: [JobHunt]
 layout: post
 ---
 
