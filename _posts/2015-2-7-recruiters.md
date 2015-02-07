@@ -1,8 +1,8 @@
-----
+---
 title: Recruiters
 categories: [JobHunt],
 layout: post
-----
+---
 
 Hunting for a job can be a difficult process. Since I have some buddies who are
 going through the process now, and my current employer is hiring, I figured I
