@@ -1,11 +1,11 @@
-.highlight      {
+/*.highlight      {
     background: #000000;
     color: #C0C0C0;
     padding: 5px;
     border: 1px solid #3680C2;
     width: 100%;
     overflow: auto;
-}
+}*/
 /*.highlight .c   { color: #00DD00; font-style: italic }  Comment */
 .highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
 .highlight .k   { color: #008080; font-weight: bold } /* Keyword */
