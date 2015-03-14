@@ -62,9 +62,9 @@ keyword check and, if you match, invite you in. The interviewers will typically
 read your resume shortly before the interview starts, and only read closely
 enough to get a sense of you, and maybe direct some lines of questioning.
 
-** Do not put anything on your resume that you do not want to be asked about**
+**Do not put anything on your resume that you do not want to be asked about**
 
-** Anything you put on your resume can and will be used to direct the questions
+**Anything you put on your resume can and will be used to direct the questions
 you are asked.**
 
 We had a young woman come in to our office applying for a senior-level position
