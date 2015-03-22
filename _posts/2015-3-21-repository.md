@@ -57,7 +57,7 @@ public class Repository<T> {
         m_context.SaveChanges();
     }
 }
-{% endhightlight %}
+{% endhighlight %}
 
 In either case, this seems all well and good. We've implemented a Repository and possibly a Unit Of
 Work that both use the underlying `DbContext` and abstract it away so we can mock out our data store
