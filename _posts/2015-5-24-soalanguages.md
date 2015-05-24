@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Architecture, Design]
-title: The Singleton Pattern
+title: SOA Language Selection
 ---
 
 When you hear about Service Oriented Architecture in general, and Microservices specifically, you frequently hear about one of the common benefits: You can use the right tools for each individual job. Want to write a service with Node.js? Go for it. Want to write a service in Python or Ruby? Do it. Each individual service is so small, the thinking goes, that you can afford to experiment. Later, if you have to rewrite, it's easier to do.
