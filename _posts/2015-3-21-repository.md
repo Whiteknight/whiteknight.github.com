@@ -83,6 +83,7 @@ don't want to do this. But, for people on the fence, we can do a little bit of c
 analysis.
 
 **Reasons Why**
+
 1. We can easily mock our `IRepository<T>` and `IUnitOfWork` dependencies in our unit tests, giving
    us the ability to easily isolate tests from our database (making them faster and more reliable).
 2. We provide a much smaller, simpler interface on the EntityFramework types which are, arguably,
@@ -98,6 +99,7 @@ analysis.
    need to provide some kind of adaptor and IRepository is as good as any).
 
 **Reasons Why Not**
+
 1. It does look a little like needless indirection, especially when EntityFramework is already
    implementing the patterns we need.
 2. We can stub in `DbContext` and `DbSet<T>` in our unit tests to avoid hitting the database, giving
