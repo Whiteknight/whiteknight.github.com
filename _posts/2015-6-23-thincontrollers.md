@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: [Architecture]
-title: Thin Controllers, Thin View Models
+title: Thin Controllers and Proper ViewModels
 ---
 
 Everything on the web is MVC now (or MVP, or MVVM, which are separated more by nuance and discipline than by actual structure) and for good reason: It's a natural and straight-forward way to separate the concerns of display, data and logic. I find that getting trapped in this MVC structure, and trying to use it for more than it is intended for, can lead to big trouble.
