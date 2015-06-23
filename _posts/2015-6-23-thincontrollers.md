@@ -57,7 +57,7 @@ public ActionResult GetTheData(UserRequestModel userRequest)
   UserResponseModel userResponse = m_requestTranslator.Translate(domainResponse);
   return View(userResponse);
 }
-{% endhightlight %}
+{% endhighlight %}
 
 #### How Low Can You Go?
 
@@ -69,7 +69,7 @@ public ActionResult GetTheData(UserRequestModel userRequest)
   UserResponseModel userResponse = ControllerHelper.Dispatch<UserRequestModel, DomainRequest, DomainResponse, UserResponseModel, DataService>(userRequest);
   return View(userResponse);
 }
-{% endhightlight %}
+{% endhighlight %}
 
 But then again, many people (and many code analysis tools) would likely be pretty unhappy about all those type parameters and by the extremely abstract nature of this `Dispatch` method, not to mention the implied reliance on a Service Locator to find our `IRequstTranslator<UserRequestModel, DomainRequest>`, `IRequestTranslator<DomainResponse, UserResponseModel>`, our validator, our service, and anything else we wanted in there. Controller methods should be thin, but there is some price to pay if you make it *too thin*.
 
@@ -88,7 +88,7 @@ public UserResponseDto GetTheData(UserRequestDto userRequest)
   UserResponseDto userResponse = m_requestTranslator.Translate(domainResponse);
   return userResponse;
 }
-{% endhightlight %}
+{% endhighlight %}
 
 ## What's The Payoff?
 
