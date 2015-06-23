@@ -1,4 +1,4 @@
-pygments: true
+highlighter: pygments
 permalink: /:year/:month/:day/:title.html
 url: http://whiteknight.github.com
 exclude: [drafts]

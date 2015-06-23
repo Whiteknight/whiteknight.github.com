@@ -21,5 +21,8 @@ snippets = [
 "We're agile, we just don't really do sprints and our standups are always over an hour long.",
 "Have you tried turning it off and turning it back on again?",
 "It's not my fault my software runs out of memory. It's your fault for not installing more.",
-"What do you mean programming is hard? It's all just ones and zeros."
+"What do you mean programming is hard? It's all just ones and zeros.",
+"The users are confused, can we rewrite the whole app to be an Excel spreadsheet?",
+"Databases are no good. Store all the data in a file. Files are fast.",
+"Passwords are too hard to remember. I just use the word 'password' so I never forget"
 ];
