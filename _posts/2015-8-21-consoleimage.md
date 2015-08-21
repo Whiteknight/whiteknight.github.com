@@ -67,7 +67,7 @@ If we add in a rounding step to chop off the low-order bits (at this resolution,
 Maybe not quite as good as the Ruby-On-Linux version, but pretty impressive considering the limitations of DOS. Using library calls, it's just about the same length as the Ruby version:
 
 {% highlight csharp %}
-ing System;
+using System;
 using System.Drawing;
 
 namespace ConsoleImage.Viewer
@@ -84,4 +84,4 @@ namespace ConsoleImage.Viewer
 }
 {% endhighlight %}
 
-I have (started a little library)(http://github.com/Whiteknight/ConsoleImage) to play with this idea of rendering images to the windows console. It does a fair bit already in terms of resizing images, cropping images, animating GIFs and rendering images at various points in the console window. I don't want it to do too much more than that, though. The world clearly has no need for DOS-based image editing or anything crazy.
+I have [started a little library](http://github.com/Whiteknight/ConsoleImage) to play with this idea of rendering images to the windows console. It does a fair bit already in terms of resizing images, cropping images, animating GIFs and rendering images at various points in the console window. I don't want it to do too much more than that, though. The world clearly has no need for DOS-based image editing or anything crazy.
