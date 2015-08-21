@@ -1,7 +1,7 @@
 ---
 layout: post
-categories: [ExcitedAbout, Editors]
-title: "Exciting Today - Text Editors"
+categories: [Projects]
+title: "ConsoleImage"
 ---
 
 I saw a [blog post the other day about printing images to the Linux Terminal in 9 lines of Ruby](http://radek.io/2015/06/29/catpix/) The results were quite interesting so I thought to myself that it might be a fun little exercise to duplicate this utility in C#. After all, I thought to myself, if you can do it in 9 lines of ruby you must be able to do it in a dozen or so lines of C#. *I was wrong*.
