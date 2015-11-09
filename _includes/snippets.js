@@ -24,5 +24,8 @@ snippets = [
 "What do you mean programming is hard? It's all just ones and zeros.",
 "The users are confused, can we rewrite the whole app to be an Excel spreadsheet?",
 "Databases are no good. Store all the data in a file. Files are fast.",
-"Passwords are too hard to remember. I just use the word 'password' so I never forget"
+"Passwords are too hard to remember. I just use the word 'password' so I never forget",
+"If we prefix all the column names with the table name, the database becomes self-documenting!",
+"We use git but I don't like it. We're all pushing directly to master but we keep running into conflicts."
+"I don't know how to get better quality code. I've heard good things about unit tests, but I don't use them."
 ];
