@@ -219,7 +219,7 @@ The code we had in this application looked something like this:
 
 {% highlight csharp %}
 dynamic model = Newtownsoft.Json.JsonConvert.Deserialize(jsonString);
-{ %endhighlight %}
+{% endhighlight %}
 
 While this is decently fast for making prototype code, over time the strain on the system became
 huge. The reasons are two-fold. First, because there was no documentation anywhere about what was
