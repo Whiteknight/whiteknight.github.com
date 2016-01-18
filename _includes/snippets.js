@@ -26,6 +26,8 @@ snippets = [
 "Databases are no good. Store all the data in a file. Files are fast.",
 "Passwords are too hard to remember. I just use the word 'password' so I never forget",
 "If we prefix all the column names with the table name, the database becomes self-documenting!",
-"We use git but I don't like it. We're all pushing directly to master but we keep running into conflicts."
-"I don't know how to get better quality code. I've heard good things about unit tests, but I don't use them."
+"We use git but I don't like it. We're all pushing directly to master but we keep running into conflicts.",
+"I don't know how to get better quality code. I've heard good things about unit tests, but I don't use them.",
+"I've never really used design patterns, but I feel like they're probably a waste of time.",
+"Look, some methods are a few hundred lines long. It's not wrong, it's just the way things are."
 ];
