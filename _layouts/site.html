@@ -10,7 +10,8 @@
     <body>
         <div id="main-title-div" class="widebar">
             <!--<h1 id="main-title"><a href="{{ site.url }}">Whiteknight</a></h1>-->
-            <image src="{{ site.url }}/images/logo.png"/>
+            <!-- <image src="{{ site.url }}/images/logo.png"/>-->
+            <h1>Programming, Software and Code</h1>
             <div id="main-title-snippet">
                 <script type="text/javascript">
                     var snippets = new Array();
@@ -20,14 +21,14 @@
                 </script>
             </div>
             <div id="site-notice">
-                {% include notice.textile %}
+                {% include notice.md %}
             </div>
         </div>
         <div id="main-content">
             <div id="sidebar">
                 <div class="sidebar-section">
                     <h3 class="sidebar-heading">About</h3>
-                    {% include about.textile %}
+                    {% include about.md %}
                 </div>
                 <div class="sidebar-section">
                     <h3 class="sidebar-heading">Links</h3>
@@ -40,7 +41,7 @@
             </div>
         </div>
         <div id="main-footer" class="widebar">
-            {% include footer.textile %}
+            {% include footer.md %}
         </div>
         <script type="text/javascript">
             var disqus_shortname = 'afwknight';
