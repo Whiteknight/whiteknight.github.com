@@ -6,7 +6,7 @@ title: Acquaintance
 
 This year instead of coming up with one rediculous and implausible resolution, I came up with a handful of goals. One of these was the goal to work on a new software project every month, either starting something new or bringing something old to a point where it can be released and used by others. In the best case I finish the year with several public projects to my name, and in the worst case I leave a trail of a dozen half-assed incomplete messes. Only time will tell.
 
-For the month of January I decided to bring my library **Acquaintance**, which I started late in 2016, up to a 1.0 release. As of this writing, version 1.0.0-rc1 is released on nuget. This will become 1.0.0 when I can get a bit more real-world testing on it.
+For the month of January I decided to bring my library **Acquaintance**, which I started late in 2016, up to a 1.0 release. As of this writing, [version 1.0.0-rc1 is released on nuget](https://www.nuget.org/packages/Acquaintance). This will become 1.0.0 when I can get a bit more real-world testing on it.
 
 ## What is Acquaintance?
 

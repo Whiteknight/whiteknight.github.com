@@ -1,1 +1,1 @@
-My name is Andrew Whitworth, but Github calls me **Whiteknight**. I'm a Software Architect and open source contributor. I work primarily in the .NET space, but I have a variety of other interests as well.
+My name is Andrew Whitworth, but Github calls me Whiteknight. I'm a Software Architect and open source contributor. I work primarily in the .NET space, but I have a variety of other interests as well.
