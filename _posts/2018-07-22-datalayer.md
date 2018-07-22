@@ -4,8 +4,6 @@ categories: [datalayer]
 title: The Data Layer
 ---
 
-# The Data Layer
-
 The **data layer** is such a complicated beast, even though it serves a relatively simple purpose: provide persistant storage the application data. There are a number of different patterns that can be leveraged, in theory, giving the developer great flexibility. On the other hand there are a few common frameworks (ORMs and Micro-ORMs, etc) which provide some of these patterns but also impose steep limitations. The trade-offs you have to make just to get started with persistant storage can have severe long-term ramifications on the design of your entire application.
 
 Your application might not be large or sophisticated enough to warrant having a separate "layer" for data concerns. You save a little bit of organizational effort just keeping everything together, but you run into serious risks if your application does end up growing to a significant size and you lose the opportunity to practice some important concepts in application architecture. I would always try to do at least some basic separation and abstractoin with my data layer, unless I was in some kind of extreme circumstance (and I have a hard time even imagining what that circumstance might be).
