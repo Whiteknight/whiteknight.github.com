@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [projects, resolution2017]
+categories: [projects, resolution2017, acquaintance]
 title: Acquaintance
 ---
 
@@ -13,10 +13,10 @@ For the month of January I decided to bring my library **Acquaintance**, which I
 Acquaintance is an intra-process messaging library. It is designed for several use cases, among them:
 
 1) To facilitate late-bound communication between modules in a loosely-coupled system
-2) To help to isolate and abstract dependencies 
+2) To help to isolate and abstract dependencies
 3) To help with problems relating to thread synchronization and access to thread-unsafe resources
 
-I really suggest you [check out the site](http://whiteknight.github.io/Acquaintance) or 
+I really suggest you [check out the site](http://whiteknight.github.io/Acquaintance) or
 [browse through the repository on github](http://github.com/Whiteknight/Acquaintance) to get a better sense of what this library is, what it does, and how you can use it in your own projects.
 
 Acquaintaince started from a personal need while developing another piece of software. I was looking for an in-app messaging solution so I initially looked at [Postal.NET](https://github.com/rjperes/Postal.NET) (a .NET port of the popular [Postal.JS library](https://github.com/postaljs/postal.js)). That library didn't quite meet my needs, so I started to look elsewhere and found...nothing.
