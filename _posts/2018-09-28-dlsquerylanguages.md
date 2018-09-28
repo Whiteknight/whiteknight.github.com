@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Design]
+categories: [Design, datalayer]
 title: On DSL Query Languages
 ---
 
@@ -26,6 +26,7 @@ The author says that instead of creating a new single-purpose query language for
 
 I agree with this for the most part. It's very common that I wish MongoDB or InfluxDB or other data stores had an SQL or SQL-like query language that we could just use without having to learn some new custom query language. There are a few small caveats, however, which stop my support from reaching a full 100%:
 
+1. Please keep "business people" out of the database. It's hard enough to get databases to perform well without naive queries locking the whole thing down.
 1. SQL has become a relatively large language, so we're probably talking about just the Data Manipulation Language (DML) subset. Even with just this language subset, there are a number of clauses and features most non-RDBMS databases won't utilize, so it's probably a pipe-dream to expect we'll be able to take the same exact SQL statements between different storage engines. Even among SQL-based RDBMS engines like Microsoft SQL Server, Oracle, PostgreSQL, MySQL and SQLite, differences in dialect can be significant and can limit code portability.
 1. SQL was designed specifically for RDBMS engines and evolved together with them. It really was never designed to cover the non-RDBMS features or data storage ideas of other systems. It may have plenty of uses other than this, but it's not necessarily of universal application (though I do agree that it is very general and would be suitable for many applications where it is not currently used)
 1. For a system which has enough unique ideas and limitations, such as InfluxDB or ElasticSearch, a custom query DSL might do better to expose the particular abilities of the language without having to leave common clauses for the existing SQL language undefined.
