@@ -10,11 +10,11 @@ I saw [this blog post about DSL Query Languages](https://erikbern.com/2018/08/30
 
 One point that I particularly like because it reenforces my thesis about [CastIron](/2018/07/25/castiron.html), is this bit:
 
-    Take ORMs. Their alleged benefit is they cut down development time. But instead of writing SQL which everyone knows, I know how to scroll back and forth in some ORM documentation to figure out how to write my queries. On top of that, I have to spend time debugging why the ORM translated my query into some monstrosity that joins 17 tables using a full table scan.
+> Take ORMs. Their alleged benefit is they cut down development time. But instead of writing SQL which everyone knows, I know how to scroll back and forth in some ORM documentation to figure out how to write my queries. On top of that, I have to spend time debugging why the ORM translated my query into some monstrosity that joins 17 tables using a full table scan.
 
 My thoughts exactly. Later down he says:
 
-    Let’s dispel with the myth that ORMs make code cleaner. Join the embedded-SQL movement and discover a much more readable, much more straightforward way to query databases.
+> Let’s dispel with the myth that ORMs make code cleaner. Join the embedded-SQL movement and discover a much more readable, much more straightforward way to query databases.
 
 I didn't even realize there was a movement. Sign me up. I'll bring drinks and cookies.
 
@@ -22,7 +22,7 @@ I didn't even realize there was a movement. Sign me up. I'll bring drinks and co
 
 The author says that instead of creating a new single-purpose query language for every new storage technology, they should just use SQL. He says of SQL:
 
-    It’s a language everyone understands, it’s been around since the seventies, and it’s reasonably standardized. It’s easy to read, and can be used by anyone, from business people to engineers.
+> It’s a language everyone understands, it’s been around since the seventies, and it’s reasonably standardized. It’s easy to read, and can be used by anyone, from business people to engineers.
 
 I agree with this for the most part. It's very common that I wish MongoDB or InfluxDB or other data stores had an SQL or SQL-like query language that we could just use without having to learn some new custom query language. There are a few small caveats, however, which stop my support from reaching a full 100%:
 
