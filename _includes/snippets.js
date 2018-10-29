@@ -35,5 +35,11 @@ snippets = [
 "It doesn't matter what your commits are, just squash them all together",
 "We don't use third-party software, we develop everything in house",
 "We don't have time to test, but we never compromise on quality",
-"There's a new Angular release, so we have to rewrite the whole app again"
+"There's a new Angular release, so we have to rewrite the whole app again",
+"We can't change the deadline, we can't remove features, and we never compromise on quality",
+"The sales team promised we had the feature, so we've got to develop it quick",
+"We're going to have another meeting to determine why we have so many meetings",
+"I don't know exactly what I want the software to do, but I'll tell you when it isn't right",
+"We don't have the budget for maintenance, so just write the code the right way the first time",
+"That super-important high priority project you worked on last month? The client changed their mind"
 ];
