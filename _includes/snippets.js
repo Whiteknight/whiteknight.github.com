@@ -1,6 +1,7 @@
 snippets = [
-"Momma called the doctor and the doctor said, 'it's the new millenium, stop using FORTRAN'",
-"It's 8:00PM. Are your children properly encapsulated?",
+"A determined programmer can write FORTRAN in any language",
+"All these classes and layers are confusing, can't we jam it all into one method?",
+"We need more UML diagrams",
 "Best practices? No, we have our own unique way of using Subversion.",
 "Fancy terms like 'patterns', 'unit tests' and 'abstraction' aren't used around here.",
 "There's the right way, the wrong way, and our way. Do it our way.",
@@ -29,5 +30,10 @@ snippets = [
 "We use git but I don't like it. We're all pushing directly to master but we keep running into conflicts.",
 "I don't know how to get better quality code. I've heard good things about unit tests, but I don't use them.",
 "I've never really used design patterns, but I feel like they're probably a waste of time.",
-"Look, some methods are a few hundred lines long. It's not wrong, it's just the way things are."
+"Look, some methods are a few hundred lines long. It's not wrong, it's just the way things are.",
+"We call it Agile, but it's basically Waterfall with more meetings",
+"It doesn't matter what your commits are, just squash them all together",
+"We don't use third-party software, we develop everything in house",
+"We don't have time to test, but we never compromise on quality",
+"There's a new Angular release, so we have to rewrite the whole app again"
 ];
