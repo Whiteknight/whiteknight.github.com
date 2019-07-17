@@ -4,13 +4,13 @@ categories: [JobHunt]
 title: Architect Interview, Service Question
 ---
 
-This is a continuation of my previous post where I discussed some parts of our interview process. This time I'm going to go in-depth about my favorite part of the interview, which I think is the most insightful and interesting.
+This is a continuation of [my previous post](/2019/07/10/archinterview.html) where I discussed some parts of our interview process. This time I'm going to go in-depth about my favorite part of the interview, which I think is the most insightful and interesting.
 
 ## The Question
 
 The question, simple enough, goes something like this (you can adapt it to your needs, though I wouldn't give a question like this to a candidate who isn't expected to be an integral part of your design processes):
 
-	We are sending email marketing campaigns through a third party email provider. The provider sends us notifications for Delivered, Opened, Bounced, SpamBlock and Click-Through events. We need to collect these events into a data store and make the data available for queries which are all well-defined and known beforehand. The data should have a retention period of 1 year. The system should handle 100 campaigns per day, with an average of 100 emails per campaign.
+> We are sending email marketing campaigns through a third party email provider. The provider sends us notifications for Delivered, Opened, Bounced, SpamBlock and Click-Through events. We need to collect these events into a data store and make the data available for queries which are all well-defined and known beforehand. The data should have a retention period of 1 year. The system should handle 100 campaigns per day, with an average of 100 emails per campaign.
 
 This is an open-ended question by intention. There is a lot of opportunity for the candidate to ask questions like "how are we receiving the events from the third party provider?" ("REST" or "HTTP API", etc) or "What's the timeframe for generating reports?" ("near real-time" or "within a few minutes"). We tend to start simple and then expand the requirements by, for example, increasing the volume of incoming messages. We can usually identify the weaknesses of the candidate pretty quickly, so I like to really dig in to the areas of strength, and see just how deep the knowledge goes. Nobody is an expert in everything, so find what they are an expert in and bring that part out to shine.
 
