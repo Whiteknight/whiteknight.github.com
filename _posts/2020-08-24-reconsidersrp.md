@@ -4,9 +4,9 @@ categories: [Design, Theory]
 title: Reconsidering the Single Responsibility Principle
 ---
 
-There's a problem with the **Single Responsibility Principle** (SRP): *There's two of them*, and people (myself included) confuse the two all the time. The first is the original version formulated by Robert C. Martin ("Uncle Bob"), which is all about change and people. Most developers in my experience aren't familiar with this version, don't understand it or don't know how to apply it. The second is the more colloquial understanding which, while not supported by any authoritative source, seems to be well-known by and leads to some very good design results when it is applied.
+There's a problem with the **Single Responsibility Principle** (SRP): *There's two of them*, and people (myself included) confuse the two all the time. The first is the original version formulated by Robert C. Martin ("Uncle Bob"), which is all about change and people. Most developers in my experience aren't familiar with this version, don't understand it or don't know how to apply it. The second is the more colloquial understanding which, while not supported by any authoritative source, seems to be well-known and leads to some very good design results when it is applied.
 
-I frequently find myself thinking and even talking about SRP in terms of what I wish it was, not what it actually is. I wish it was a principle that provided clear **guidance**. How do we draw boundaries in a piece of software in a way that improves the understandability, maintainability and flexibility of it? I believe this is what the  idea of "singleness" at the heart of SRP could provide, if we could just find a better way to formulate it.
+I frequently find myself thinking and even talking about SRP in terms of what I wish it was, not what it actually is. I wish it was a principle that provided clear **guidance**. How do we draw boundaries in a piece of software in a way that improves the understandability, maintainability and flexibility of it? I believe this is what the idea of "singleness" at the heart of SRP should provide.
 
 ## Original Formulation
 
