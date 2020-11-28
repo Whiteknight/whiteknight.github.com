@@ -42,8 +42,12 @@ snippets = [
     "I don't know exactly what I want the software to do, but I'll tell you when it isn't right",
     "We don't have the budget for maintenance, so just write the code the right way the first time",
     "You're a programmer? Cool! I have an idea for an app",
+    "You're a programmer? Awesome! Hey can you help me reset the clock on my Blu-Ray player?",
     "Just hard-code the values, config files are too hard to manage",
     "I don't know what 'prototype' means, but it looks like it's working so I want it to go to production",
     "I want the programmers to be more productive, but I don't want to make any big changes",
-    "That super-important high priority project you worked on last month? The client changed their mind"
+    "That super-important high priority project you worked on last month? The client changed their mind",
+    "We don't need more training, better tools, or CI/CD. We just need the team to write more, better code in less time.",
+    "We lost some clients because of service quality issues, but I don't think our code needs to be improved",
+    "We can't use these 'best practices' because things work a little bit differently in our industry"
 ];
