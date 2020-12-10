@@ -97,11 +97,11 @@ In this case, objects of `MyClassA` and `MyClassB`, when cast to `IMyContract` s
 The `internal` keyword is a headache and if I could make any changes to the C# language removing it would be pretty high on my list of improvements. The problems of `internal` are compounded by the fact that it is the default access modifier for classes and so is used much more than it would be otherwise. My opinion on this matter, unpopular as it may be, is this: **all non-nested classes and structs should be public**. Why do I say this? Reasons:
 
 1. Any class which isn't public is not able to be easily and directly unit tested during development
-	1.1. You could use reflection to access these parts, but that adds a lot of brittleness to your suite,
-	1.1. You could include unit test code in your production assembly, which is generally frowned upon, or
-	1.1. You could just skip unit-testing these bits entirely because who really cares? (Don't say this. You should care)
+	1. You could use reflection to access these parts, but that adds a lot of brittleness to your suite,
+	1. You could include unit test code in your production assembly, which is generally frowned upon, or
+	1. You could just skip unit-testing these bits entirely because who really cares? (Don't say this. You should care)
 1. No abstractions are perfect. You may think hiding details from your users is a benefit, but when the abstraction inevitably leaks and the users need more flexibility, it's going to require a change to expose something which should have just been exposed in the first place
-	1.1. You can make clear, through class naming, namespace naming and good-old public documentation, which classes are the preferred pretty abstractions and which classes are the super-user nitty-gritty.
+	1. You can make clear, through class naming, namespace naming and good-old public documentation, which classes are the preferred pretty abstractions and which classes are the super-user nitty-gritty.
 1. If the class has any value at all, it likely has value to downstream users as well, so it should be exposed to them
 1. Giving users all the building blocks to compose their own solutions, as opposed to limiting them to just using narrow abstractions, makes your library more flexible, more usable, and more powerful.
 
