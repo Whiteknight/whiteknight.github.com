@@ -4,7 +4,7 @@ categories: [Design]
 title: Filter and Router Patterns
 ---
 
-As far as I'm concerned, a perfect method has a cyclomatic complexity of 1. It should contain a sequence of statements, read from top-to-bottom, left-to-right, which is as plain to read as it is simple to understand. This doesn't happen much. It's hard to reach perfection. But, it's still a good goal to strive for. The question then becomes, "how do I structure methods which cannot be perfect?" How do we manage and minimize imperfection? Refactoring and iterating are steps along a path, but we need to know what our destination looks like.
+As far as I'm concerned, **a perfect method has a cyclomatic complexity of 1**. It should contain a sequence of statements, read from top-to-bottom, left-to-right, which is as plain to read as it is simple to understand. This doesn't happen much. It's hard to reach perfection. But, it's still a good goal to strive for. The question then becomes, "how do I structure methods which cannot be perfect?" How do we manage and minimize imperfection? Refactoring and iterating are steps along a path, but we need to know what our destination looks like.
 
 **Where control flow primitives are unavoidable, they should at least be made consistent**. This is the thesis of this post. There are two general types or patterns of blocks which I personally try to pursue, and I suggest you do also: The **Filter** and the **Router**.
 
