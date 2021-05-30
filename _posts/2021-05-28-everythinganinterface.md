@@ -1,6 +1,6 @@
 ---
 layout: post
-categories: [Philosophical]
+categories: [Philosophical, Design]
 title: Interfaces On Everything
 ---
 
